@@ -18,12 +18,12 @@ library(taxize)
 
 if (!require("devtools")) install.packages("devtools")
 
-#Grid ----
+#map ----
 
 # Load spatial grid for plotting
-grid<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
+map<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
 #names of each cell
-ID_cell<-rownames(grid@data)
+ID_cell<-rownames(map@data)
 
 #Mammals----
 
@@ -32,8 +32,7 @@ load(file.path(results_dir,"mammals/mammalstrait.RData"))
 
     #Occurence 
     load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
-    #Check if each species have at least on occurence
-    occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
+
 
     #ID 
     load(file=file.path(data_dir,"mammals/MammalsID.RData"))
@@ -60,7 +59,8 @@ load(file.path(results_dir,"mammals/mammalstrait.RData"))
     mammalstrait<-mammalstrait[,-c(2,3)]
     
     occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
-    
+    #Check if each species have at least on occurence
+    occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
 
 #Birds----
 
