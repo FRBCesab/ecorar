@@ -196,16 +196,16 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
 #TODO : commentaires 
   who.remote <- function(who,remote){
   if (remote %in% TRUE) {
-    data_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALL_R","data")
-    results_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALL_R","results")
-    script_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALL_R","scripts")
+    data_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALLL_R","data")
+    results_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALLL_R","results")
+    script_dir <<- file.path("/home","nmouquet","Dropbox","SCIENCE","RALL","RALLL_R","scripts")
   } else {
     if (who %in% "NM") {
       data_dir <<- "data"
       results_dir <<- "results"
     } else {
-      data_dir <<- file.path("~/Dropbox","RALL","RALL_R","data")
-      results_dir <<- file.path("~/Dropbox","RALL","RALL_R","results")
+      data_dir <<- file.path("~/Dropbox","RALL","RALLL_R","data")
+      results_dir <<- file.path("~/Dropbox","RALL","RALLL_R","results")
     }
     script_dir <<-"scripts"
   }
