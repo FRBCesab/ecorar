@@ -65,8 +65,12 @@ library(rgdal)
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
-
-      FR_mammals <-  funrar(occ_mammals, disTraits_mammals, rel_abund = FALSE) #TODO : pour l'instant cela coince car matrice d'occ trop grande ... 
+      load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
+      
+      #TODO : pour l'instant cela coince car matrice d'occ trop grande ... 
+      
+      FR_mammals1 <-  funrar(occ_mammals[1:10,], disTraits_mammals, rel_abund = FALSE)
+      FR_mammals2 <-  funrar(occ_mammals[11:20,], disTraits_mammals, rel_abund = FALSE)
       
       
       FR_mammals$Ui$species <- as.character(FR_mammals$Ui$species)
