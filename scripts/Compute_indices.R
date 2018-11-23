@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=FALSE,who="NM")
 
 library(funrar)
 library(moments)
@@ -12,179 +12,181 @@ library(ade4)
 library(dplyr)
 library(gridExtra)
 library(cluster)
+library(rgdal)
 
-#map ----
+#LOAD TRAITS MAPS AND DISTRIB----
 
-# Load spatial grid for plotting
-map<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
-#names of each cell
-ID_cell<-rownames(map@data)
+  # Load spatial grid for plotting
+    map<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
+    #names of each cell
+      ID_cell<-rownames(map@data)
+    
+  # Load traits and distrib 
+    load(file=file.path(results_dir,"mammals/mammalsID.RData"))
+    load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
+    load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
 
-#LOAD TRAITS AND DISTRIB----
+  #Commun ID for mammalsID/occ_mammals/traitmammals ---
+    mammalsID<-mammalsID[mammalsID$checkname %in% mammalstrait$checkname,]
+    mammalstrait<-merge(mammalsID,mammalstrait,by="checkname")
+    rownames(mammalstrait)<-mammalstrait$ID
+    mammalstrait<-mammalstrait[,-c(2,3)]
+    occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
+    
+  #Check if each species have at least on occurence # TODO a reprendre car il ne check pas, il impose 
+    occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
 
-load(file=file.path(results_dir,"mammals/mammalsID.RData"))
-load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
-load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
-
-#Commun ID for mammalsID/occ_mammals/traitmammals ---
-mammalsID<-mammalsID[mammalsID$checkname %in% mammalstrait$checkname,]
-mammalstrait<-merge(mammalsID,mammalstrait,by="checkname")
-rownames(mammalstrait)<-mammalstrait$ID
-mammalstrait<-mammalstrait[,-c(2,3)]
-
-occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
-#Check if each species have at least on occurence
-occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
 #----
 
 #COMPUTE FR ----
 
-#Funrare
+  ## Mammals
+    
+    mammalstrait<-mammalstrait[,-1]
+    
+      ###Format the traits 
 
+        diet <- prep.fuzzy(mammalstrait[,1:10], col.blocks = ncol(mammalstrait[,1:10]), label = "diet")
+        
+        ForStrat <- mammalstrait$ForStrat %>% as.data.frame()
+        row.names(ForStrat) <- row.names(mammalstrait)
+        
+        Activity <- apply(mammalstrait[,12:14],2,as.numeric) %>% as.data.frame()
+        row.names(Activity) <- row.names(mammalstrait)
+        Activity=prep.binary(Activity, col.blocks = ncol(Activity), label = "Activity")
+        
+        bodymass <- log(mammalstrait$BodyMass.Value) %>% as.data.frame()
+        row.names(bodymass) <- row.names(mammalstrait)
+        bodymass <- bodymass/(max(bodymass, na.rm=T)-min(bodymass, na.rm=T))
 
+    ###Compute the dist matrix
+      disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
+      save(disTraits_mammals, file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
 
-##mammals
-mammalstrait<-mammalstrait[,-1]
-###Format the traits 
+    ###Compute funrare indices (note occ_mat are sparse matrices)
+      
 
-diet <- prep.fuzzy(mammalstrait[,1:10], col.blocks = ncol(mammalstrait[,1:10]), label = "diet")
+      FR_mammals <-  funrar(occ_mammals, disTraits_mammals, rel_abund = FALSE) #TODO : pour l'instant cela coince car matrice d'occ trop grande ... 
+      
+      
+      FR_mammals$Ui$species <- as.character(FR_mammals$Ui$species)
+      FR_mammals$Ri$species <- as.character(FR_mammals$Ri$species)
+      
+      Glob_distinc <- distinctiveness_glob(com_dist=disTraits_mammals,abund=NULL)
+      colnames(Glob_distinc) <- c("species","Di")
+      Glob_distinc$species <- as.character(Glob_distinc$species)
+      
+      FR_mammals <- list(Ui = FR_mammals$Ui, Di = FR_mammals$Di, Ri = FR_mammals$Ri, GDi=Glob_distinc)
+      
+      save(FR_mammals, file=file.path(results_dir,"mammals/fr_mammals.RData"))
+      
 
-ForStrat <- mammalstrait$ForStrat %>% as.data.frame()
-row.names(ForStrat) <- row.names(mammalstrait)
+  ##Birds 
 
-Activity <- apply(mammalstrait[,12:14],2,as.numeric) %>% as.data.frame()
-row.names(Activity) <- row.names(mammalstrait)
-Activity=prep.binary(Activity, col.blocks = ncol(Activity), label = "Activity")
+    ###Format the traits 
 
-bodymass <- log(mammalstrait$BodyMass.Value) %>% as.data.frame()
-row.names(bodymass) <- row.names(mammalstrait)
-bodymass <- bodymass/(max(bodymass, na.rm=T)-min(bodymass, na.rm=T))
+      diet <- prep.fuzzy(birdstrait[,1:10], col.blocks = ncol(birdstrait[,1:10]), label = "diet")
+      
+      ForStrat <- prep.fuzzy(birdstrait[,11:17], col.blocks = ncol(birdstrait[,11:17]), label = "ForStrat")
+      
+      bodymass <- log(birdstrait$BodyMass.Value) %>% as.data.frame()
+      row.names(bodymass) <- row.names(birdstrait)
+      bodymass <- bodymass/(max(bodymass, na.rm=T)-min(bodymass, na.rm=T))
+      
+      PelagicSpecialist <- as.data.frame(birdstrait$PelagicSpecialist %>% as.character() %>% as.numeric())
+      row.names(PelagicSpecialist) <- row.names(birdstrait)
+      
+      Nocturnal <- as.data.frame(birdstrait$Nocturnal %>% as.character() %>% as.numeric())
+      row.names(Nocturnal) <- row.names(birdstrait)
 
-###Compute the dist matrix
-disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
-save(disTraits_mammals, file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
+    ###Compute the dist matrix TODO we use scan=FALSE but we probably need to set it to TRUE and chose the best distances ... 
 
-###Compute funrare indices 
+      disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
+      save(disTraits_birds, file=file.path(results_dir,"birds/disTraits_birds.RData"))
 
-FR_mammals <-  funrar(occ_mammals, disTraits_mammals, rel_abund = FALSE)
+    ###Compute funrare indices 
 
-FR_mammals$Ui$species <- as.character(FR_mammals$Ui$species)
-FR_mammals$Ri$species <- as.character(FR_mammals$Ri$species)
+      FR_birds <-  funrar(occ_birds, disTraits_birds, rel_abund = FALSE)
+      
+      FR_birds$Ui$species <- as.character(FR_birds$Ui$species)
+      FR_birds$Ri$species <- as.character(FR_birds$Ri$species)
+      
+      Glob_distinc <- distinctiveness_glob(com_dist=disTraits_birds,abund=NULL)
+      colnames(Glob_distinc) <- c("species","Di")
+      Glob_distinc$species <- as.character(Glob_distinc$species)
+      
+      FR_birds <- list(Ui = FR_birds$Ui, Di = FR_birds$Di, Ri = FR_birds$Ri, GDi=Glob_distinc)
+      
+      save(FR_birds, file=file.path(results_dir,"birds/fr_birds.RData"))
 
-Glob_distinc <- distinctiveness_glob(com_dist=disTraits_mammals,abund=NULL)
-colnames(Glob_distinc) <- c("species","Di")
-Glob_distinc$species <- as.character(Glob_distinc$species)
+      
+  ## Combine all indices 
 
-FR_mammals <- list(Ui = FR_mammals$Ui, Di = FR_mammals$Di, Ri = FR_mammals$Ri, GDi=Glob_distinc)
-
-save(FR_mammals, file=file.path(results_dir,"mammals/fr_mammals.RData"))
-
-
-
-##Birds 
-
-###Format the traits 
-
-diet <- prep.fuzzy(birdstrait[,1:10], col.blocks = ncol(birdstrait[,1:10]), label = "diet")
-
-ForStrat <- prep.fuzzy(birdstrait[,11:17], col.blocks = ncol(birdstrait[,11:17]), label = "ForStrat")
-
-bodymass <- log(birdstrait$BodyMass.Value) %>% as.data.frame()
-row.names(bodymass) <- row.names(birdstrait)
-bodymass <- bodymass/(max(bodymass, na.rm=T)-min(bodymass, na.rm=T))
-
-PelagicSpecialist <- as.data.frame(birdstrait$PelagicSpecialist %>% as.character() %>% as.numeric())
-row.names(PelagicSpecialist) <- row.names(birdstrait)
-
-Nocturnal <- as.data.frame(birdstrait$Nocturnal %>% as.character() %>% as.numeric())
-row.names(Nocturnal) <- row.names(birdstrait)
-
-###Compute the dist matrix TODO we use scan=FALSE but we probably need to set it to TRUE and chose the best distances ... 
-
-disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
-save(disTraits_birds, file=file.path(results_dir,"birds/disTraits_birds.RData"))
-
-###Compute funrare indices 
-
-FR_birds <-  funrar(occ_birds, disTraits_birds, rel_abund = FALSE)
-
-FR_birds$Ui$species <- as.character(FR_birds$Ui$species)
-FR_birds$Ri$species <- as.character(FR_birds$Ri$species)
-
-Glob_distinc <- distinctiveness_glob(com_dist=disTraits_birds,abund=NULL)
-colnames(Glob_distinc) <- c("species","Di")
-Glob_distinc$species <- as.character(Glob_distinc$species)
-
-FR_birds <- list(Ui = FR_birds$Ui, Di = FR_birds$Di, Ri = FR_birds$Ri, GDi=Glob_distinc)
-
-save(FR_birds, file=file.path(results_dir,"birds/fr_birds.RData"))
-
-#combine all indices 
-
-load(file=file.path(results_dir,"mammals/fr_mammals.RData"))
-load(file=file.path(results_dir,"birds/fr_birds.RData"))
-
-comp.fr.all <- function(datatraits,FR_raw,occmat)    
-{
-  # datatraits <- mammalstrait
-  # FR_raw <- FR_mammals
-  # occmat <-occ_mammals 
-  
-  #calcul the total occurences 
-  
-  totocc <- data.frame(apply(occ_mammals,2,sum))
-  colnames(totocc) <- "occtot"
-  
-  
-  #Compute the FRs 
-  
-  FR_data <- merge(FR_raw$Ui,FR_raw$Ri)
-  FR_data <- merge(FR_data,FR_raw$GDi)
-  
-  FR_data <- mutate(FR_data, Uin = (Ui-min(Ui)) / max(Ui-min(Ui)),Din = (Di-min(Di)) / max(Di-min(Di)),Rin = (Ri-min(Ri)) / max(Ri-min(Ri)))
-  
-  FR_data <- mutate(FR_data,FRU=(Uin+Rin)/2,FRD_A=(Din+Rin)/2,FRD_G=(Din*Rin)/2)
-  
-  #TDsp and rownames
-  FR_data$species <- as.character(FR_data$species)
-  rownames(FR_data) <- FR_data$species
-  
-  #Merge with toocc
-  
-  FR_data <- merge(FR_data,totocc,by=0)
-  rownames(FR_data) <- FR_data$species
-  FR_data <- FR_data[,-1]
-  
-  
-  # 90% quantile
-  Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
-  Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
-  Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
-  Q90_FRD_A <- as.numeric(quantile(FR_data$FRD_A,probs = seq(0, 1, 0.1))[10])
-  Q90_FRD_G <- as.numeric(quantile(FR_data$FRD_G,probs = seq(0, 1, 0.1))[10])
-  
-  # 75% quantile
-  Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
-  Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
-  
-  # 25% quantile
-  Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
-  Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
-  
-  Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,Q90_FRD_A=Q90_FRD_A,Q90_FRD_G=Q90_FRD_G,
-                  Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
-  
-  list(Di=FR_raw$Di,FR=FR_data,Q=Q)
-  
-}
-
-FR_birds_all <- comp.fr.all(datatraits=birdstrait,FR_raw=FR_birds)
-save(FR_birds_all, file=file.path(results_dir,"birds/FR_birds_all.RData"))
-
-FR_mammals_all <- comp.fr.all(datatraits=mammalstrait,FR_raw=FR_mammals)
-save(FR_mammals_all, file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
+    load(file=file.path(results_dir,"mammals/fr_mammals.RData"))
+    load(file=file.path(results_dir,"birds/fr_birds.RData"))
+    
+    comp.fr.all <- function(datatraits,FR_raw,occmat)    
+    {
+      # datatraits <- mammalstrait
+      # FR_raw <- FR_mammals
+      # occmat <-occ_mammals 
+      
+      #calcul the total occurences 
+      
+      totocc <- data.frame(apply(occ_mammals,2,sum))
+      colnames(totocc) <- "occtot"
+      
+      
+      #Compute the FRs 
+      
+      FR_data <- merge(FR_raw$Ui,FR_raw$Ri)
+      FR_data <- merge(FR_data,FR_raw$GDi)
+      
+      FR_data <- mutate(FR_data, Uin = (Ui-min(Ui)) / max(Ui-min(Ui)),Din = (Di-min(Di)) / max(Di-min(Di)),Rin = (Ri-min(Ri)) / max(Ri-min(Ri)))
+      
+      FR_data <- mutate(FR_data,FRU=(Uin+Rin)/2,FRD_A=(Din+Rin)/2,FRD_G=(Din*Rin)/2)
+      
+      #TDsp and rownames
+      FR_data$species <- as.character(FR_data$species)
+      rownames(FR_data) <- FR_data$species
+      
+      #Merge with toocc
+      
+      FR_data <- merge(FR_data,totocc,by=0)
+      rownames(FR_data) <- FR_data$species
+      FR_data <- FR_data[,-1]
+      
+      
+      # 90% quantile
+      Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
+      Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
+      Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
+      Q90_FRD_A <- as.numeric(quantile(FR_data$FRD_A,probs = seq(0, 1, 0.1))[10])
+      Q90_FRD_G <- as.numeric(quantile(FR_data$FRD_G,probs = seq(0, 1, 0.1))[10])
+      
+      # 75% quantile
+      Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
+      Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
+      
+      # 25% quantile
+      Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
+      Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
+      
+      Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,Q90_FRD_A=Q90_FRD_A,Q90_FRD_G=Q90_FRD_G,
+                      Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
+      
+      list(Di=FR_raw$Di,FR=FR_data,Q=Q)
+      
+    }
+    
+    FR_birds_all <- comp.fr.all(datatraits=birdstrait,FR_raw=FR_birds)
+    save(FR_birds_all, file=file.path(results_dir,"birds/FR_birds_all.RData"))
+    
+    FR_mammals_all <- comp.fr.all(datatraits=mammalstrait,FR_raw=FR_mammals)
+    save(FR_mammals_all, file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
 
 #----
+    
 
 #LOAD FR_ALL ---- 
 load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
