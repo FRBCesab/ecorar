@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=FALSE,who="NL")
 
 library(funrar)
 library(moments)
@@ -33,7 +33,7 @@ library(rgdal)
     mammalstrait<-mammalstrait[,-c(2,3)]
     occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
     
-  #Check if each species have at least on occurence # TODO a reprendre car il ne check pas, il impose 
+  #Select species with at least one occurence
     occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
 
 #----
@@ -67,20 +67,44 @@ library(rgdal)
       
       load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
       
-      #TODO : pour l'instant cela coince car matrice d'occ trop grande ... 
+     #matrice to big, build hypothetical communities where all species are presents. Allow to compute Ui & Di for each species
+      Sim_commu <- matrix(1,1,dim(occ_mammals)[2])
+      colnames(Sim_commu) <- colnames(occ_mammals)
       
-      FR_mammals1 <-  funrar(occ_mammals[1:10,], disTraits_mammals, rel_abund = FALSE)
-      FR_mammals2 <-  funrar(occ_mammals[11:20,], disTraits_mammals, rel_abund = FALSE)
+      #Compute Ui
+        Ui<-uniqueness(Sim_commu,disTraits_mammals)
+      #Compute Di
+        Di<-distinctiveness(Sim_commu,disTraits_mammals)
       
-      
-      FR_mammals$Ui$species <- as.character(FR_mammals$Ui$species)
-      FR_mammals$Ri$species <- as.character(FR_mammals$Ri$species)
-      
+      # matrix is to big to compute Ri + restrictedness function need at least 2 sites to be compute.
+        Ri<-matrix(NA,dim(occ_mammals)[2],1)
+        rownames(Ri)<-colnames(occ_mammals)
+        #i1865
+        ids<-seq(1, dim(occ_mammals)[2], by=2)   
+        for(i in ids){
+          mat<-data.frame(occ_mammals[,i],occ_mammals[,i+1])
+          rownames(mat)<-rownames(occ_mammals)
+          colnames(mat)<-c(colnames(occ_mammals)[i],colnames(occ_mammals)[i+1])
+          mat<-as.matrix(mat)
+          restri<-restrictedness(mat)
+          Ri[i,]<-restri[1,2]
+          Ri[i+1,]<-restri[2,2]
+          print(paste0("i",i))
+        }
+        
+        
+        
+    
+      FR_data<-cbind(Ui,Di,Ri)
+      FR_data$Uin<-(Ui-min(Ui)) / max(Ui-min(Ui))
+      FR_data$Din<-(Di-min(Di)) / max(Di-min(Di))
+      FR_data$Rin<-(Ri-min(Ri)) / max(Ri-min(Ri))
+
       Glob_distinc <- distinctiveness_glob(com_dist=disTraits_mammals,abund=NULL)
       colnames(Glob_distinc) <- c("species","Di")
       Glob_distinc$species <- as.character(Glob_distinc$species)
       
-      FR_mammals <- list(Ui = FR_mammals$Ui, Di = FR_mammals$Di, Ri = FR_mammals$Ri, GDi=Glob_distinc)
+      FR_mammals <- list(Ui = FR_data$Ui, Di = FR_data$Di, Ri = FR_data$Ri, Uin = FR_data$Uin, Din = FR_data$Din, Rin = FR_data$Rin, GDi=Glob_distinc)
       
       save(FR_mammals, file=file.path(results_dir,"mammals/fr_mammals.RData"))
       
