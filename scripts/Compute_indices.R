@@ -71,16 +71,17 @@ library(rgdal)
       Sim_commu <- matrix(1,1,dim(occ_mammals)[2])
       colnames(Sim_commu) <- colnames(occ_mammals)
       
-      #Compute Ui
+      #Compute Ui (Global Uniqueness)
         Ui<-uniqueness(Sim_commu,disTraits_mammals)
-      #Compute Di
-        Di<-distinctiveness(Sim_commu,disTraits_mammals)
+      #Compute Di (Global distinctiveness)
+        Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
       
       # matrix is to big to compute Ri + restrictedness function need at least 2 sites to be compute.
         Ri<-matrix(NA,dim(occ_mammals)[2],1)
         rownames(Ri)<-colnames(occ_mammals)
         #i1865
-        ids<-seq(1, dim(occ_mammals)[2], by=2)   
+        ids <-seq(1, dim(occ_mammals)[2], by=2)   
+        #ids <- 4674
         for(i in ids){
           mat<-data.frame(occ_mammals[,i],occ_mammals[,i+1])
           rownames(mat)<-rownames(occ_mammals)
@@ -93,21 +94,32 @@ library(rgdal)
         }
         
         
-        
-    
-      FR_data<-cbind(Ui,Di,Ri)
-      FR_data$Uin<-(Ui-min(Ui)) / max(Ui-min(Ui))
-      FR_data$Din<-(Di-min(Di)) / max(Di-min(Di))
-      FR_data$Rin<-(Ri-min(Ri)) / max(Ri-min(Ri))
+      FR_data<-cbind(Ui,Ri,Di)
+      FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
+      FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
+      FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
 
-      Glob_distinc <- distinctiveness_glob(com_dist=disTraits_mammals,abund=NULL)
-      colnames(Glob_distinc) <- c("species","Di")
-      Glob_distinc$species <- as.character(Glob_distinc$species)
+      # 90% quantile
+      Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
+      Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
+      Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
+
+      # 75% quantile
+      Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
+      Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
       
-      FR_mammals <- list(Ui = FR_data$Ui, Di = FR_data$Di, Ri = FR_data$Ri, Uin = FR_data$Uin, Din = FR_data$Din, Rin = FR_data$Rin, GDi=Glob_distinc)
+      # 25% quantile
+      Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
+      Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
       
-      save(FR_mammals, file=file.path(results_dir,"mammals/fr_mammals.RData"))
+      Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,
+                      Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
       
+      FR_mammals <- list(FR=FR_data,Q=Q)
+      save(FR_mammals, file=file.path(results_dir,"mammals/FR_mammals.RData"))
+      
+
+           
 
   ##Birds 
 
@@ -132,135 +144,59 @@ library(rgdal)
       disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
       save(disTraits_birds, file=file.path(results_dir,"birds/disTraits_birds.RData"))
 
-    ###Compute funrare indices 
-
-      FR_birds <-  funrar(occ_birds, disTraits_birds, rel_abund = FALSE)
+      ##Compute funrare indices (note occ_mat are sparse matrices)
       
-      FR_birds$Ui$species <- as.character(FR_birds$Ui$species)
-      FR_birds$Ri$species <- as.character(FR_birds$Ri$species)
+      load(file=file.path(results_dir,"birds/disTraits_birds.RData"))
       
-      Glob_distinc <- distinctiveness_glob(com_dist=disTraits_birds,abund=NULL)
-      colnames(Glob_distinc) <- c("species","Di")
-      Glob_distinc$species <- as.character(Glob_distinc$species)
+      #matrice to big, build hypothetical communities where all species are presents. Allow to compute Ui & Di for each species
+      Sim_commu <- matrix(1,1,dim(occ_birds)[2])
+      colnames(Sim_commu) <- colnames(occ_birds)
       
-      FR_birds <- list(Ui = FR_birds$Ui, Di = FR_birds$Di, Ri = FR_birds$Ri, GDi=Glob_distinc)
+      #Compute Ui (Global Uniqueness)
+      Ui<-uniqueness(Sim_commu,disTraits_birds)
+      #Compute Di (Global distinctiveness)
+      Di<-t(distinctiveness(Sim_commu,disTraits_birds))
       
-      save(FR_birds, file=file.path(results_dir,"birds/fr_birds.RData"))
-
-      
-  ## Combine all indices 
-
-    load(file=file.path(results_dir,"mammals/fr_mammals.RData"))
-    load(file=file.path(results_dir,"birds/fr_birds.RData"))
-    
-    comp.fr.all <- function(datatraits,FR_raw,occmat)    
-    {
-      # datatraits <- mammalstrait
-      # FR_raw <- FR_mammals
-      # occmat <-occ_mammals 
-      
-      #calcul the total occurences 
-      
-      totocc <- data.frame(apply(occ_mammals,2,sum))
-      colnames(totocc) <- "occtot"
+      # matrix is to big to compute Ri + restrictedness function need at least 2 sites to be compute.
+      Ri<-matrix(NA,dim(occ_birds)[2],1)
+      rownames(Ri)<-colnames(occ_birds)
+  
+      ids <-seq(1, dim(occ_birds)[2], by=2)   
+    for(i in ids){
+        mat<-data.frame(occ_birds[,i],occ_birds[,i+1])
+        rownames(mat)<-rownames(occ_birds)
+        colnames(mat)<-c(colnames(occ_birds)[i],colnames(occ_birds)[i+1])
+        mat<-as.matrix(mat)
+        restri<-restrictedness(mat)
+        Ri[i,]<-restri[1,2]
+        Ri[i+1,]<-restri[2,2]
+        print(paste0("i",i))
+      }
       
       
-      #Compute the FRs 
+      FR_data<-cbind(Ui,Ri,Di)
+      FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
+      FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
+      FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
       
-      FR_data <- merge(FR_raw$Ui,FR_raw$Ri)
-      FR_data <- merge(FR_data,FR_raw$GDi)
-      
-      FR_data <- mutate(FR_data, Uin = (Ui-min(Ui)) / max(Ui-min(Ui)),Din = (Di-min(Di)) / max(Di-min(Di)),Rin = (Ri-min(Ri)) / max(Ri-min(Ri)))
-      
-      FR_data <- mutate(FR_data,FRU=(Uin+Rin)/2,FRD_A=(Din+Rin)/2,FRD_G=(Din*Rin)/2)
-      
-      #TDsp and rownames
-      FR_data$species <- as.character(FR_data$species)
-      rownames(FR_data) <- FR_data$species
-      
-      #Merge with toocc
-      
-      FR_data <- merge(FR_data,totocc,by=0)
-      rownames(FR_data) <- FR_data$species
-      FR_data <- FR_data[,-1]
-      
-      
-      # 90% quantile
-      Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
-      Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
-      Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
-      Q90_FRD_A <- as.numeric(quantile(FR_data$FRD_A,probs = seq(0, 1, 0.1))[10])
-      Q90_FRD_G <- as.numeric(quantile(FR_data$FRD_G,probs = seq(0, 1, 0.1))[10])
+      FR_birds <- FR_data
+      save(FR_birds, file=file.path(results_dir,"birds/FR_birds.RData"))
       
       # 75% quantile
-      Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
-      Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
+      Q75_D <- as.numeric(quantile(FR_birds$Din,probs = seq(0, 1, 0.25))[4])  
+      Q75_R <- as.numeric(quantile(FR_birds$Rin,probs = seq(0, 1, 0.25))[4])  
       
       # 25% quantile
-      Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
-      Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
+      Q25_D <- as.numeric(quantile(FR_birds$Din,probs = seq(0, 1, 0.25))[2])  
+      Q25_R <- as.numeric(quantile(FR_birds$Rin,probs = seq(0, 1, 0.25))[2])  
       
-      Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,Q90_FRD_A=Q90_FRD_A,Q90_FRD_G=Q90_FRD_G,
-                      Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
+      Q <- data.frame(Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
       
-      list(Di=FR_raw$Di,FR=FR_data,Q=Q)
+      FR_birds <- list(FR_birds=FR_birds,Q_birds=Q)
+#----
+
+
       
-    }
-    
-    FR_birds_all <- comp.fr.all(datatraits=birdstrait,FR_raw=FR_birds)
-    save(FR_birds_all, file=file.path(results_dir,"birds/FR_birds_all.RData"))
-    
-    FR_mammals_all <- comp.fr.all(datatraits=mammalstrait,FR_raw=FR_mammals)
-    save(FR_mammals_all, file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
-
-#----
-    
-
-#LOAD FR_ALL ---- 
-load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
-load(file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
-
-#----
-
-#COMPUTE F_SEB ----
-source(file.path(script_dir,"multidimFD.R"))
-source(file.path(script_dir,"quality_funct_space.R"))
-nbdim=4
-
-##Birds
-###Compute the qual_funct_space
-qual_funct_space_birds<-quality_funct_space(birdstrait, traits_weights=NULL, nbdim=nbdim, metric="Gower", dendro=FALSE,plot=NA)
-save(qual_funct_space_birds, file=file.path(results_dir,"birds/qual_funct_space_birds.RData"))
-coord_trait_birds<-qual_funct_space_birds$details_funct_space$mat_coord[,1:nbdim]
-ggplot(as.data.frame(coord_trait_birds), aes(PC1,PC2)) +geom_point() +ggtitle("Birds")
-ggplot(as.data.frame(coord_trait_birds), aes(PC2,PC3)) +geom_point()
-
-###Compute the F_seb metrics 
-load(file=file.path(results_dir,"birds/qual_funct_space_birds.RData"))
-coord_trait_birds<-qual_funct_space_birds$details_funct_space$mat_coord[,1:nbdim]
-F_Seb_birds <- multidimFD(coord_trait_birds, occ_birds, check_species_pool=TRUE, verb=TRUE,nm_asb_plot=NULL)
-save(F_Seb_birds, file=file.path(results_dir,"birds/F_Seb_birds.RData"))
-
-#mammals
-###Compute the qual_funct_space
-qual_funct_space_mammals<-quality_funct_space(mammalstrait, traits_weights=NULL, nbdim=nbdim, metric="Gower", dendro=FALSE,plot=NA)
-save(qual_funct_space_mammals, file=file.path(results_dir,"mammals/qual_funct_space_mammals.RData"))
-coord_trait_mammals<-qual_funct_space_mammals$details_funct_space$mat_coord[,1:nbdim]
-ggplot(as.data.frame(coord_trait_mammals), aes(PC1,PC2)) +geom_point()+ggtitle("mammals")
-
-###Compute the F_seb metrics 
-load(file=file.path(results_dir,"mammals/qual_funct_space_mammals.RData"))
-coord_trait_mammals<-qual_funct_space_mammals$details_funct_space$mat_coord[,1:nbdim]
-F_Seb_mammals <- multidimFD(coord_trait_mammals, occ_mammals, check_species_pool=TRUE, verb=TRUE,nm_asb_plot=NULL)
-save(F_Seb_mammals, file=file.path(results_dir,"mammals/F_Seb_mammals.RData"))
-#----
-
-#LOAD F_SEB----
-
-load(file.path(results_dir,"mammals/F_Seb_mammals.RData"))
-load(file.path(results_dir,"birds/F_Seb_birds.RData"))
-#----
-
 #COMPUTE FINAL DATAFRAME---- 
 
 ##Generate the subset data 
@@ -268,9 +204,9 @@ load(file.path(results_dir,"birds/F_Seb_birds.RData"))
 sub.data <- function(ids,proc,occ_mat,FR_data){
   
   # proc <- 50
-  # occ_mat <- occ_birds
+  # occ_mat <- occ_mammals
   # ids <- rownames(occ_mat)
-  # FR_data=FR_birds_all
+  # FR_data=FR_mammals
   
   subD90 <- mclapply(ids,function(id) {    
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
@@ -285,19 +221,7 @@ sub.data <- function(ids,proc,occ_mat,FR_data){
   },mc.cores = proc)
   names(subR90) <- ids
   
-  subFRD90_A <- mclapply(ids,function(id) {
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub[FR_data$FR[spe_sub,"FRD_A"]>FR_data$Q$Q90_FRD_A]
-  },mc.cores = proc)
-  names(subFRD90_A) <- ids
-  
-  subFRD90_G <- mclapply(ids,function(id) {
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub[FR_data$FR[spe_sub,"FRD_G"]>FR_data$Q$Q90_FRD_G]
-  },mc.cores = proc)
-  names(subFRD90_G) <- ids
-  
-  subDR75 <- mclapply(ids,function(id) {
+  subD75R75 <- mclapply(ids,function(id) {
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
     spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
@@ -305,22 +229,29 @@ sub.data <- function(ids,proc,occ_mat,FR_data){
   },mc.cores = proc)
   names(subDR75) <- ids
   
-  subDR25 <- mclapply(ids,function(id) {  
+  subD25R25 <- mclapply(ids,function(id) {  
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
     spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
   },mc.cores = proc)
   names(subDR25) <- ids
   
-  subD75R1 <- mclapply(ids,function(id) {    
+  subD75R25 <- mclapply(ids,function(id) {
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>0.99]
-  },mc.cores = proc)
-  names(subD75R1) <- ids
+    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q25_R]
+   },mc.cores = proc)
+  names(subDR75) <- ids
   
-  all <- list(subD90,subR90,subFRD90_A,subFRD90_G,subDR75,subDR25,subD75R1)
-  names(all) <- c("subD90","subR90","subFRD90_A","subFRD90_G","subDR75","subDR25","subD75R1")
+  subD25R75 <- mclapply(ids,function(id) {  
+    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+    spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
+    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q75_R]
+  },mc.cores = proc)
+  names(subDR25) <- ids
+  
+ all <- list(subD90,subR90,subD75R75,subD25R25,subD75R25,subD25R75)
+  names(all) <- c("subD90","subR90","subD75R75","subD25R25","subD75R25","subD25R75")
   return(all)
 }
 
