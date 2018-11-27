@@ -107,7 +107,6 @@ Ui.funk<-function(occ_mat,sp,dist_traits,mat_neigh,proc) {
 #mammals          
 varSP <-  colnames(occ_mammals)
 
-####... LOOP
 Ui_mammals = list()
 ptm <- proc.time()
     for(i in 1:length(varSP))
