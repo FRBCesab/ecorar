@@ -76,7 +76,7 @@ library(rgdal)
       #Compute Di (Global distinctiveness)
         Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
       
-      # matrix is to big to compute Ri + restrictedness function need at least 2 sites to be compute.
+      # matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
         Ri<-matrix(NA,dim(occ_mammals)[2],1)
         rownames(Ri)<-colnames(occ_mammals)
         #i1865
@@ -94,7 +94,7 @@ library(rgdal)
         }
         
         
-        # TODO la loop peut etre améliorer mais actuellement probel
+        # TODO la loop peut etre améliorée mais actuellement probel
         # ids<-seq(1, dim(occ_mammals)[2], by=2)   
         # Ri2<-NULL
         # Ri2 <- mclapply(ids,function(id) {    
@@ -184,7 +184,6 @@ library(rgdal)
         print(paste0("i",i))
       }
       
-      
       FR_data<-cbind(Ui,Ri,Di)
       FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
       FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
@@ -238,28 +237,28 @@ sub.data <- function(ids,proc,occ_mat,FR_data){
     spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
     
   },mc.cores = proc)
-  names(subDR75) <- ids
+  names(subD75R75) <- ids
   
   subD25R25 <- mclapply(ids,function(id) {  
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
     spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
   },mc.cores = proc)
-  names(subDR25) <- ids
+  names(subD25R25) <- ids
   
   subD75R25 <- mclapply(ids,function(id) {
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q25_R]
+    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
    },mc.cores = proc)
-  names(subDR75) <- ids
+  names(subD75R25) <- ids
   
   subD25R75 <- mclapply(ids,function(id) {  
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q75_R]
+    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
   },mc.cores = proc)
-  names(subDR25) <- ids
+  names(subD25R75) <- ids
   
  all <- list(subD90,subR90,subD75R75,subD25R25,subD75R25,subD25R75)
   names(all) <- c("subD90","subR90","subD75R75","subD25R25","subD75R25","subD25R75")
