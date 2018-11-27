@@ -103,7 +103,6 @@ Ui.funk<-function(occ_mat,sp,dist_traits,mat_neigh,proc) {
     return(res)},mc.cores = proc_real))
 }
 
-
 #----
 #mammals          
 varSP <-  colnames(occ_mammals)
