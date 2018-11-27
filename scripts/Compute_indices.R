@@ -94,7 +94,20 @@ library(rgdal)
         }
         
         
-      FR_data<-cbind(Ui,Ri,Di)
+        # TODO la loop peut etre améliorer mais actuellement probel
+        # ids<-seq(1, dim(occ_mammals)[2], by=2)   
+        # Ri2<-NULL
+        # Ri2 <- mclapply(ids,function(id) {    
+        #    mat <-  as.matrix(data.frame(occ_mammals[,id],occ_mammals[,id+1]))
+        #    Ri2<-rbind(Ri2,restrictedness(mat))
+        # },mc.cores = 4)
+        
+        
+        #  Ri <- do.call(rbind,mclapply(ids,function(id) {    
+        #  mat <-  as.matrix(data.frame(occ_mammals[,id],occ_mammals[,id+1]))
+        #  colnames(mat)<-c(colnames(occ_mammals)[id],colnames(occ_mammals)[id+1])
+        #   Ri<-restrictedness(mat) },mc.cores = 4))
+        
       FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
       FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
       FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
@@ -118,8 +131,6 @@ library(rgdal)
       FR_mammals <- list(FR=FR_data,Q=Q)
       save(FR_mammals, file=file.path(results_dir,"mammals/FR_mammals.RData"))
       
-
-           
 
   ##Birds 
 
@@ -202,7 +213,7 @@ library(rgdal)
 ##Generate the subset data 
 
 sub.data <- function(ids,proc,occ_mat,FR_data){
-  
+
   # proc <- 50
   # occ_mat <- occ_mammals
   # ids <- rownames(occ_mat)
@@ -265,15 +276,13 @@ load(file=file.path(results_dir,"birds/sub_birds.RData"))
 load(file=file.path(results_dir,"mammals/sub_mammals.RData"))
 
 ##Generate main results
-
-final.results <- function(ids,proc,occ_mat,FR_data,F_Seb_data,mat_neigh,seedrand,sub_data){
+final.results <- function(ids,proc,occ_mat,FR_data,seedrand,sub_data){
   
   # proc <- 50
-  # occ_mat <- occ_birds
+  # occ_mat <- occ_mammals
   # ids <- rownames(occ_mat)
-  # FR_data <- FR_birds_all
-  # F_Seb_data <- F_Seb_birds
-  # sub_data <- sub_birds
+  # FR_data <- FR_mammals_all
+  # sub_data <- sub_mammals
   
   funk_all <-do.call(rbind,mclapply(ids,function(id) {    #cat("id:",i,"\n")
     
@@ -281,41 +290,23 @@ final.results <- function(ids,proc,occ_mat,FR_data,F_Seb_data,mat_neigh,seedrand
     
     TD_sp=sum(occ_mat[id,])
     
-    FEve=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FEve"])
-    FDis=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FDis"])
-    FOri=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FOri"])
-    
-    FDiv=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FDiv"])
-    FRic=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FRic"])
-    FSpe=as.numeric(F_Seb_data[rownames(F_Seb_data)==id,]["FSpe"])
-    
     #Subset the species present in the site i 
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
     
-    #Compute the FRD_mean
-    
-    FRD_A_mean=mean(FR_data$FR[spe_sub,"FRD_A"],na.rm=TRUE)
-    FRD_A_skw=skewness(FR_data$FR[spe_sub,"FRD_A"],na.rm=TRUE)
-    FRD_G_mean=mean(FR_data$FR[spe_sub,"FRD_G"],na.rm=TRUE)
-    FRD_G_skw=skewness(FR_data$FR[spe_sub,"FRD_G"],na.rm=TRUE)
-    
-    #Number of species within a sites with FR values above the 90% quantile of the whole distribution 
+    #Number of species within a sites with FR values above quantiles of species and functional distribution 
     
     if (length(sub_data$subD90[[id]])>0) D90=length(sub_data$subD90[[id]]) else D90=0
     if (length(sub_data$subR90[[id]])>0) R90=length(sub_data$subR90[[id]]) else R90=0
-    if (length(sub_data$subFRD90_A[[id]])>0) FRD90_A=length(sub_data$subFRD90_A[[id]]) else FRD90_A=0
-    if (length(sub_data$subFRD90_G[[id]])>0) FRD90_G=length(sub_data$subFRD90_G[[id]]) else FRD90_G=0
-    if (length(sub_data$subDR75[[id]])>0) DR75=length(sub_data$subDR75[[id]]) else DR75=0
-    if (length(sub_data$subDR25[[id]])>0) DR25=length(sub_data$subDR25[[id]]) else DR25=0
+    if (length(sub_data$subD75R75[[id]])>0) D75R75=length(sub_data$subD75R75[[id]]) else D75R75=0
+    if (length(sub_data$subD25R25[[id]])>0) D25R25=length(sub_data$subD25R25[[id]]) else D25R25=0
     if (length(sub_data$subD75R1[[id]])>0) D75R1=length(sub_data$subD75R1[[id]]) else D75R1=0
+    if (length(sub_data$subD75R25[[id]])>0) D75R25=length(sub_data$subD75R25[[id]]) else D75R25=0
+    if (length(sub_data$subD25R75[[id]])>0) D25R75=length(sub_data$subD25R75[[id]]) else D25R75=0
     
     #combine all 
+    res <- cbind.data.frame(D90, R90,D75R75,D25R25,D75R1,D75R25,D25R75)
     
-    res <- cbind.data.frame(id,TD_sp,FEve,FDis,FOri,FDiv,FRic,FSpe,FRD_A_mean, FRD_A_skw,FRD_G_mean, FRD_G_skw, 
-                            D90, R90,FRD90_A, FRD90_G, DR75,DR25,D75R1)
-    
-    names(res) <- c('poly','TD_sp','FEve','FDis','FOri','FDiv','FRic','FSpe', 'FRD_A_mean', 'FRD_A_skw','FRD_G_mean', 'FRD_G_skw', 
-                    'D90','R90','FRD90_A','FRD90_G', 'DR75','DR25','D75R1')
+    names(res) <- c('cell','TD_sp','D90','R90','D75R75','D25R25', 'D75R1','D75R25','D25R75')
     return(res)
     
   },mc.cores = proc))
@@ -323,19 +314,16 @@ final.results <- function(ids,proc,occ_mat,FR_data,F_Seb_data,mat_neigh,seedrand
   return(funk_all)
 }
 
-funk_birds <- final.results(ids=rownames(occ_birds),proc=50,occ_mat=occ_birds,FR_data=FR_birds_all,
-                            F_Seb_data=F_Seb_birds,mat_neigh=Mat_neighbour_birds,seedrand=1871,sub_data=sub_birds)
+funk_birds <- final.results(ids=rownames(occ_birds),proc=50,occ_mat=occ_birds,FR_data=FR_birds_all,seedrand=1871,sub_data=sub_birds)
 save(funk_birds, file=file.path(results_dir,"birds/funk_birds.RData"))
 
-funk_mammals <- final.results(ids=rownames(occ_mammals),proc=50,occ_mat=occ_mammals,FR_data=FR_mammals_all,
-                             F_Seb_data=F_Seb_mammals,mat_neigh=Mat_neighbour_mammals,seedrand=1871,sub_data=sub_mammals)
+funk_mammals <- final.results(ids=rownames(occ_mammals),proc=50,occ_mat=occ_mammals,FR_data=FR_mammals_all,seedrand=1871,sub_data=sub_mammals)
 save(funk_mammals, file=file.path(results_dir,"mammals/funk_mammals.RData"))
 
 #----
 
 
 #VISU ----
-
 load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
 load(file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
 
