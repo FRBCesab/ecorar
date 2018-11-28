@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=FALSE,who="NM")
 
 library(funrar)
 library(moments)
@@ -40,7 +40,7 @@ library(rgdal)
 
 #COMPUTE FR ----
 
-  ## Mammals
+## Mammals
     
     mammalstrait<-mammalstrait[,-1]
     
@@ -67,7 +67,7 @@ library(rgdal)
       
       load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
       
-     #matrice to big, build hypothetical communities where all species are presents. Allow to compute Ui & Di for each species
+     #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
       Sim_commu <- matrix(1,1,dim(occ_mammals)[2])
       colnames(Sim_commu) <- colnames(occ_mammals)
       
@@ -93,43 +93,32 @@ library(rgdal)
           print(paste0("i",i))
         }
         
+      #Create the FR_data frame 
         
-        # TODO la loop peut etre améliorée mais actuellement probel
-        # ids<-seq(1, dim(occ_mammals)[2], by=2)   
-        # Ri2<-NULL
-        # Ri2 <- mclapply(ids,function(id) {    
-        #    mat <-  as.matrix(data.frame(occ_mammals[,id],occ_mammals[,id+1]))
-        #    Ri2<-rbind(Ri2,restrictedness(mat))
-        # },mc.cores = 4)
+        FR_data <- data.frame(Ui=Ui,Di=Di,Ri=Ri)
         
+        FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
+        FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
+        FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
+  
+        # 90% quantile
+        Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
+        Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
+        Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
+  
+        # 75% quantile
+        Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
+        Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
         
-        #  Ri <- do.call(rbind,mclapply(ids,function(id) {    
-        #  mat <-  as.matrix(data.frame(occ_mammals[,id],occ_mammals[,id+1]))
-        #  colnames(mat)<-c(colnames(occ_mammals)[id],colnames(occ_mammals)[id+1])
-        #   Ri<-restrictedness(mat) },mc.cores = 4))
+        # 25% quantile
+        Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
+        Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
         
-      FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
-      FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
-      FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
-
-      # 90% quantile
-      Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
-      Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
-      Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
-
-      # 75% quantile
-      Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
-      Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
-      
-      # 25% quantile
-      Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
-      Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
-      
-      Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,
-                      Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
-      
-      FR_mammals <- list(FR=FR_data,Q=Q)
-      save(FR_mammals, file=file.path(results_dir,"mammals/FR_mammals.RData"))
+        Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,
+                        Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
+        
+        FR_mammals <- list(FR=FR_data,Q=Q)
+        save(FR_mammals, file=file.path(results_dir,"mammals/FR_mammals.RData"))
       
 
   ##Birds 
@@ -184,7 +173,10 @@ library(rgdal)
         print(paste0("i",i))
       }
       
-      FR_data<-cbind(Ui,Ri,Di)
+      #Create the FR_data frame 
+      
+      FR_data <- data.frame(Ui=Ui,Di=Di,Ri=Ri)
+      
       FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
       FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
       FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
@@ -203,33 +195,38 @@ library(rgdal)
       Q <- data.frame(Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
       
       FR_birds <- list(FR_birds=FR_birds,Q_birds=Q)
+      save(FR_birds, file=file.path(results_dir,"birds/FR_birds.RData"))
+      
 #----
 
 
       
 #COMPUTE FINAL DATAFRAME---- 
+      
+    load(file=file.path(results_dir,"mammals/FR_mammals.RData"))
+      
 
 ##Generate the subset data 
 
 sub.data <- function(ids,proc,occ_mat,FR_data){
 
-  # proc <- 50
-  # occ_mat <- occ_mammals
-  # ids <- rownames(occ_mat)
-  # FR_data=FR_mammals
+   proc <- 4
+   occ_mat <- occ_mammals
+   ids <- rownames(occ_mat)
+   FR_data=FR_mammals
   
-  subD90 <- mclapply(ids,function(id) {    
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q90_D]
-    
-  },mc.cores = proc)
-  names(subD90) <- ids
-  
-  subR90 <- mclapply(ids,function(id) {    
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub[FR_data$FR[spe_sub,"Rin"]>FR_data$Q$Q90_R]
-  },mc.cores = proc)
-  names(subR90) <- ids
+  # subD90 <- mclapply(ids,function(id) {    
+  #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+  #   spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q90_D]
+  #   
+  # },mc.cores = proc)
+  # names(subD90) <- ids
+  # 
+  # subR90 <- mclapply(ids,function(id) {    
+  #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+  #   spe_sub[FR_data$FR[spe_sub,"Rin"]>FR_data$Q$Q90_R]
+  # },mc.cores = proc)
+  # names(subR90) <- ids
   
   subD75R75 <- mclapply(ids,function(id) {
     spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
@@ -260,8 +257,16 @@ sub.data <- function(ids,proc,occ_mat,FR_data){
   },mc.cores = proc)
   names(subD25R75) <- ids
   
- all <- list(subD90,subR90,subD75R75,subD25R25,subD75R25,subD25R75)
-  names(all) <- c("subD90","subR90","subD75R75","subD25R25","subD75R25","subD25R75")
+  #TODO : AJOUTER LES AVERGAE
+  subAVG <- mclapply(ids,function(id) {  
+    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+    spe_sub_D <- spe_sub[(FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q25_D)&(FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q75_D)]
+    spe_sub_D[(FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q25_R) & (FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q75_R)]
+  },mc.cores = proc)
+  names(subAVG) <- ids
+  
+  all <- list(subAVG,subD75R75,subD25R25,subD75R25,subD25R75)
+  names(all) <- c("subAVG","subD75R75","subD25R25","subD75R25","subD25R75")
   return(all)
 }
 
@@ -294,18 +299,18 @@ final.results <- function(ids,proc,occ_mat,FR_data,seedrand,sub_data){
     
     #Number of species within a sites with FR values above quantiles of species and functional distribution 
     
-    if (length(sub_data$subD90[[id]])>0) D90=length(sub_data$subD90[[id]]) else D90=0
-    if (length(sub_data$subR90[[id]])>0) R90=length(sub_data$subR90[[id]]) else R90=0
+    #if (length(sub_data$subD90[[id]])>0) D90=length(sub_data$subD90[[id]]) else D90=0
+    #if (length(sub_data$subR90[[id]])>0) R90=length(sub_data$subR90[[id]]) else R90=0
     if (length(sub_data$subD75R75[[id]])>0) D75R75=length(sub_data$subD75R75[[id]]) else D75R75=0
     if (length(sub_data$subD25R25[[id]])>0) D25R25=length(sub_data$subD25R25[[id]]) else D25R25=0
     if (length(sub_data$subD75R1[[id]])>0) D75R1=length(sub_data$subD75R1[[id]]) else D75R1=0
     if (length(sub_data$subD75R25[[id]])>0) D75R25=length(sub_data$subD75R25[[id]]) else D75R25=0
     if (length(sub_data$subD25R75[[id]])>0) D25R75=length(sub_data$subD25R75[[id]]) else D25R75=0
-    
+    if (length(sub_data$subAVG[[id]])>0) AVG=length(sub_data$subAVG[[id]]) else AVG=0
     #combine all 
-    res <- cbind.data.frame(D90, R90,D75R75,D25R25,D75R1,D75R25,D25R75)
+    res <- cbind.data.frame(AVG,D75R75,D25R25,D75R1,D75R25,D25R75)
     
-    names(res) <- c('cell','TD_sp','D90','R90','D75R75','D25R25', 'D75R1','D75R25','D25R75')
+    names(res) <- c('cell','TD_sp','AVG','D75R75','D25R25', 'D75R1','D75R25','D25R75')
     return(res)
     
   },mc.cores = proc))
