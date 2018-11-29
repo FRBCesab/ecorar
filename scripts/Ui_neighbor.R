@@ -120,4 +120,3 @@ save(Ui_mammals, file=file.path(results_dir,"mammals/Ui_mammals.RData"))
 
 Ui_mammals<-do.call(rbind.data.frame, lapply(Ui_mammals, function(x) colMeans(x[1:2])))
 save(Ui_mammals, file=file.path(results_dir,"mammals/Ui_mammals.RData"))
-
