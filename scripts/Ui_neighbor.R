@@ -41,18 +41,40 @@ library(cluster)
     
     load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
 
+    load(file=file.path(data_dir,"mammals/occ_mammals_list.RData"))
+    occ_mammals_list<-MammalPresence
+    rm(MammalPresence)
+    
+    #Work with a list, delete species that are not in mammalsID
+    for (i in 1: length(occ_mammals_list)){
+      occ_mammals_list[[i]]<- occ_mammals_list[[i]][occ_mammals_list[[i]]%in%mammalsID$ID]
+      print(paste0('i',i))
+    }
+    save(occ_mammals_list,file=file.path(results_dir,"mammals/occ_mammals_list.RData"))
+
 #----
 #Function to compute Ui of each species inside cell where it is occuring, allow consideration of neighbour cells
-Ui.funk<-function(occ_mat,sp,dist_traits,mat_neigh,proc) {                
+Ui.funk<-function(occ_mat_list,sp,dist_traits,mat_neigh,proc) {                
   
-  # occ_mat=occ_mammals
+  # occ_mat_list=occ_mammals_list
   # sp=  "sp140" 
   # dist_traits=disTraits_mammals
   # mat_neigh=Mat_neighbour
   # proc=4
   
   #Select cell with cell where species "sp" is present
-  cell<-occ_mat[,sp]
+  
+  cell<-lapply(lapply(occ_mat_list, function(x){x==sp}),sum)>0
+  cell<-cell[cell=="TRUE"]
+
+  
+  occ_mat_list[[lapply(lapply(occ_mat_list, function(x){x==sp}),sum)>0]]
+  
+  
+  names(occ_mat_list%in%sp)
+  cell<-occ_mat_list[,sp]
+  
+  
   cell<-cell[cell>0]
   ids_cell<-names(cell)
 

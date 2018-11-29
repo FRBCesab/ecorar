@@ -42,7 +42,7 @@ load(file.path(results_dir,"mammals/mammalstrait.RData"))
     mammalstrait<-mammalstrait[,-c(2:7,23,24)]
     
     occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
-
+    save(occ_mammals, file=file.path(results_dir,"mammals/occ_mammals.RData"))
     #Transform Matrix occ in list to reduce objectsize
     occ_mammals_list <- lapply(occ_mammals, function(.col){sp <- row.names(occ_mammals)[.col == 1]})
 
