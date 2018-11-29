@@ -78,16 +78,12 @@ Ui.funk<-function(occ_mat,sp,dist_traits,mat_neigh,proc) {
     #If the cell haven't neighbor
         if(length(spot_neigh)==0){Ui_Sp_neigh<-NA
     
-         }else{
-           
+    }else{
       spot_neigh<-as.matrix(occ_mat[rownames(occ_mat)%in%c(id,spot_neigh),])
       spot_neigh<-spot_neigh[,apply(spot_neigh,2,sum)>0]
-      
       #If the species is alone 
       if(dim(data.frame(spot_neigh))[2]==1) {Ui_Sp_neigh<-NA
-      
       }else{
-        
         disT_cell_neigh <- dist_traits[rownames(dist_traits)%in%colnames(spot_neigh),]
         disT_cell_neigh <- disT_cell_neigh[,colnames(disT_cell_neigh)%in%colnames(spot_neigh)]
         
@@ -103,10 +99,12 @@ Ui.funk<-function(occ_mat,sp,dist_traits,mat_neigh,proc) {
     return(res)},mc.cores = proc_real))
 }
 
+
 #----
 #mammals          
 varSP <-  colnames(occ_mammals)
 
+####... LOOP
 Ui_mammals = list()
 ptm <- proc.time()
     for(i in 1:length(varSP))
@@ -118,7 +116,6 @@ ptm <- proc.time()
       names(Ui_mammals)[[length(Ui_mammals)]] <- varSP[i]
     }
     proc.time()-ptm
-    
 save(Ui_mammals, file=file.path(results_dir,"mammals/Ui_mammals.RData"))
 
 Ui_mammals<-do.call(rbind.data.frame, lapply(Ui_mammals, function(x) colMeans(x[1:2])))
