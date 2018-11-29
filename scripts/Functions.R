@@ -1,5 +1,14 @@
 #FUNCTIONS 
 
+#DUPLICATED2 : modification of duplicated function to extract duplicated lines
+duplicated2 <- function(x){ 
+  if (sum(dup <- duplicated(x))==0) 
+    return(dup) 
+  if (class(x) %in% c("data.frame","matrix")) 
+    duplicated(rbind(x[dup,],x))[-(1:sum(dup))] 
+  else duplicated(c(x[dup],x))[-(1:sum(dup))] 
+}
+
 
 #IDTOTAXO : get the Scientific name from the ID code 
 
