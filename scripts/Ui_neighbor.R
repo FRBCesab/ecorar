@@ -57,41 +57,30 @@ library(cluster)
 Ui.funk<-function(occ_mat_list,sp,dist_traits,mat_neigh,proc) {                
   
   # occ_mat_list=occ_mammals_list
-  # sp=  "sp140" 
+  # sp=  "sp42641" 
   # dist_traits=disTraits_mammals
   # mat_neigh=Mat_neighbour
   # proc=4
   
   #Select cell with cell where species "sp" is present
-  
   cell<-lapply(lapply(occ_mat_list, function(x){x==sp}),sum)>0
-  cell<-cell[cell=="TRUE"]
+  ids_cell<-names(cell[cell=="TRUE"])
 
-  
-  occ_mat_list[[lapply(lapply(occ_mat_list, function(x){x==sp}),sum)>0]]
-  
-  
-  names(occ_mat_list%in%sp)
-  cell<-occ_mat_list[,sp]
-  
-  
-  cell<-cell[cell>0]
-  ids_cell<-names(cell)
-
-  #id<-ids_cell
+    #id<-ids_cell
         if (length(ids_cell)<proc) proc_real=1 else proc_real=proc
         
         Ui_cell <- do.call(rbind,mclapply(ids_cell,function(id){ 
-          spot<-as.data.frame(occ_mat[id,])
-          spot<-t(subset(spot,spot[,1]>0))
-          
-          if(sum(spot)==1){Ui_Sp_cell<-NA
+          spot<-unique(occ_mat_list[[id]])
+
+          if(length(spot)==1){Ui_Sp_cell<-NA
           
           } else{
-            disT_cell<-dist_traits[rownames(dist_traits)%in%colnames(spot),]
-            disT_cell<-disT_cell[,colnames(disT_cell)%in%colnames(spot)]
-            FR_cell <- funrar(spot, disT_cell, rel_abund = FALSE)
-            Ui_Sp_cell<-FR_cell$Ui[FR_cell$Ui$species%in%sp,]$Ui
+            Sim_commu <- matrix(1,1,length(spot))
+            colnames(Sim_commu) <- spot
+            disT_cell<-dist_traits[rownames(dist_traits)%in%spot,]
+            disT_cell<-disT_cell[,colnames(disT_cell)%in%spot]
+            Ui_cell<-uniqueness(Sim_commu,disT_cell)
+            Ui_Sp_cell<-Ui_cell[Ui_cell$species%in%sp,]$Ui
           } 
           
     #Compute Ui considering cell and neigbor
@@ -100,23 +89,25 @@ Ui.funk<-function(occ_mat_list,sp,dist_traits,mat_neigh,proc) {
     #If the cell haven't neighbor
         if(length(spot_neigh)==0){Ui_Sp_neigh<-NA
     
-    }else{
-      spot_neigh<-as.matrix(occ_mat[rownames(occ_mat)%in%c(id,spot_neigh),])
-      spot_neigh<-spot_neigh[,apply(spot_neigh,2,sum)>0]
+        }else{
+        spot_neigh <- unique(unlist(occ_mat_list[c(id,spot_neigh)]))
+       
       #If the species is alone 
-      if(dim(data.frame(spot_neigh))[2]==1) {Ui_Sp_neigh<-NA
-      }else{
-        disT_cell_neigh <- dist_traits[rownames(dist_traits)%in%colnames(spot_neigh),]
-        disT_cell_neigh <- disT_cell_neigh[,colnames(disT_cell_neigh)%in%colnames(spot_neigh)]
-        
-        FR_cell_neigh <- funrar(spot_neigh, disT_cell_neigh, rel_abund = FALSE)
-        Ui_Sp_neigh<-FR_cell_neigh$Ui[FR_cell_neigh$Ui$species%in%sp,]$Ui
+      if(length(spot_neigh)==1) {Ui_Sp_neigh<-NA
+      
+      } else{
+        Sim_commu <- matrix(1,1,length(spot_neigh))
+        colnames(Sim_commu) <- spot_neigh
+        disT_cell_neigh<-dist_traits[rownames(dist_traits)%in%spot_neigh,]
+        disT_cell_neigh<-disT_cell_neigh[,colnames(disT_cell_neigh)%in%spot_neigh]
+        Ui_cell_neigh <- uniqueness(Sim_commu,disT_cell_neigh)
+        Ui_Sp_neigh<-Ui_cell_neigh[Ui_cell_neigh$species%in%sp,]$Ui
       }  
     }
     
-    res <- cbind.data.frame(Ui_Sp_cell,Ui_Sp_neigh)
+    res <- cbind.data.frame(id,Ui_Sp_cell,Ui_Sp_neigh)
     
-    names(res) <- c('Ui_Sp_cell','Ui_Sp_neigh')
+    names(res) <- c('cell','Ui_Sp_cell','Ui_Sp_neigh')
     
     return(res)},mc.cores = proc_real))
 }
@@ -124,7 +115,7 @@ Ui.funk<-function(occ_mat_list,sp,dist_traits,mat_neigh,proc) {
 
 #----
 #mammals          
-varSP <-  colnames(occ_mammals)
+varSP <-  colnames(dist_traits)
 
 ####... LOOP
 Ui_mammals = list()
@@ -133,12 +124,16 @@ ptm <- proc.time()
     {
       print(paste0("i=",i, "/sp=",varSP[i]," / cells= ",sum(occ_mammals[,varSP[i]])," / " ,length(varSP)," mammals"))
       #print(paste0("sp=",i," / cells= ",sum(occ_mammals[,varSP[i]])," / " ,length(varSP)," mammals"))
-      LM <- Ui.funk(occ_mat=occ_mammals,sp=varSP[i],dist_traits=disTraits_mammals,mat_neigh=Mat_neighbour,proc=4)
+      LM <- Ui.funk(occ_mat_list=occ_mammals_list,sp=varSP[i],dist_traits=disTraits_mammals,mat_neigh=Mat_neighbour,proc=4)
       Ui_mammals[[length(Ui_mammals)+1]] <- LM
       names(Ui_mammals)[[length(Ui_mammals)]] <- varSP[i]
     }
     proc.time()-ptm
 save(Ui_mammals, file=file.path(results_dir,"mammals/Ui_mammals.RData"))
 
+
+  
+  
+  
 Ui_mammals<-do.call(rbind.data.frame, lapply(Ui_mammals, function(x) colMeans(x[1:2])))
 save(Ui_mammals, file=file.path(results_dir,"mammals/Ui_mammals.RData"))
