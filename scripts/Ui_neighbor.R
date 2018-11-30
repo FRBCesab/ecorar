@@ -27,8 +27,7 @@ library(cluster)
     # Load traits and distrib 
     load(file=file.path(results_dir,"mammals/mammalsID.RData"))
     load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
-    load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
-    
+
     #Commun ID for mammalsID/occ_mammals/traitmammals ---
     mammalsID<-mammalsID[mammalsID$checkname %in% mammalstrait$checkname,]
     mammalstrait<-merge(mammalsID,mammalstrait,by="checkname")
