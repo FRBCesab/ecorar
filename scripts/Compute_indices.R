@@ -181,73 +181,70 @@ library(rgdal)
       
 
 ##Generate the subset data 
+      
+      sub.data <- function(ids,proc,occ_mat_list,FR_data){
+        
+        #proc <- 3
+        #occ_mat_list <- occ_mammals_list
+        #ids <- names(occ_mammals_list)
+        #FR_data=FR_mammals
+        
+        # subD90 <- mclapply(ids,function(id) {    
+        #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+        #   spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q90_D]
+        #   
+        # },mc.cores = proc)
+        # names(subD90) <- ids
+        # 
+        # subR90 <- mclapply(ids,function(id) {    
+        #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+        #   spe_sub[FR_data$FR[spe_sub,"Rin"]>FR_data$Q$Q90_R]
+        # },mc.cores = proc)
+        # names(subR90) <- ids
 
-sub.data <- function(ids,proc,occ_mat,FR_data){
+        subD75R75 <- mclapply(ids,function(id) {
+          spe_sub <- occ_mat_list[[id]]
+          spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
+          spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
+          
+        },mc.cores = proc)
+        names(subD75R75) <- ids
+        
+        subD25R25 <- mclapply(ids,function(id) {  
+          spe_sub <-  occ_mat_list[[id]]
+          spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
+          spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
+        },mc.cores = proc)
+        names(subD25R25) <- ids
+        
+        subD75R25 <- mclapply(ids,function(id) {
+          spe_sub <-  occ_mat_list[[id]]
+          spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
+          spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
+        },mc.cores = proc)
+        names(subD75R25) <- ids
+        
+        subD25R75 <- mclapply(ids,function(id) {  
+          spe_sub <-  occ_mat_list[[id]]
+          spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
+          spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
+        },mc.cores = proc)
+        names(subD25R75) <- ids
+        
+        #TODO : AJOUTER LES AVERGAE
+        subAVG <- mclapply(ids,function(id) {  
+          spe_sub <-  occ_mat_list[[id]]
+          spe_sub_D <- spe_sub[(FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q25_D)&(FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q75_D)]
+          spe_sub_D[(FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q25_R) & (FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q75_R)]
+        },mc.cores = proc)
+        names(subAVG) <- ids
+        
+        all <- list(subAVG,subD75R75,subD25R25,subD75R25,subD25R75)
+        names(all) <- c("subAVG","subD75R75","subD25R25","subD75R25","subD25R75")
+        return(all)
+      }
 
-   #proc <- 2
-   #occ_mat <- occ_mammals
-   #ids <- rownames(occ_mat)
-   #FR_data=FR_mammals
-  
-  # subD90 <- mclapply(ids,function(id) {    
-  #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-  #   spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q90_D]
-  #   
-  # },mc.cores = proc)
-  # names(subD90) <- ids
-  # 
-  # subR90 <- mclapply(ids,function(id) {    
-  #   spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-  #   spe_sub[FR_data$FR[spe_sub,"Rin"]>FR_data$Q$Q90_R]
-  # },mc.cores = proc)
-  # names(subR90) <- ids
-  ids<- rownames(occ_mat)[1:2]
-  
-  subD75R75 <- mclapply(ids,function(id) {
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
-    
-  },mc.cores = proc)
-  names(subD75R75) <- ids
-  
-  subD25R25 <- mclapply(ids,function(id) {  
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
-  },mc.cores = proc)
-  names(subD25R25) <- ids
-  
-  subD75R25 <- mclapply(ids,function(id) {
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q75_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q25_R]
-   },mc.cores = proc)
-  names(subD75R25) <- ids
-  
-  subD25R75 <- mclapply(ids,function(id) {  
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub_D <- spe_sub[FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q25_D]
-    spe_sub_D[FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q75_R]
-  },mc.cores = proc)
-  names(subD25R75) <- ids
-  
-  #TODO : AJOUTER LES AVERGAE
-  subAVG <- mclapply(ids,function(id) {  
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
-    spe_sub_D <- spe_sub[(FR_data$FR[spe_sub,"Din"]>FR_data$Q$Q25_D)&(FR_data$FR[spe_sub,"Din"]<FR_data$Q$Q75_D)]
-    spe_sub_D[(FR_data$FR[spe_sub_D,"Rin"]>FR_data$Q$Q25_R) & (FR_data$FR[spe_sub_D,"Rin"]<FR_data$Q$Q75_R)]
-  },mc.cores = proc)
-  names(subAVG) <- ids
-  
-  all <- list(subAVG,subD75R75,subD25R25,subD75R25,subD25R75)
-  names(all) <- c("subAVG","subD75R75","subD25R25","subD75R25","subD25R75")
-  return(all)
-}
-
-sub_mammals <- sub.data(ids=rownames(occ_mammals),proc=30,occ_mat=occ_mammals,FR_data=FR_mammals)
-save(sub_mammals, file="sub_mammals.RData")
-
+sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=4,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
 save(sub_mammals, file=file.path(results_dir,"mammals/sub_mammals.RData"))
 
 
@@ -259,35 +256,32 @@ load(file=file.path(results_dir,"birds/sub_birds.RData"))
 load(file=file.path(results_dir,"mammals/sub_mammals.RData"))
 
 ##Generate main results
-final.results <- function(ids,proc,occ_mat,FR_data,seedrand,sub_data){
+final.results <- function(ids,proc,occ_mat_list,sub_data){
   
   # proc <- 50
-  # occ_mat <- occ_mammals
-  # ids <- rownames(occ_mat)
-  # FR_data <- FR_mammals_all
+  # occ_mat_list <- occ_mammals_list
+  # ids <- names(occ_mat_list)
   # sub_data <- sub_mammals
   
   funk_all <-do.call(rbind,mclapply(ids,function(id) {    #cat("id:",i,"\n")
     
     #id <- ids[1]
     
-    TD_sp=sum(occ_mat[id,])
+    TD_sp=length(unique(occ_mat_list[[id]]))
     
     #Subset the species present in the site i 
-    spe_sub <- names(occ_mat[id,][occ_mat[id,]>0])
+    spe_sub <- unique(occ_mat_list[[id]])
     
     #Number of species within a sites with FR values above quantiles of species and functional distribution 
-    
-    #if (length(sub_data$subD90[[id]])>0) D90=length(sub_data$subD90[[id]]) else D90=0
-    #if (length(sub_data$subR90[[id]])>0) R90=length(sub_data$subR90[[id]]) else R90=0
     if (length(sub_data$subD75R75[[id]])>0) D75R75=length(sub_data$subD75R75[[id]]) else D75R75=0
     if (length(sub_data$subD25R25[[id]])>0) D25R25=length(sub_data$subD25R25[[id]]) else D25R25=0
     if (length(sub_data$subD75R1[[id]])>0) D75R1=length(sub_data$subD75R1[[id]]) else D75R1=0
     if (length(sub_data$subD75R25[[id]])>0) D75R25=length(sub_data$subD75R25[[id]]) else D75R25=0
     if (length(sub_data$subD25R75[[id]])>0) D25R75=length(sub_data$subD25R75[[id]]) else D25R75=0
     if (length(sub_data$subAVG[[id]])>0) AVG=length(sub_data$subAVG[[id]]) else AVG=0
-    #combine all 
-    res <- cbind.data.frame(AVG,D75R75,D25R25,D75R1,D75R25,D25R75)
+   
+     #combine all 
+    res <- cbind.data.frame(id,TD_sp,AVG,D75R75,D25R25,D75R1,D75R25,D25R75)
     
     names(res) <- c('cell','TD_sp','AVG','D75R75','D25R25', 'D75R1','D75R25','D25R75')
     return(res)
@@ -297,11 +291,11 @@ final.results <- function(ids,proc,occ_mat,FR_data,seedrand,sub_data){
   return(funk_all)
 }
 
-funk_birds <- final.results(ids=rownames(occ_birds),proc=50,occ_mat=occ_birds,FR_data=FR_birds_all,seedrand=1871,sub_data=sub_birds)
-save(funk_birds, file=file.path(results_dir,"birds/funk_birds.RData"))
-
-funk_mammals <- final.results(ids=rownames(occ_mammals),proc=50,occ_mat=occ_mammals,FR_data=FR_mammals_all,seedrand=1871,sub_data=sub_mammals)
+funk_mammals <- final.results(ids=names(occ_mammals_list),proc=4,occ_mat_list=occ_mammals_list,sub_data=sub_mammals)
 save(funk_mammals, file=file.path(results_dir,"mammals/funk_mammals.RData"))
+
+
+
 
 #----
 
