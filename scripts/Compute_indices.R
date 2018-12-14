@@ -15,11 +15,10 @@ library(cluster)
 library(rgdal)
 
 #LOAD TRAITS MAPS AND DISTRIB----
-
+reso="50km"
   # Load traits and distrib 
-    load(file=file.path(results_dir,"mammals/mammalsID.RData"))
-    load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
-    load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
 
     #Commun ID for mammalsID/occ_mammals/traitmammals ---
     mammalsID<-mammalsID[mammalsID$checkname_clean %in% mammalstrait$checkname_clean,]
@@ -27,8 +26,9 @@ library(rgdal)
     rownames(mammalstrait)<-mammalstrait$ID
     mammalstrait<-mammalstrait[,-c(2:7,23,24)]
     
-    occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
-
+    #Load occ mammals
+    occ_mammals_list<-mammalsPresence
+    rm(mammalsPresence)
 #----
 
 #COMPUTE FR ----
@@ -58,11 +58,11 @@ library(rgdal)
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
-      load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
+      load(file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
       
      #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
-      Sim_commu <- matrix(1,1,dim(occ_mammals)[2])
-      colnames(Sim_commu) <- colnames(occ_mammals)
+      Sim_commu <- matrix(1,1,dim(disTraits_mammals)[2])
+      colnames(Sim_commu) <- colnames(disTraits_mammals)
       
       #Compute Ui (Global Uniqueness)
         Ui<-uniqueness(Sim_commu,disTraits_mammals)
@@ -71,14 +71,19 @@ library(rgdal)
         Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
       
       # matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
-        Ri<-data.frame(1-(colSums(occ_mammals)/dim(occ_mammals)[1]))
+        Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
+        rownames(Ri)<-Ri[,1]
+        Ri<-Ri[,-1, drop = FALSE]
         colnames(Ri)<-"Ri"
 
-    
+
         #Create the FR_data frame 
-        
-        FR_data <- data.frame(Ui,Di,Ri)
-        
+        FR_data <- data.frame(Ui,Di)
+        FR_data <- merge(FR_data,Ri, by="row.names")
+        rownames(FR_data) <- FR_data[,1]
+        FR_data <- FR_data[,-1]
+          
+          
         FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
         FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
         FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
@@ -100,7 +105,7 @@ library(rgdal)
                         Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
         
         FR_mammals <- list(FR=FR_data,Q=Q)
-        save(FR_mammals, file=file.path(results_dir,"mammals/FR_mammals.RData"))
+        save(FR_mammals, file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
       
 
   ##Birds 
@@ -144,6 +149,7 @@ library(rgdal)
       Ri<-data.frame(1-(colSums(occ_birds)/dim(occ_birds)[1]))
       colnames(Ri)<-"Ri"
       
+
       
       #Create the FR_data frame 
       
@@ -179,8 +185,7 @@ library(rgdal)
       
     load(file=file.path(results_dir,"mammals/FR_mammals.RData"))
       
-
-##Generate the subset data 
+       ##Generate the subset data 
       
       sub.data <- function(ids,proc,occ_mat_list,FR_data){
         

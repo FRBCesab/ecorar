@@ -13,44 +13,48 @@ library(ade4)
 library(dplyr)
 library(gridExtra)
 library(cluster)
-
+library(rgdal)
+library(raster)
 #----
+#Choose Scale 10 or 50
+reso<-"50km"
+
 #Load DATA
     # Load spatial grid for plotting
-    map<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
+    map<-raster(file.path(data_dir,"ReferenceGrid50Km","rast50km.tif"))
     #names of each cell
     ID_cell<-rownames(map@data)
     # Matrice of neighbor
-    load(file.path(data_dir,"ReferenceGrid10Km","Mat_neighbour.RData"))# names of the file  = names(occ)-1
+    load(file.path(data_dir,"ReferenceGrid50Km","Mat_neighbour.RData"))# names of the file  = names(occ)-1
     names(Mat_neighbour)<-rownames(occ_mammals)
     
     # Load traits and distrib 
-    load(file=file.path(results_dir,"mammals/mammalsID.RData"))
-    load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
-
-    #Commun ID for mammalsID/occ_mammals/traitmammals ---
+    load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
+   
+     #Commun ID for mammalsID/occ_mammals/traitmammals ---
     mammalsID<-mammalsID[mammalsID$checkname %in% mammalstrait$checkname,]
     mammalstrait<-merge(mammalsID,mammalstrait,by="checkname")
     rownames(mammalstrait)<-mammalstrait$ID
     mammalstrait<-mammalstrait[,-c(2,3)]
-    occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
     
-    #Select species with at least one occurence
-    occ_mammals <- occ_mammals[,colSums(occ_mammals)>0]
-    
-    load(file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
 
-    load(file=file.path(data_dir,"mammals/occ_mammals_list.RData"))
-    occ_mammals_list<-MammalPresence
-    rm(MammalPresence)
-    
+    load(file=file.path(data_dir,"mammals",reso,"occ_mammals_list.RData"))
+    occ_mammals_list<-mammalsPresence
+    rm(mammalsPresence)
+    #
+
     #Work with a list, delete species that are not in mammalsID
     for (i in 1: length(occ_mammals_list)){
       occ_mammals_list[[i]]<- occ_mammals_list[[i]][occ_mammals_list[[i]]%in%mammalsID$ID]
       print(paste0('i',i))
     }
-    save(occ_mammals_list,file=file.path(results_dir,"mammals/occ_mammals_list.RData"))
+    save(occ_mammals_list,file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
 
+    
+
+    
 #----
 #Function to compute Ui of each species inside cell where it is occuring, allow consideration of neighbour cells
 Ui.funk<-function(occ_mat_list,sp,dist_traits,mat_neigh,proc) {                
