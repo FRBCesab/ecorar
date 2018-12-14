@@ -2,8 +2,6 @@
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
 who.remote(remote=FALSE,who="NL")
-
-
 library(funrar)
 library(moments)
 library(ggplot2)
@@ -17,35 +15,37 @@ library(Matrix)
 library(taxize)
 
 if (!require("devtools")) install.packages("devtools")
-
-#map ----
-
-# Load spatial grid for plotting
-# map<-readOGR(file.path(data_dir,"ReferenceGrid10Km","gridLand10km.B.shp"))
-#names of each cell
-# ID_cell<-rownames(map@data)
+#Choose resolution----
+reso="50km"
 
 #Mammals----
 
-load(file.path(results_dir,"mammals/mammalstrait.RData"))
-
-    #Occurence 
-    load(file=file.path(data_dir,"mammals/occ_mammals_sparseM.RData"))
-
-    #ID 
-    load(file=file.path(results_dir,"mammals/MammalsID.RData"))
+load(file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
+#ID 
+load(file=file.path(data_dir,"mammals",reso,"MammalsID.RData"))
 
     #Commun ID for mammalsID/occ_mammals/traitmammals ---
     mammalsID<-mammalsID[mammalsID$checkname_clean %in% mammalstrait$checkname_clean,]
     mammalstrait<-merge(mammalsID,mammalstrait,by="checkname_clean")
     rownames(mammalstrait)<-mammalstrait$ID
-    mammalstrait<-mammalstrait[,-c(2:7,23,24)]
+    mammalstrait<-mammalstrait[,-c(1:7,23,24)]
+    save(mammalstrait, file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
     
-    occ_mammals <- occ_mammals[,colnames(occ_mammals)  %in% mammalsID$ID]
-    save(occ_mammals, file=file.path(results_dir,"mammals/occ_mammals.RData"))
-    #Transform Matrix occ in list to reduce objectsize
-    occ_mammals_list <- lapply(occ_mammals, function(.col){sp <- row.names(occ_mammals)[.col == 1]})
-
+    
+    load(file=file.path(data_dir,"mammals",reso,"occ_mammals_list.RData"))
+    occ_mammals_list<-mammalsPresence
+    rm(mammalsPresence)
+    #
+    #Work with a list, delete species that are not in mammalsID
+    for (i in 1: length(occ_mammals_list)){
+      occ_mammals_list[[i]]<- occ_mammals_list[[i]][occ_mammals_list[[i]]%in%mammalsID$ID]
+      print(paste0('i',i))
+    }
+    save(occ_mammals_list,file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
+    
+    
+    
+    
 #Birds----
 
 #Occurence 

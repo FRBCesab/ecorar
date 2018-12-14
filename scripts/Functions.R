@@ -109,8 +109,8 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     require(viridis)
     require(RColorBrewer)
     
-    # data<- funk_mamals
-    # var <- "DR80"
+    # data<- funk_mammals
+    # var <- "D75R75"
     #nlevels <- 6 #Choix du nombre de classe
     #map<- map_mamals
     #resultdir="mamals"
@@ -163,6 +163,18 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     text(0.5, 0.5, txt, cex = cex * r) 
     text(.8, .8, Signif, cex=cex, col=2) 
   }  
+  
+  
+  
+#CLEAN NAME  
+  stringCleaning <- function(x) {
+    #   x <- stringr::str_trim(x)
+    #   x <- tolower(x)
+    #   x <- gsub("\\s+", " ", x)
+    #   x <- gsub("[^[:space:]A-z0-9]", "", x)
+    stringr::str_trim(tolower(gsub("\\s+", " ", gsub("[^[:space:]A-z0-9]", "", x))))
+  }
+  
   
 #TEST.COREL : Function to test correlation between traits
   # cramer between qualitative vars

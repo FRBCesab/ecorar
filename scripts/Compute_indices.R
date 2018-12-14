@@ -19,24 +19,14 @@ reso="50km"
   # Load traits and distrib 
     load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
     load(file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
-
-    #Commun ID for mammalsID/occ_mammals/traitmammals ---
-    mammalsID<-mammalsID[mammalsID$checkname_clean %in% mammalstrait$checkname_clean,]
-    mammalstrait<-merge(mammalsID,mammalstrait,by="checkname_clean")
-    rownames(mammalstrait)<-mammalstrait$ID
-    mammalstrait<-mammalstrait[,-c(2:7,23,24)]
-    
-    #Load occ mammals
-    occ_mammals_list<-mammalsPresence
-    rm(mammalsPresence)
+    load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
 #----
-
+    mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
+    
 #COMPUTE FR ----
 
 ## Mammals
-    
-    mammalstrait<-mammalstrait[,-1]
-    
+ 
       ###Format the traits 
 
         diet <- prep.fuzzy(mammalstrait[,1:10], col.blocks = ncol(mammalstrait[,1:10]), label = "diet")
@@ -54,14 +44,14 @@ reso="50km"
 
     ###Compute the dist matrix
       disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
-      save(disTraits_mammals, file=file.path(results_dir,"mammals/disTraits_mammals.RData"))
+      save(disTraits_mammals, file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
       load(file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
       
      #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
-      Sim_commu <- matrix(1,1,dim(disTraits_mammals)[2])
+      Sim_commu <- matrix(1,1,ncol(disTraits_mammals))
       colnames(Sim_commu) <- colnames(disTraits_mammals)
       
       #Compute Ui (Global Uniqueness)
@@ -76,13 +66,11 @@ reso="50km"
         Ri<-Ri[,-1, drop = FALSE]
         colnames(Ri)<-"Ri"
 
-
         #Create the FR_data frame 
         FR_data <- data.frame(Ui,Di)
         FR_data <- merge(FR_data,Ri, by="row.names")
         rownames(FR_data) <- FR_data[,1]
         FR_data <- FR_data[,-1]
-          
           
         FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
         FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
@@ -249,8 +237,8 @@ reso="50km"
         return(all)
       }
 
-sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=4,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
-save(sub_mammals, file=file.path(results_dir,"mammals/sub_mammals.RData"))
+sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
+save(sub_mammals, file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
 
 
 sub_birds <- sub.data(ids=rownames(occ_birds),proc=50,occ_mat=occ_birds,FR_data=FR_birds_all)
@@ -280,15 +268,14 @@ final.results <- function(ids,proc,occ_mat_list,sub_data){
     #Number of species within a sites with FR values above quantiles of species and functional distribution 
     if (length(sub_data$subD75R75[[id]])>0) D75R75=length(sub_data$subD75R75[[id]]) else D75R75=0
     if (length(sub_data$subD25R25[[id]])>0) D25R25=length(sub_data$subD25R25[[id]]) else D25R25=0
-    if (length(sub_data$subD75R1[[id]])>0) D75R1=length(sub_data$subD75R1[[id]]) else D75R1=0
     if (length(sub_data$subD75R25[[id]])>0) D75R25=length(sub_data$subD75R25[[id]]) else D75R25=0
     if (length(sub_data$subD25R75[[id]])>0) D25R75=length(sub_data$subD25R75[[id]]) else D25R75=0
     if (length(sub_data$subAVG[[id]])>0) AVG=length(sub_data$subAVG[[id]]) else AVG=0
    
      #combine all 
-    res <- cbind.data.frame(id,TD_sp,AVG,D75R75,D25R25,D75R1,D75R25,D25R75)
+    res <- cbind.data.frame(id,TD_sp,AVG,D75R75,D25R25,D75R25,D25R75)
     
-    names(res) <- c('cell','TD_sp','AVG','D75R75','D25R25', 'D75R1','D75R25','D25R75')
+    names(res) <- c('cell','TD_sp','AVG','D75R75','D25R25','D75R25','D25R75')
     return(res)
     
   },mc.cores = proc))

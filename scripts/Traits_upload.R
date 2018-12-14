@@ -10,10 +10,11 @@ who.remote(remote=FALSE,who="NL")
 library(parallel)
 library(ggplot2)
 library(taxize)
+library(stringr)
 
-
+reso="50km"
 ############
-load(file=file.path(data_dir,"mammals/MammalsID.RData"))
+load(file=file.path(data_dir,"mammals",reso,"MammalsID.RData"))
 mammalsID<-data.frame(Mammals)
 rm(Mammals)
 
@@ -54,17 +55,15 @@ mammalstrait$clean <- stringCleaning(mammalstrait$clean)
 sp_dup <- mammalsID[duplicated2(mammalsID[, "clean"]), ]#8 species are dupblicated due to subspecies (no functional traits for them, delete)
 
 #Choose to delete spp
-
 sp_dup<-sp_dup[grep("ssp.",sp_dup$Name, ignore.case = TRUE),]
 mammalsID <- mammalsID[!rownames(mammalsID)%in%rownames(sp_dup),]
 
-
 #Check on data base name
-#mammalstrait$checkname<-NA
-#for (i in 1:length(mammalstrait$clean)){
-#  mammalstrait$checkname[i] <- as.matrix(gnr_resolve(names = as.character(mammalstrait$clean[i])))[1,3]
-#  print(paste0("i",i))
-#}
+mammalstrait$checkname<-NA
+for (i in 1:length(mammalstrait$clean)){
+    mammalstrait$checkname[i] <- as.matrix(gnr_resolve(names = as.character(mammalstrait$clean[i])))[1,3]
+  print(paste0("i",i))
+}
 
 #mammalsID$checkname<-NA
 #for (i in 5120:length(mammalsID$Name)){
@@ -78,5 +77,5 @@ mammalsID$checkname_clean <- stringCleaning(mammalsID$checkname)
 mammalstrait$checkname_clean <- stringCleaning(mammalstrait$checkname)
 
 
-save(mammalstrait, file=file.path(results_dir,"mammals/mammalstrait.RData"))
-save(mammalsID, file=file.path(results_dir,"mammals/mammalsID.RData"))
+save(mammalstrait, file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
+save(mammalsID, file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))

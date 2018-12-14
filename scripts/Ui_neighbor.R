@@ -32,27 +32,8 @@ reso<-"50km"
     load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
     load(file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
     load(file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
-   
-     #Commun ID for mammalsID/occ_mammals/traitmammals ---
-    mammalsID<-mammalsID[mammalsID$checkname %in% mammalstrait$checkname,]
-    mammalstrait<-merge(mammalsID,mammalstrait,by="checkname")
-    rownames(mammalstrait)<-mammalstrait$ID
-    mammalstrait<-mammalstrait[,-c(2,3)]
-    
+    load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
 
-    load(file=file.path(data_dir,"mammals",reso,"occ_mammals_list.RData"))
-    occ_mammals_list<-mammalsPresence
-    rm(mammalsPresence)
-    #
-
-    #Work with a list, delete species that are not in mammalsID
-    for (i in 1: length(occ_mammals_list)){
-      occ_mammals_list[[i]]<- occ_mammals_list[[i]][occ_mammals_list[[i]]%in%mammalsID$ID]
-      print(paste0('i',i))
-    }
-    save(occ_mammals_list,file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
-
-    
 
     
 #----
