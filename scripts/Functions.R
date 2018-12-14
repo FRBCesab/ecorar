@@ -173,7 +173,7 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     #   x <- gsub("\\s+", " ", x)
     #   x <- gsub("[^[:space:]A-z0-9]", "", x)
     stringr::str_trim(tolower(gsub("\\s+", " ", gsub("[^[:space:]A-z0-9]", "", x))))
-  }
+}
   
   
 #TEST.COREL : Function to test correlation between traits

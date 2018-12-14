@@ -56,18 +56,21 @@ reso="50km"
       
       #Compute Ui (Global Uniqueness)
         Ui<-uniqueness(Sim_commu,disTraits_mammals)
-
+        rownames(Ui)<-Ui[,1]
       #Compute Di (Global distinctiveness)
         Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
-      
-      # matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
+        colnames(Di)<-"Di"
+     
+      #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
         Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
         rownames(Ri)<-Ri[,1]
         Ri<-Ri[,-1, drop = FALSE]
         colnames(Ri)<-"Ri"
 
         #Create the FR_data frame 
-        FR_data <- data.frame(Ui,Di)
+        FR_data <- merge(Ui,Di, by="row.names")
+        rownames(FR_data) <- FR_data[,1]
+        FR_data <- FR_data[,-c(1,2)]
         FR_data <- merge(FR_data,Ri, by="row.names")
         rownames(FR_data) <- FR_data[,1]
         FR_data <- FR_data[,-1]
@@ -138,7 +141,6 @@ reso="50km"
       colnames(Ri)<-"Ri"
       
 
-      
       #Create the FR_data frame 
       
       FR_data <- data.frame(Ui,Di,Ri)
