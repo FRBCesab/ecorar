@@ -45,7 +45,7 @@ funk_mammals<-funk_mammals[match(map@data[,1], rownames(funk_mammals)),]
 
 ##PLOT maps
 varmap <- names(funk_mammals)[-1]
-lapply(varmap,function(i) map.Funk(data=funk_mammals,map=map_mammals,var=i,nlevels=10,plotpdf=TRUE,resultdir="mammals",dalto=FALSE))
+lapply(varmap,function(i) map.Funk(data=funk_mammals,map=map,var=i,nlevels=10,plotpdf=TRUE,resultdir="mammals/50km",dalto=FALSE))
 map.Funk(data=funk_mammals,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
 
 

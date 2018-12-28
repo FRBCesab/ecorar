@@ -294,14 +294,6 @@ save(funk_mammals, file=file.path(results_dir,"mammals/funk_mammals.RData"))
 
 
 #VISU ----
-load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
-load(file=file.path(results_dir,"mammals/FR_mammals_all.RData"))
-
-load(file=file.path(results_dir,"mammals/funk_mammals.RData"))
-load(file=file.path(results_dir,"birds/funk_birds.RData"))
-
-
-
 ##Histograms of species numbers 
 
 ggplot(funk_mammals, aes(TD_sp))+geom_histogram()+ggtitle('mammals')
@@ -310,18 +302,15 @@ ggplot(funk_birds, aes(TD_sp))+geom_histogram()+ggtitle('Birds')
 ##Distributions 
 
 ###Birds
-a <- ggplot(data=FR_birds_all$FR, aes(x=Din)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds_all$Q$Q90_D), colour="red")
-b <- ggplot(data=FR_birds_all$FR, aes(x=Rin)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds_all$Q$Q90_R), colour="red")
-c <- ggplot(data=FR_birds_all$FR, aes(x=FRD_A)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds_all$Q$Q90_FRD_A), colour="red")
-d <- ggplot(data=FR_birds_all$FR, aes(x=FRD_G)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds_all$Q$Q90_FRD_G), colour="red")
+a <- ggplot(data=FR_birds$FR, aes(x=Din)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds$Q$Q75_D), colour="red")
+b <- ggplot(data=FR_birds$FR, aes(x=Rin)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_birds$Q$Q75_R), colour="red")
+
 grid.arrange(a,b,c,d,ncol=2)
 
 ###mammals
-a <- ggplot(data=FR_mammals_all$FR, aes(x=Din)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals_all$Q$Q90_D), colour="red")
-b <- ggplot(data=FR_mammals_all$FR, aes(x=Rin)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals_all$Q$Q90_R), colour="red")
-c <- ggplot(data=FR_mammals_all$FR, aes(x=FRD_A)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals_all$Q$Q90_FRD_A), colour="red")
-d <- ggplot(data=FR_mammals_all$FR, aes(x=FRD_G)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals_all$Q$Q90_FRD_G), colour="red")
-grid.arrange(a,b,c,d,ncol=2)
+a <- ggplot(data=FR_mammals$FR, aes(x=Din)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals$Q$Q75_D), colour="red")
+b <- ggplot(data=FR_mammals$FR, aes(x=Rin)) + geom_histogram(binwidth=0.05,colour = "black")+ geom_vline(aes(xintercept = FR_mammals$Q$Q75_R), colour="red")
+grid.arrange(a,b,ncol=2)
 
 
 ##Di vs vs Ri BIRDS 
@@ -329,8 +318,7 @@ grid.arrange(a,b,c,d,ncol=2)
 sub_FR <- FR_birds_all$FR[,c('Rin','Din')]
 sub_FR$inv_Rin <- 1-sub_FR$Rin
 
-Q90R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.1))[2])
-Q90D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.1))[10])
+
 Q75R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[2])
 Q25R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[4])
 Q75D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[4])
@@ -338,12 +326,6 @@ Q25D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[2])
 
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   labs(x = "1-Rin",y="Din") +ggtitle('Birds')
-
-ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
-  scale_x_continuous(trans='log10') + 
-  geom_vline(aes(xintercept = Q90R), colour="red") + 
-  geom_hline(aes(yintercept = Q90D), colour="red") + 
-  labs(x = "1-Rin",y="Din")
 
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   scale_x_continuous(trans='log10') + 
@@ -355,27 +337,16 @@ ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() +
 
 
 ##Di vs vs Ri MAMMALS 
-
-sub_FR <- FR_mammals_all$FR[,c('Rin','Din')]
+sub_FR <- FR_mammals$FR[,c('Rin','Din')]
 sub_FR$inv_Rin <- 1-sub_FR$Rin
 
-Q90R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.1))[2])
-Q90D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.1))[10])
 Q75R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[2])
 Q25R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[4])
 Q75D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[4])
 Q25D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[2])
 
-
-
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   labs(x = "1-Rin",y="Din") +ggtitle('Mammals')
-
-ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
-  scale_x_continuous(trans='log10') + 
-  geom_vline(aes(xintercept = Q90R), colour="red") + 
-  geom_hline(aes(yintercept = Q90D), colour="red") + 
-  labs(x = "1-Rin",y="Din")
 
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   scale_x_continuous(trans='log10') + 
@@ -388,45 +359,45 @@ ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() +
 ##Di Local vs regional 
 
 ###Birds Mean 
-LDi_temp <- apply(FR_birds_all$Di,2,mean,na.rm=TRUE)
+LDi_temp <- apply(FR_birds_$Di,2,mean,na.rm=TRUE)
 LDi <- data.frame(species=names(LDi_temp),LDi=as.numeric(LDi_temp))
 
-GDi <- data.frame(species=FR_birds_all$FR$species,GDi=FR_birds_all$FR$Di)
+GDi <- data.frame(species=FR_birds_$FR$species,GDi=FR_birds_$FR$Di)
 
-Di_all_birds <- merge(LDi,GDi)
+Di__birds <- merge(LDi,GDi)
 
-a <- ggplot(Di_all_birds, aes(x=GDi,y=LDi))+geom_point() +ggtitle('Birds')
+a <- ggplot(Di__birds, aes(x=GDi,y=LDi))+geom_point() +ggtitle('Birds')
 
 ###Birds Var  
-LDi_temp <- apply(FR_birds_all$Di,2,sd,na.rm=TRUE)
+LDi_temp <- apply(FR_birds_$Di,2,sd,na.rm=TRUE)
 LDi_sd <- data.frame(species=names(LDi_temp),LDi_sd=as.numeric(LDi_temp))
 
-GDi <- data.frame(species=FR_birds_all$FR$species,GDi=FR_birds_all$FR$Di)
+GDi <- data.frame(species=FR_birds_$FR$species,GDi=FR_birds_$FR$Di)
 
-Di_all_birds <- merge(LDi_sd,GDi)
+Di__birds <- merge(LDi_sd,GDi)
 
-b <- ggplot(Di_all_birds, aes(x=GDi,y=LDi_sd))+geom_point() +ggtitle('Birds')
+b <- ggplot(Di__birds, aes(x=GDi,y=LDi_sd))+geom_point() +ggtitle('Birds')
 
 
 ###mammals Mean 
-LDi_temp <- apply(FR_mammals_all$Di,2,mean,na.rm=TRUE)
+LDi_temp <- apply(FR_mammals_$Di,2,mean,na.rm=TRUE)
 LDi <- data.frame(species=names(LDi_temp),LDi=as.numeric(LDi_temp))
 
-GDi <- data.frame(species=FR_mammals_all$FR$species,GDi=FR_mammals_all$FR$Di)
+GDi <- data.frame(species=FR_mammals_$FR$species,GDi=FR_mammals_$FR$Di)
 
-Di_all_mammals <- merge(LDi,GDi)
+Di__mammals <- merge(LDi,GDi)
 
-c <- ggplot(Di_all_mammals, aes(x=GDi,y=LDi))+geom_point() +ggtitle('Mammals')
+c <- ggplot(Di__mammals, aes(x=GDi,y=LDi))+geom_point() +ggtitle('Mammals')
 
 ###mammals Var  
-LDi_temp <- apply(FR_mammals_all$Di,2,sd,na.rm=TRUE)
+LDi_temp <- apply(FR_mammals_$Di,2,sd,na.rm=TRUE)
 LDi_sd <- data.frame(species=names(LDi_temp),LDi_sd=as.numeric(LDi_temp))
 
-GDi <- data.frame(species=FR_mammals_all$FR$species,GDi=FR_mammals_all$FR$Di)
+GDi <- data.frame(species=FR_mammals_$FR$species,GDi=FR_mammals_$FR$Di)
 
-Di_all_mammals <- merge(LDi_sd,GDi)
+Di__mammals <- merge(LDi_sd,GDi)
 
-d <- ggplot(Di_all_mammals, aes(x=GDi,y=LDi_sd))+geom_point() +ggtitle('Mammals')
+d <- ggplot(Di__mammals, aes(x=GDi,y=LDi_sd))+geom_point() +ggtitle('Mammals')
 
 
 grid.arrange(a,b,c,d,ncol=2)
