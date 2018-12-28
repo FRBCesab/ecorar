@@ -40,19 +40,14 @@ funk_mammals$cell<-as.numeric(as.character(funk_mammals$cell))
 rownames(funk_mammals)<-funk_mammals$cell
 
 ###Link MapGrid with value of indices
-###delete polygons without any species information
-##map_mammals<-map[map@data[,1] %in% funk_mammals$cell,]
-
-##funk_mammals<-funk_mammals[funk_mammals$cell %in% map@data[,1],]
-
 ###same order for rownames 
 funk_mammals<-funk_mammals[match(map@data[,1], rownames(funk_mammals)),]
 
 ##PLOT maps
 varmap <- names(funk_mammals)[-1]
 lapply(varmap,function(i) map.Funk(data=funk_mammals,map=map_mammals,var=i,nlevels=10,plotpdf=TRUE,resultdir="mammals",dalto=FALSE))
-map.Funk(data=funk_mammals,map=map_mammals,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
-map.Funk(data=funk_mammals,map=map_mammals,var=varmap[6],nlevels=10,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
+map.Funk(data=funk_mammals,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
+
 
 #----
 
