@@ -65,6 +65,7 @@ reso="50km"
         Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
         rownames(Ri)<-Ri[,1]
         Ri<-Ri[,-1, drop = FALSE]
+        Ri<-1-Ri
         colnames(Ri)<-"Ri"
 
         #Create the FR_data frame 
@@ -284,7 +285,7 @@ final.results <- function(ids,proc,occ_mat_list,sub_data){
   return(funk_all)
 }
 
-funk_mammals <- final.results(ids=names(occ_mammals_list),proc=4,occ_mat_list=occ_mammals_list,sub_data=sub_mammals)
+funk_mammals <- final.results(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,sub_data=sub_mammals)
 save(funk_mammals, file=file.path(results_dir,"mammals/funk_mammals.RData"))
 
 
