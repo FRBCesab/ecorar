@@ -49,19 +49,34 @@ load(file=file.path(data_dir,"mammals",reso,"MammalsID.RData"))
 #Birds----
 
 #Occurence 
-load(file=file.path(data_dir,"mammals/occ_birds_sparseM.RData"))
-#Check if each species have at least on occurence
-occ_birds <- occ_birds[,colSums(occ_birds)>0]
+load(file=file.path(data_dir,"birds",reso,"birdsPresence160119.RData"))
+load(file=file.path(data_dir,"birds",reso,"birdsID.RData"))
+
+birdstrait<-read.csv2(file.path(data_dir,"birds",reso,"BirdFuncDat.csv"))
+birdstrait<-birdstrait[birdstrait$Scientific %in% birdsID[,2],]
+
+birdstrait<-merge(birdsID,birdstrait,by.x="Name",by.y="Scientific") 
+rownames(birdstrait)<-birdstrait$ID
+birdstrait<-birdstrait[,c(11:20,25:32,36,37)]
+birdstrait$BodyMass.Value<-as.numeric(as.character(birdstrait$BodyMass.Value))
+save(birdstrait,file=file.path(results_dir,"birds",reso,"birdstrait.RData"))
+
+birdsID <- birdsID[birdsID[,1] %in% rownames(birdstrait),]
+save(birdsID,file=file.path(results_dir,"birds",reso,"birdsID.RData"))
 
 #ID 
-load(file=file.path(data_dir,"mammals/birdsID.RData"))
-birdsID<-data.frame(birds)
-rm(birds)
+occ_birds_list<-birdsPresence
+rm(birdsPresence)
+#
+#Work with a list, delete species that are not in birdsID
+for (i in 1: length(occ_birds_list)){
+  occ_birds_list[[i]]<- occ_birds_list[[i]][occ_birds_list[[i]]%in%birdsID[,1]]
+  print(paste0('i',i))
+}
 
-birdsID$checkname<-NA
-for (i in 1:length(birdsID$Name)){
-  birdsID$checkname[i] <- as.matrix(gnr_resolve(names = as.character(birdsID$Name[i])))[1,3]
-}        
+names(occ_birds_list)<-names(occ_mammals_list)
+save(occ_birds_list,file=file.path(results_dir,"birds",reso,"occ_birds_list.RData"))
+
 
 
 

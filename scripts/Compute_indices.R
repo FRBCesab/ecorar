@@ -101,7 +101,13 @@ reso="50km"
       
 
   ##Birds 
-
+        # Load traits and distrib 
+        load(file=file.path(results_dir,"birds",reso,"birdsID.RData"))
+        load(file=file.path(results_dir,"birds",reso,"birdstrait.RData"))
+        load(file=file.path(results_dir,"birds",reso,"occ_birds_list.RData"))
+        #----
+     
+        #COMPUTE FR ----
     ###Format the traits 
 
       diet <- prep.fuzzy(birdstrait[,1:10], col.blocks = ncol(birdstrait[,1:10]), label = "diet")
@@ -121,33 +127,38 @@ reso="50km"
     ###Compute the dist matrix TODO we use scan=FALSE but we probably need to set it to TRUE and chose the best distances ... 
 
       disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
-      save(disTraits_birds, file=file.path(results_dir,"birds/disTraits_birds.RData"))
+      save(disTraits_birds, file=file.path(results_dir,"birds",reso,"disTraits_birds.RData"))
 
       ##Compute funrare indices (note occ_mat are sparse matrices)
-      
-      load(file=file.path(results_dir,"birds/disTraits_birds.RData"))
-      
       #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
-      Sim_commu <- matrix(1,1,dim(occ_birds)[2])
-      colnames(Sim_commu) <- colnames(occ_birds)
+      Sim_commu <- matrix(1,1,ncol(disTraits_birds))
+      colnames(Sim_commu) <- colnames(disTraits_birds)
       
       #Compute Ui (Global Uniqueness)
       Ui<-uniqueness(Sim_commu,disTraits_birds)
-      
+      rownames(Ui)<-Ui[,1]
       #Compute Di (Global distinctiveness)
       Di<-t(distinctiveness(Sim_commu,disTraits_birds))
+      colnames(Di)<-"Di"
       
-      # matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
-      Ri<-data.frame(1-(colSums(occ_birds)/dim(occ_birds)[1]))
+      #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
+      Ri<-data.frame(table(unlist(occ_birds_list))/length(occ_birds_list))
+      rownames(Ri)<-Ri[,1]
+      Ri<-Ri[,-1, drop = FALSE]
+      Ri<-1-Ri
       colnames(Ri)<-"Ri"
       
-
       #Create the FR_data frame 
+      FR_data <- merge(Ui,Di, by="row.names")
+      rownames(FR_data) <- FR_data[,1]
+      FR_data <- FR_data[,-c(1,2)]
+      FR_data <- merge(FR_data,Ri, by="row.names")
+      rownames(FR_data) <- FR_data[,1]
+      FR_data <- FR_data[,-1]
       
-      FR_data <- data.frame(Ui,Di,Ri)
-
-      FR_data <- mutate(FR_data, Uin = (Ui-min(Ui)) / max(Ui-min(Ui)),Din = (Di-min(Di)) / max(Di-min(Di)),Rin = (Ri-min(Ri)) / max(Ri-min(Ri)))
-      
+      FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
+      FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
+      FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
       
       # 90% quantile
       Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
@@ -166,15 +177,14 @@ reso="50km"
                       Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
       
       FR_birds <- list(FR=FR_data,Q=Q)
-      save(FR_birds, file=file.path(results_dir,"birds/FR_birds.RData"))
+      save(FR_birds, file=file.path(results_dir,"birds",reso,"FR_birds.RData"))
+      
 #----
 
 
       
 #COMPUTE FINAL DATAFRAME---- 
-      
-    load(file=file.path(results_dir,"mammals/FR_mammals.RData"))
-      
+
        ##Generate the subset data 
       
       sub.data <- function(ids,proc,occ_mat_list,FR_data){
@@ -239,16 +249,20 @@ reso="50km"
         return(all)
       }
 
+load(file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
+load(file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
+
 sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
 save(sub_mammals, file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
 
 
-sub_birds <- sub.data(ids=rownames(occ_birds),proc=50,occ_mat=occ_birds,FR_data=FR_birds_all)
-save(sub_birds, file=file.path(results_dir,"birds/sub_birds.RData"))
+sub_birds <- sub.data(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,FR_data=FR_birds)
+save(sub_birds, file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
 
 
-load(file=file.path(results_dir,"birds/sub_birds.RData"))
-load(file=file.path(results_dir,"mammals/sub_mammals.RData"))
+
+load(file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
+load(file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
 
 ##Generate main results
 final.results <- function(ids,proc,occ_mat_list,sub_data){
@@ -286,8 +300,10 @@ final.results <- function(ids,proc,occ_mat_list,sub_data){
 }
 
 funk_mammals <- final.results(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,sub_data=sub_mammals)
-save(funk_mammals, file=file.path(results_dir,"mammals/funk_mammals.RData"))
+save(funk_mammals, file=file.path(results_dir,"mammals",reso,"funk_mammals.RData"))
 
+funk_birds <- final.results(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,sub_data=sub_birds)
+save(funk_birds, file=file.path(results_dir,"birds",reso,"funk_birds.RData"))
 
 
 #----

@@ -59,21 +59,18 @@ map.Funk(data=funk_mammals,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,result
 load(file.path(results_dir,"birds","funk_birds.RData"))
 
 ###organised rownames 
-funk_birds$poly<-as.numeric(as.character(funk_birds$poly))
-rownames(funk_birds)<-funk_birds$poly
+funk_birds$cell<-as.numeric(as.character(funk_birds$cell))
+rownames(funk_birds)<-funk_birds$cell
 
 ###Link MapGrid with value of indices
-###delete polygons without any species information
-map_birds<-priorities.shape[priorities.shape$HBWID %in% funk_birds$poly,]
-funk_birds<-funk_birds[funk_birds$poly %in% map_birds$HBWID,]
-
 ###same order for rownames 
-funk_birds<-funk_birds[match(map_birds$HBWID, rownames(funk_birds)),]
+funk_birds<-funk_birds[match(map@data[,1], rownames(funk_birds)),]
 
 ##PLOT maps
-
 varmap <- names(funk_birds)[-1]
-lapply(varmap,function(i) map.Funk(data=funk_birds,map=map_birds,var=i,nlevels=10,plotpdf=TRUE,resultdir="birds",dalto=FALSE))
+lapply(varmap,function(i) map.Funk(data=funk_birds,map=map,var=i,nlevels=10,plotpdf=TRUE,resultdir="birds/50km",dalto=FALSE))
+map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="birds",dalto=FALSE)
+
 
 #----
 
@@ -81,38 +78,21 @@ lapply(varmap,function(i) map.Funk(data=funk_birds,map=map_birds,var=i,nlevels=1
 library(rgeos)
 library(rgdal)
 library(sp)
-
+library(raster)
 combined <- info %>%
   group_by(chuncks) %>%
   do(sf::st_intersection(., map))
 
+a <- adjacent(map, ID_cell, pairs=F)
 
 ##Neighbour for map_mammals
-Mat_neighbour_mammals<-gTouches(map, byid=TRUE)
+Mat_neighbour<-gTouches(map, byid=T)
 ###Transform in 1/0
-Mat_neighbour_mammals<-Mat_neighbour_mammals*1
-save(Mat_neighbour_mammals,file=file.path(results_dir,"mammals","Mat_neighbour_mammals.RData"))
-##Neighbour for map_birds
-Mat_neighbour_birds<-gTouches(map_birds, byid=TRUE)
-###Transform in 1/0
-Mat_neighbour_birds<-Mat_neighbour_birds*1
-save(Mat_neighbour_birds,file=file.path(results_dir,"birds","Mat_neighbour_birds.RData")) 
-#----
+Mat_neighbour<-Mat_neighbour*1
+save(Mat_neighbour,file=file.path(data_dir,"ReferenceGrid50km"))
+
+neighbor<-mclapply(ID_cell[1:3],function(x) adjacent(map,x , directions=4, pairs=TRUE, target=NULL, sorted=FALSE, 
+         include=FALSE, id=FALSE),mc.cores=3)
 
 
-#CHECK and VISUALISE neighbour ----     
-
-plot(map_birds,lwd=0.1)
-
-load(file.path(results_dir,"birds","Mat_neighbour_birds.RData"))
-
-spot<-rownames(Mat_neighbour_birds)[sample(1:dim(Mat_neighbour_birds)[1],1)]
-spot <- '19545'
-spot_voisin<-Mat_neighbour_birds[spot,]
-spot_voisin<-spot_voisin[spot_voisin>0]
-
-plot(map_birds[map_birds$HBWID==spot,],col="red",add=T,lwd=0.1)
-for (i in 1:length(spot_voisin)){
-  plot(map_birds[map_birds$HBWID==names(spot_voisin)[i],],col="blue",add=T,lwd=0.1)
-}
-
+0.1)
