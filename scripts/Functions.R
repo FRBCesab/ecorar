@@ -127,7 +127,7 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     vect = seq(bInf,bSup,length.out=(nlevels+1))
     RSLAB = cut(data, breaks=vect,include.lowest=TRUE,right=FALSE)
     cols <- colour[RSLAB]
-    cols[is.na(cols)] <- "#000000" #all NAs will be plot in black
+    cols[is.na(cols)] <- "white" #all NAs will be plot in black
     
     
     if (plotpdf==TRUE){
