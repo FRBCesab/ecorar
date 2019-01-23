@@ -128,18 +128,19 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     RSLAB = cut(data, breaks=vect,include.lowest=TRUE,right=FALSE)
     cols <- colour[RSLAB]
     cols[is.na(cols)] <- "white" #all NAs will be plot in black
-    
+    colsborder<-cols
+    colsborder[colsborder=="white"]<-"gray82"
     
     if (plotpdf==TRUE){
       pdf(file.path(results_dir,resultdir,paste0("figs"),paste0("map",var,".pdf")))
       nf=layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
-      plot(map,col=cols,main=var,lwd=0.001,border=cols)
+      plot(map,col=cols,main=var,lwd=0.005,border=colsborder)
       hist(data,main=paste0("Histogram of ",var),xlab="", las=2)
       barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)
       dev.off()
     } else {  
       nf=layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
-      plot(map,col=cols,main=var,lwd=0.01,border=cols)
+      plot(map,col=cols,main=var,lwd=0.005,border=colsborder)
       hist(data,main=paste0("Histogram of ",var),xlab="", las=2)
       barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)}
       }
@@ -164,8 +165,67 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     text(.8, .8, Signif, cex=cex, col=2) 
   }  
   
+#MAP.FUNK2 nice fig 
   
-  
+  map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
+    
+    require(viridis)
+    require(RColorBrewer)
+    
+    # data<- funk_mammals
+    # var <- "D75R75"
+    #nlevels <- 6 #Choix du nombre de classe
+    #map<- map_mamals
+    #resultdir="mamals"
+    # plotpdf=TRUE
+    # dalto: true of false
+    
+    data<- data[,var]
+    data[data==0]<-NA
+    data<-as.numeric(data)
+    if(dalto==TRUE) colour <- viridis(nlevels) else{ colour <- rev(brewer.pal(nlevels, "Spectral"))}
+    
+    bInf <- range(na.omit(data))[1]
+    bSup <- range(na.omit(data))[2]
+    vect = seq(bInf,bSup,length.out=(nlevels+1))
+    RSLAB = cut(data, breaks=vect,include.lowest=TRUE,right=FALSE)
+    cols <- colour[RSLAB]
+    cols[is.na(cols)] <- "white" #all NAs will be plot in black
+    colsborder<-cols
+    colsborder[colsborder=="white"]<-"gray82"
+    
+    
+    if (plotpdf==TRUE){
+      pdf(file.path(results_dir,resultdir,paste0("figs"),paste0("map",var,".pdf")))
+      nf=layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+      plot(map,col=cols,main=var,lwd=0.005,border=colsborder)
+      
+      
+      
+  library(viridis)
+  p <- ggplot() +
+    geom_polygon(data = spdf_fortified, aes(fill = nb_equip, x = long, y = lat, group = group) , size=0, alpha=0.9) +
+    theme_void() +
+    scale_fill_viridis(trans = "log", breaks=c(1,5,10,20,50,100), name="Number of restaurant", guide = guide_legend( keyheight = unit(3, units = "mm"), keywidth=unit(12, units = "mm"), label.position = "bottom", title.position = 'top', nrow=1) ) +
+    labs(
+      title = "South of France Restaurant concentration",
+      subtitle = "Number of restaurant per city district", 
+      caption = "Data: INSEE | Creation: Yan Holtz | r-graph-gallery.com"
+    ) +
+    theme(
+      text = element_text(color = "#22211d"), 
+      plot.background = element_rect(fill = "#f5f5f2", color = NA), 
+      panel.background = element_rect(fill = "#f5f5f2", color = NA), 
+      legend.background = element_rect(fill = "#f5f5f2", color = NA),
+      
+      plot.title = element_text(size= 22, hjust=0.01, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
+      plot.subtitle = element_text(size= 17, hjust=0.01, color = "#4e4d47", margin = margin(b = -0.1, t = 0.43, l = 2, unit = "cm")),
+      plot.caption = element_text( size=12, color = "#4e4d47", margin = margin(b = 0.3, r=-99, unit = "cm") ),
+      
+      legend.position = c(0.7, 0.09)
+    ) +
+    coord_map()
+  p  
 #CLEAN NAME  
   stringCleaning <- function(x) {
     #   x <- stringr::str_trim(x)
