@@ -18,7 +18,7 @@ library(rgdal)
 reso="50km"
   # Load traits and distrib 
     load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
-    load(file=file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
+    load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
     load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
 #----
     mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
