@@ -12,18 +12,19 @@ duplicated2 <- function(x){
 
 #IDTOTAXO : get the Scientific name from the ID code 
 
-idtotaxo <- function(id,who)
+idtotaxo <- function(id,who) #TODO A reprendre !! 
 {
-  #id="ID_4640"
-  #who="birds"
+  id="sp21260"
+  who="mammals"
+  
   if (who=="birds") {
-    all<- read.csv(file.path(data_dir,"birds","BirdFuncDat.csv"),sep=";")
+    all<- read.csv(file.path(data_dir,"birds/50km/BirdFuncDat.csv"),sep=";")
     all$SpecID <- paste0("ID_",all$SpecID)
     all$Scientific[all$SpecID==id]
   }
   if (who=="mammals") 
     {
-    all<- read.csv(file.path(data_dir,"mamals","MamFuncDat.csv"),sep=";") 
+    all<- read.csv(file.path(data_dir,"mammals/MamFuncDat.csv"),sep=";") 
     all$MSW3_ID <- paste0("ID_",all$MSW3_ID)
     all$Scientific[all$MSW3_ID==id]
     }
@@ -225,7 +226,10 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
       legend.position = c(0.7, 0.09)
     ) +
     coord_map()
-  p  
+  p 
+    }} # TODO j'ai ajouté ca mais est ce bon ? 
+    
+    
 #CLEAN NAME  
   stringCleaning <- function(x) {
     #   x <- stringr::str_trim(x)
