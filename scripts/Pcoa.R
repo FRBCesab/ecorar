@@ -138,47 +138,6 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     dev.off()
     grid.table(cor_test)
     
-  ###Corelations between traits and Di or Ri 
-    
-    traits_FR <- merge(traits,FR_data$FR,by="row.names",all.x=TRUE)
-    #TODO il faut reprendre la fonction cor_test_FR qui marche pour les mammals mais pas pour les birds 
-    cor_test_FR <- do.call(rbind,lapply(colnames(traits),fun <- function(vname,var="Din"){
-      
-      var="Din"
-      vname <- colnames(traits)[1]
-
-      if(is.numeric(traits_FR[1,vname])){
-        
-        Din <- cor(scale(traits_FR[,vname],center=TRUE, scale=TRUE),traits_FR$Din, method="spearman")
-        Rin <- cor(scale(traits_FR[,vname],center=TRUE, scale=TRUE),traits_FR$Rin, method="spearman")
-        test <- "spearman"
-      } else {
-        
-        nfree <- length(unique(traits_FR[,vname]))-1
-        
-        ktest <- kruskal.test(traits_FR$Din ~ traits_FR[,vname])
-        Fval <- as.numeric(ktest$statistic)/nfree
-        Din <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
-        
-        ktest <- kruskal.test(traits_FR$Rin ~ traits_FR[,vname])
-        Fval <- as.numeric(ktest$statistic)/nfree
-        Rin <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
-        
-        test <- "Kruskal"
-        
-      }
-      
-      cbind.data.frame(var=vname,test=test ,Din=Din ,Rin=Rin)
-      
-    }))
-    
-    ttheme_minimal(base_size = 12, base_colour = "red", base_family = "",
-                   parse = FALSE, padding = unit(c(2, 2), "mm"))
-    tbl <- tableGrob(cor_test_FR, rows=NULL, theme = ttheme_minimal(base_size = 04))
-    
-    dev.off()
-    grid.table(cor_test_FR)
-    
   ##Correlation between pcoa axes and Di or Ri 
     
     cor_pcoa <- function(data,pco,var){
@@ -271,12 +230,11 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     # taxa <- "mammals"
     
 
-    ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
+  ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
     
-    #TODO : cela ne marche pas avec les oiseaux ?? pb avec la le hull " finite coordinates are needed" 
     pcoa.funk.onevar<-function(data,pco,var,plotpdf,resultdir,axis.x,axis.y,jitval,pts,hull,Q1){
       
-      # data=data
+      # data=FR_data
       # pco=pco_data
       # var="Din"
       # plotpdf=FALSE
@@ -296,6 +254,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       df <- data.frame(df,w=df$z>quant)
       names(df)[4]<-"w"
       df2 <- df[df$z>quant,]
+      
+      
+      
+      df2 <- df2[complete.cases(df2), ] # needed because there is one NA in the birds dataframe
       
       
       find_hull <- function(df2) df2[chull(df2$x, df2$y), ]
@@ -330,24 +292,23 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     grid.arrange(a,b,ncol=2)
     
-    #Plot pcoa with visualisation of D and hull of DR =  D75R75, D25R25, D25R75, D75R25, D75 or R75
+  ##Plot pcoa with visualisation of D and hull of DR =  D75R75, D25R25, D25R75, D75R25, D75 or R75
     
-    #TODO : cela ne marche pas avec les oiseaux ?? pb avec la le hull " finite coordinates are needed" 
     pcoa.funk.dr<-function(data,pco,plotpdf,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
       
-      data=FR_mammals
-      pco=pco_mammals
-      resultdir="mammals"
-      plotpdf=FALSE
-      axis.x=2
-      axis.y=3
-      jitval=500
-      var1="Din"
-      var2="Rin"
-      Q1="Q75_D"
-      Q2="Q75_R"
-      DR="D75R75"
-      Funk="Din"
+      # data=FR_data
+      # pco=pco_data
+      # resultdir="birds"
+      # plotpdf=FALSE
+      # axis.x=2
+      # axis.y=4
+      # jitval=500
+      # var1="Din"
+      # var2="Rin"
+      # Q1="Q75_D"
+      # Q2="Q75_R"
+      # DR="D75R75"
+      # Funk="Din"
       
       df <- data.frame(x = jitter(pco$vectors[,axis.x],jitval),
                        y = jitter(pco$vectors[,axis.y],jitval),
@@ -366,36 +327,33 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       df2 <-df[df$w==TRUE,] 
       
+      df2 <- df2[complete.cases(df2), ] # needed because there is one NA in the birds dataframe
+      
       find_hull <- function(df2) df2[chull(df2$x, df2$y), ]
       
       hulls <- ddply(df2, "w", find_hull)
       
       p <- ggplot(df, aes(x, y)) +
-        geom_point(aes(colour = df$frd))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+        geom_point(aes(colour = df$z1))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
         labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(DR) +
         geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
         geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray") 
-      
-      # p <- ggplot(df, aes(x, y)) +
-      #   geom_point()+ labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() +
-      #   geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=16,colour='red') +
-      #   geom_polygon(data = hulls, alpha = 0.1,colour= "gray",fill="gray") 
       
       if (plotpdf==TRUE) ggsave(filename = file.path(results_dir,resultdir,paste0("figs"),paste0("pcoa",DR,".pdf")),plot=p) else p 
       
     }
     
     a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     
     b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
                       var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
                       DR="D25R25",Funk="Din")
     
     grid.arrange(a,b,ncol=2)
-    
+#----    
 
     
