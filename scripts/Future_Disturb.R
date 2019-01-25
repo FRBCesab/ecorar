@@ -80,14 +80,14 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   # futur_all=mammals_future_scenar_all
   # ymax <- 300
 
-  # taxa="birds"
-  # FR_all=FR_birds
-  # id_scenar=scenar[11]
-  # futur_all=birds_future_scenar_all
-  # ymax <- 300
+   taxa="birds"
+   FR_all=FR_birds
+   id_scenar=scenar[11]
+   futur_all=birds_future_scenar_all
+   ymax <- 300
   
   future <- futur_all[[id_scenar]]
-  rownames(future) <- future$ID
+  #rownames(future) <- future$ID
   
   data_future <- merge(FR_all$FR,future,by="row.names")
   rownames(data_future) <- data_future$Row.names
