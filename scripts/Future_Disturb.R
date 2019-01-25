@@ -14,14 +14,16 @@ library(viridis)
 
 ##Mammals
 
+
+
+
 taxocor <- read.csv2(file.path(data_dir,"mammals","TaxonomicCorrespondancesMammals.csv"),header=TRUE)
 
 iucn_code <- data.frame(Scientific=taxocor$DistriName, IUCN_code=taxocor$DistriCode)
-iucn_code <- merge(mamalsnames,iucn_code)
+iucn_code <- merge(mammalsID,iucn_code,by.x="Name", by.y="Scientific")
 rownames(iucn_code) <-iucn_code$IUCN_code 
 
 mammals_future <- read.table(file.path(data_dir,"mammals","ENSEMBLE_CA_Mammals_LossStableGain_CurrFut.txt"),header=TRUE)
-
 scenar <- unique(mammals_future$SCE)
 
 mammals_future_scenar_all <- lapply(scenar, function(id) {
@@ -31,35 +33,20 @@ mammals_future_scenar_all <- lapply(scenar, function(id) {
   rownames(mammals_future_scenar_mean) <- mammals_future_scenar_mean$Group.1
   mammals_future_scenar_mean <- mammals_future_scenar_mean[,-1]
   mammals_future_scenar_all <- merge(iucn_code,mammals_future_scenar_mean,by="row.names")
-  rownames(mammals_future_scenar_all) <- mammals_future_scenar_all$IUCN_code
+  rownames(mammals_future_scenar_all) <- mammals_future_scenar_all$ID
   mammals_future_scenar_all[,-1]
 })
 
 names(mammals_future_scenar_all) <- scenar
 
-load(file=file.path(results_dir,"mamals/FR_mamals_all.RData"))
+load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
 
 
 ##Birds
 
-load(file=file.path(results_dir,"birds",reso,"FR_birds_all.RData"))
-birdstrait_all<- read.csv(file.path(data_dir,"birds","BirdFuncDat.csv"),sep=";")  
+load(file=file.path(results_dir,"birds",reso,"FR_birds.RData"))
 
-birdstrait_all$SpecID <- paste0("ID_",birdstrait_all$SpecID)
-birdsnames <- birdstrait_all[,c('SpecID','Scientific')]
-colnames(birdsnames) <- c('SpecID','Scientific')
-birdsnames <- birdsnames[birdsnames$SpecID %in% FR_birds_all$FR$species,]
-
-taxocor <- read.dbf(file.path(data_dir,"birds","CorrespondanceTaxo_birds.dbf"))
-
-SISID_code <- data.frame(Scientific=taxocor$name, SISID=taxocor$SISID)
-SISID_code <- merge(birdsnames,SISID_code)
-
-SISID_code <- SISID_code[SISID_code$SISID>0,] # There is 541 species with no SISID code (need to find them)
-rownames(SISID_code) <-SISID_code$SISID 
-
-
-birds_future <- read.table(file.path(data_dir,"birds","Birds_Limited_LossStableGain_CurrFut.txt"),header=TRUE)
+birds_future <- read.table(file.path(data_dir,"birds","ENSEMBLE_CA_Birds_LossStableGain_CurrFut.txt"),header=TRUE)
 birds_future$SP <- paste0("sp",birds_future$SP)
 
 scenar <- unique(birds_future$SCE)
@@ -70,13 +57,13 @@ birds_future_scenar_all <- lapply(scenar, function(id) {
   birds_future_scenar_mean <- aggregate(birds_future_scenar[, 6:10], list(birds_future_scenar$SP), mean)
   rownames(birds_future_scenar_mean) <- birds_future_scenar_mean$Group.1
   birds_future_scenar_mean <- birds_future_scenar_mean[,-1]
-  birds_future_scenar_all <- merge(SISID_code,birds_future_scenar_mean,by="row.names")
-  rownames(birds_future_scenar_all) <- birds_future_scenar_all$IUCN_code
+  birds_future_scenar_all <- merge(birdsID,birds_future_scenar_mean,by.x="ID", by.y="row.names")
+  rownames(birds_future_scenar_all) <- birds_future_scenar_all$ID
   birds_future_scenar_all[,-1]
 })
 
 names(birds_future_scenar_all) <- scenar
-
+colnames(birds_future_scenar_all)[1]  <- 
 load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
 
 
@@ -87,17 +74,23 @@ load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
 plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
 {
   
-  # taxa="birds"
-  # FR_all=FR_birds_all
+  # taxa="mammals"
+  # FR_all=FR_mammals
   # id_scenar=scenar[11]
-  # futur_all=birds_future_scenar_all
+  # futur_all=mammals_future_scenar_all
   # ymax <- 300
+
+   taxa="birds"
+   FR_all=FR_birds
+   id_scenar=scenar[11]
+   futur_all=birds_future_scenar_all
+   ymax <- 300
   
   future <- futur_all[[id_scenar]]
-  rownames(future) <- future$SpecID
+  #rownames(future) <- future$ID
   
   data_future <- merge(FR_all$FR,future,by="row.names")
-  rownames(data_future) <- data_future$species
+  rownames(data_future) <- data_future$Row.names
   
   
   data_future$delta=100*(data_future$FUTUR-data_future$CURRENT)/data_future$CURRENT
@@ -150,9 +143,9 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   
 }
 
-plot_futur(taxa="birds",FR_all=FR_birds_all,id_scenar=scenar[4],futur_all=birds_future_scenar_all,ymax= 300)
+plot_futur(taxa="birds",FR_all=FR_birds,id_scenar=scenar[4],futur_all=birds_future_scenar_all,ymax= 300)
 
-plot_futur(taxa="mamals",FR_all=FR_mamals_all,id_scenar=scenar[2],futur_all=mammals_future_scenar_all,ymax= 300)
+plot_futur(taxa="mammals",FR_all=FR_mammals,id_scenar=scenar[2],futur_all=mammals_future_scenar_all,ymax= 300)
 
 taxa="birds"
 pdf(file.path(results_dir,paste0(taxa,"/figs/FUTUR.pdf")),width=12,height=8)
