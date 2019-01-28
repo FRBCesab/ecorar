@@ -105,6 +105,7 @@ reso="50km"
         load(file=file.path(results_dir,"birds",reso,"birdsID.RData"))
         load(file=file.path(results_dir,"birds",reso,"birdstrait.RData"))
         load(file=file.path(results_dir,"birds",reso,"occ_birds_list.RData"))
+        
         #----
      
         #COMPUTE FR ----
@@ -254,7 +255,6 @@ load(file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
 
 sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
 save(sub_mammals, file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
-
 
 sub_birds <- sub.data(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,FR_data=FR_birds)
 save(sub_birds, file=file.path(results_dir,"birds",reso,"sub_birds.RData"))

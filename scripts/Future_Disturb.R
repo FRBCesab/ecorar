@@ -7,8 +7,9 @@ library(foreign)
 library(ggsignif)
 library(RColorBrewer)
 library(viridis)
+#
 
-
+#LOST OF CELLS CLIMATE CHANGE --- 
 
 #LOAD & FORMAT DATA ---- 
 
@@ -47,6 +48,9 @@ birds_future$SP <- paste0("sp",birds_future$SP)
 
 scenar <- unique(birds_future$SCE)
 
+
+
+
 birds_future_scenar_all <- lapply(scenar, function(id) {
   #id=scenar[1]
   birds_future_scenar <- subset(birds_future,birds_future$SCE==id)
@@ -59,9 +63,6 @@ birds_future_scenar_all <- lapply(scenar, function(id) {
 })
 
 names(birds_future_scenar_all) <- scenar
-colnames(birds_future_scenar_all)[1]  <- 
-load(file=file.path(results_dir,"birds/FR_birds_all.RData"))
-
 
 #----
 
@@ -127,7 +128,7 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   col_br <- viridis(n = 6, option = "A") # for colorblind people
   
   c <- ggplot(data_plot, aes(x=DR_class, y=delta, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
-    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(-100, ymax)) + geom_hline(yintercept=0,col="red",linetype="dashed") + 
+    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(-c, ymax)) + geom_hline(yintercept=0,col="red",linetype="dashed") + 
     ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-100,ymax-50,ymax),map_signif_level=TRUE,tip_length=0.01)
   
   data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
@@ -157,9 +158,162 @@ for (i in 1:length(scenar)){
 }
 dev.off()  
 
+#----
+
+
+
+#LAND USES --- 
+#----
+#LOAD & FORMAT DATA --- 
 
 
 
 
+#----
 
+# PROTECTED----
+#LOAD & FORMAT DATA --- 
+load(file=file.path(data_dir,"Environmental",reso,"PA&Country.RData"))
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+
+# Pour chaque espèce: Il faut le nombre cells protégées, nombre cell tot, le pourcentage de couverture de no take, le nombre de conflit moyen, 
+species<-unique(unlist(occ_birds_list))
+birds_PA<- do.call(rbind,mclapply(species, function(id) {
+  cells <- sapply(1:length(occ_birds_list), function(i) any(occ_birds_list[[i]] == id))
+  names(cells)<-names(occ_birds_list)
+  cells<-PA_Country[PA_Country$ID %in% names(cells[cells=="TRUE"]),]
+  n_cell<-dim(cells)[1]
+  n_pro<-sum(na.omit(cells$PA_DEF==1))
+  PA_mean<-apply(cells[,c(30,32,34)],2,mean,na.rm=T)
+  info<-t(data.frame(c(n_cell,n_pro,PA_mean)))
+  colnames(info)<-c("N_cells","N_cells_protected","Percentagecover","meanConflict","meanHDI")
+  rownames(info)<-id
+  return(info)
+},mc.cores=3))
+
+species<-unique(unlist(occ_mammals_list))
+mammals_PA<- do.call(rbind,mclapply(species, function(id) {
+  cells <- sapply(1:length(occ_mammals_list), function(i) any(occ_mammals_list[[i]] == id))
+  names(cells)<-names(occ_mammals_list)
+  cells<-PA_Country[PA_Country$ID %in% names(cells[cells=="TRUE"]),]
+  n_cell<-dim(cells)[1]
+  n_pro<-sum(na.omit(cells$PA_DEF==1))
+  PA_mean<-apply(cells[,c(30,32,34)],2,mean,na.rm=T)
+  info<-t(data.frame(c(n_cell,n_pro,PA_mean)))
+  colnames(info)<-c("N_cells","N_cells_protected","Percentagecover","meanConflict","meanHDI")
+  rownames(info)<-id
+  return(info)
+},mc.cores=3))
+
+
+rownames(mammals_PA) <- mammals_PA[,1]
+
+mammals_PA<-merge(mammals_PA,FR_mammals$FR,by="row.names")
+rownames(mammals_PA) <- mammals_PA[,1]
+mammals_PA <- mammals_PA[,-c(1,2)]
+mammals_PA[,1]  <- as.numeric(as.character(mammals_PA[,1]))
+mammals_PA[,2]  <- as.numeric(as.character(mammals_PA[,2]))
+mammals_PA[,3]  <- as.numeric(as.character(mammals_PA[,3]))
+mammals_PA[,4]  <- as.numeric(as.character(mammals_PA[,4]))
+mammals_PA[,5]  <- as.numeric(as.character(mammals_PA[,5]))
+     
+mammals_PA$PercentageCellsWithPA<- (mammals_PA$N_cells_protected/mammals_PA$N_cells)*100
+
+save(mammals_PA,file=file.path(results_dir,"mammals",reso,"mammals_PA.RData")) 
+
+plot_PA <- function(taxa,FR_all,data_PA,metric, ymax)
+{  taxa="mammals"
+   FR_all=FR_mammals
+   data_PA=mammals_PA
+   ymax <- 100
+
+  data_PA$DR_class="NA"
+  
+  QD75 <- FR_all$Q$Q75_D
+  QD25 <- FR_all$Q$Q25_D
+  QR75 <- FR_all$Q$Q75_R
+  QR25 <- FR_all$Q$Q25_R
+  
+  data_PA$DR_class[(data_PA$Din<QD25) & (data_PA$Rin<QR25)]="D25R25"
+  data_PA$DR_class[(data_PA$Din>QD75) & (data_PA$Rin>QR75)]="D75R75"
+  data_PA$DR_class[(data_PA$Din<QD25) & (data_PA$Rin>QR75)]="D25R75"
+  data_PA$DR_class[(data_PA$Din>QD75) & (data_PA$Rin<QR25)]="D75R25"
+  data_PA$DR_class[(((data_PA$Din>QD25) & (data_PA$Din<QD75)) & ((data_PA$Rin>QR25) & (data_PA$Rin<QR75)))]="AVG"
+
+  data_PA$InvRin=1-data_PA$Rin
+  
+ #Plot#2
+  
+  data_plot <- data_PA[data_PA$DR_class!='NA',]
+  
+  #col_br <- brewer.pal(n = 5, name = "Spectral")
+  
+  col_br <- viridis(n = 6, option = "A") # for colorblind people
+  
+  ymax=100
+  a <- ggplot(data_plot, aes(x=DR_class, y=Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$Percentagecover,na.rm=T),col="red",linetype="dashed") + 
+    ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-10,ymax),map_signif_level=TRUE,tip_length=0.01)+
+    labs(x = "DR class",y="Percentage")
+  
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  b <- ggplot(data_plot_sub, aes(Percentagecover,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],col_br[5]))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$Percentagecover,na.rm=T),col="red",linetype="dashed")+
+    labs(x = "Percentage")
+ 
+  pdf(file.path(results_dir,paste0("mammals","/50km","/figs/Average cover of protected area per cells.pdf")),width=12,height=8) 
+  grid.arrange(a,b,ncol=2,top = textGrob("Average cover of protected area per cells" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+
+  
+  ymax=1.1
+  a <- ggplot(data_plot, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$meanHDI,na.rm=T),col="red",linetype="dashed") + 
+    ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-0.1,ymax-0.05,ymax),map_signif_level=TRUE,tip_length=0.01)+
+    labs(x = "DR class",y="HDI")
+  
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  b <- ggplot(data_plot_sub, aes(meanHDI,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],col_br[5]))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanHDI,na.rm=T),col="red",linetype="dashed")+
+    labs(x = "HDI")
+  
+  pdf(file.path(results_dir,paste0("mammals","/50km","/figs/HDI.pdf")),width=12,height=8) 
+  grid.arrange(a,b,ncol=2,top = textGrob("Human Development Index" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+  
+  
+  ymax=260
+  a <- ggplot(data_plot, aes(x=DR_class, y=meanConflict, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$meanConflict,na.rm=T),col="red",linetype="dashed") + 
+    ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
+    labs(x = "DR class",y="Number of conflicts")
+  
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  b <- ggplot(data_plot_sub, aes(meanConflict,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],col_br[5]))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanConflict,na.rm=T),col="red",linetype="dashed")+
+    labs(x = "Number of conflicts")
+  
+  pdf(file.path(results_dir,paste0("mammals","/50km","/figs/Conflict.pdf")),width=12,height=8) 
+  grid.arrange(a,b,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+  
+  ymax=150
+  a <- ggplot(data_plot, aes(x=DR_class, y=PercentageCellsWithPA, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+    geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$PercentageCellsWithPA,na.rm=T),col="red",linetype="dashed") + 
+    ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
+    labs(x = "DR class",y="Number of conflicts")
+  
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  b <- ggplot(data_plot_sub, aes(PercentageCellsWithPA,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],col_br[5]))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$PercentageCellsWithPA,na.rm=T),col="red",linetype="dashed")+
+    labs(x = "Number of conflicts")
+  
+  pdf(file.path(results_dir,paste0("mammals","/50km","/figs/Conflict.pdf")),width=12,height=8) 
+  grid.arrange(a,b,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+  
 
