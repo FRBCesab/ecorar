@@ -13,10 +13,6 @@ library(viridis)
 #LOAD & FORMAT DATA ---- 
 
 ##Mammals
-
-
-
-
 taxocor <- read.csv2(file.path(data_dir,"mammals","TaxonomicCorrespondancesMammals.csv"),header=TRUE)
 
 iucn_code <- data.frame(Scientific=taxocor$DistriName, IUCN_code=taxocor$DistriCode)
@@ -80,11 +76,11 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   # futur_all=mammals_future_scenar_all
   # ymax <- 300
 
-   taxa="birds"
-   FR_all=FR_birds
-   id_scenar=scenar[11]
-   futur_all=birds_future_scenar_all
-   ymax <- 300
+  # taxa="birds"
+  # FR_all=FR_birds
+  # id_scenar=scenar[11]
+  # futur_all=birds_future_scenar_all
+  # ymax <- 300
   
   future <- futur_all[[id_scenar]]
   #rownames(future) <- future$ID
@@ -145,12 +141,12 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
 
 plot_futur(taxa="birds",FR_all=FR_birds,id_scenar=scenar[4],futur_all=birds_future_scenar_all,ymax= 300)
 
-plot_futur(taxa="mammals",FR_all=FR_mammals,id_scenar=scenar[2],futur_all=mammals_future_scenar_all,ymax= 300)
+plot_futur(taxa="mammals",FR_all=FR_mammals,id_scenar=scenar[4],futur_all=mammals_future_scenar_all,ymax= 300)
 
-taxa="birds"
-pdf(file.path(results_dir,paste0(taxa,"/figs/FUTUR.pdf")),width=12,height=8)
+
+pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/FUTUR.pdf")),width=12,height=8)
 for (i in 1:length(scenar)){
-  plot_futur(taxa=taxa,FR_all=FR_birds_all,id_scenar=scenar[i],futur_all=birds_future_scenar_all,ymax= 300)
+  plot_futur(taxa="birds",FR_all=FR_birds,id_scenar=scenar[i],futur_all=birds_future_scenar_all,ymax= 300)
 }
 dev.off()  
 
