@@ -1,12 +1,14 @@
 #PCO_VISU
 
+rm(list=ls(all=TRUE)) 
+
+
 library(ggplot2)
 library(ape)
 library(dplyr)
 library(gridExtra)  
+library(plyr)
 
-
-rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
 who.remote(remote=FALSE,who="NM")
 
@@ -15,14 +17,14 @@ who.remote(remote=FALSE,who="NM")
 
 ##Birds 
 
-load(file=file.path(results_dir,"birds/50km/disTraits_birds.RData")) 
-load(file=file.path(results_dir,"birds/50km/birdstrait.RData"))
+load(file=file.path(results_dir,"birds/disTraits_birds.RData")) 
+load(file=file.path(results_dir,"birds/birdstrait.RData"))
 load(file=file.path(results_dir,"birds/50km/FR_birds.RData"))
 
 ##Mammals 
 
-load(file=file.path(results_dir,"mammals/50km/disTraits_mammals.RData")) 
-load(file=file.path(results_dir,"mammals/50km/mammalstrait.RData"))
+load(file=file.path(results_dir,"mammals/disTraits_mammals.RData")) 
+load(file=file.path(results_dir,"mammals/mammalstrait.RData"))
 load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
 #----
@@ -55,10 +57,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     FR_data <- FR_birds
     taxa <- "birds"
     
-    # pco_data <- pco_mammals
-    # traits <- mammalstrait
-    # FR_data <- FR_mammals
-    # taxa <- "mammals"
+    pco_data <- pco_mammals
+    traits <- mammalstrait
+    FR_data <- FR_mammals
+    taxa <- "mammals"
   
   ###histo of first eigenvalues 
   
@@ -98,6 +100,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
   
   ###Corelations between traits and pcoa axes 
   
+    #TODO verifier type de donnée numeric et al... 
     trait_table = traits %>% mutate_all(as.numeric)
     traits_pcoa <- merge(traits,pco_data$vectors,by="row.names",all.x=TRUE)
     
@@ -165,7 +168,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     cor_pcoa(data=FR_data,pco=pco_data,var="Rin")
   
   
-  ###Exemple of species 
+  ###Exemple of species #TODO A reprendre .... 
     
     sub <- subset(traits_pcoa,(traits_pcoa$Axis.2 < -0.15 & traits_pcoa$Axis.3 < -0.15))
     
@@ -219,15 +222,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
   ##Chosing between birds and mammals
     
-    pco_data <- pco_birds
-    traits <- birdstrait
-    FR_data <- FR_birds
-    taxa <- "birds"
+    # pco_data <- pco_birds
+    # traits <- birdstrait
+    # FR_data <- FR_birds
+    # taxa <- "birds"
     
-    # pco_data <- pco_mammals
-    # traits <- mammalstrait
-    # FR_data <- FR_mammals
-    # taxa <- "mammals"
+    pco_data <- pco_mammals
+    traits <- mammalstrait
+    FR_data <- FR_mammals
+    taxa <- "mammals"
     
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
@@ -254,9 +257,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       df <- data.frame(df,w=df$z>quant)
       names(df)[4]<-"w"
       df2 <- df[df$z>quant,]
-      
-      
-      
+
       df2 <- df2[complete.cases(df2), ] # needed because there is one NA in the birds dataframe
       
       
@@ -330,8 +331,8 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       df2 <- df2[complete.cases(df2), ] # needed because there is one NA in the birds dataframe
       
       find_hull <- function(df2) df2[chull(df2$x, df2$y), ]
-      
-      hulls <- ddply(df2, "w", find_hull)
+     
+      hulls <- plyr::ddply(df2, "w", find_hull)
       
       p <- ggplot(df, aes(x, y)) +
         geom_point(aes(colour = df$z1))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
