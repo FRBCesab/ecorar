@@ -113,11 +113,11 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     # data<- funk_mammals
     # var <- "D75R75"
     #nlevels <- 6 #Choix du nombre de classe
-    #map<- map_mamals
-    #resultdir="mamals"
+    #resultdir="mammals"
     # plotpdf=TRUE
     # dalto: true of false
-    
+  #  log10
+  
     data<- data[,var]
     data[data==0]<-NA
     data<-as.numeric(data)
