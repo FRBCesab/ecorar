@@ -66,11 +66,11 @@ data_DR[data_DR== "D75R25"] <- NA
 data_DR[data_DR== "NA"] <- NA
 
 
-colour <- rev(brewer.pal(4, "Spectral"))
-colour[colour=="#2B83BA"]<-"white"
+colour <- rev(brewer.pal(3, "Spectral"))
+
 
 data_DR$cols <- colour[as.factor(data_DR$DR_class)]
-
+data_DR$cols[is.na(data_DR$cols)]<-"white"
 plot(set_mammals,type = "fan",tip.color = data_DR$cols, cex = 0.1)
 
 dend2 <- color_labels(dend, k = 3)
