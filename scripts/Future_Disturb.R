@@ -1,3 +1,8 @@
+rm(list=ls(all=TRUE)) 
+source("./scripts/Functions.R")
+who.remote(remote=FALSE,who="NL")
+
+
 #Future
 library(raster)
 library(ggplot2)

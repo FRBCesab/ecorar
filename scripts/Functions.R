@@ -143,8 +143,9 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
       nf=layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
       plot(map,col=cols,main=var,lwd=0.005,border=colsborder)
       hist(data,main=paste0("Histogram of ",var),xlab="", las=2)
-      barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)}
+      barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)
       }
+}
   
 #PANEL COR : Function for correlation graphics 
   panel.cor <- function(x, y, digits=2, prefix="", cex.cor) 
