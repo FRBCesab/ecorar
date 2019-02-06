@@ -84,9 +84,18 @@ set_mammals <- drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$t
           tiplabels(pch = 19, col = data_DR$colpointD25R25, cex = 0.4 ,offset=15)
           
           
-          nodes<-c(104,118,122,137,149,175,189,190)
-          labels<-paste("Clade",LETTERS[1:length(nodes)])
 
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
 
           for(i in 1:length(nodes)) {   arc.cladelabels(text=labels[i],node=nodes[i])   }
           
