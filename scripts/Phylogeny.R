@@ -23,19 +23,17 @@ load(file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
 
 load(file=file.path(data_dir,"mammals","taxaInfo.RData"))
 
+
 #----
 mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
 taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
 
 
-mammalsID<-merge(mammalsID,taxaInfo, by="ID")
-mammalsID<-mammalsID
-
 # Load Phylogeny
 load(file=file.path(data_dir,"mammals","mammalsPhy.RData"))
 
 # Dropping names not mammals ID
-set_mammals <- drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
+set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
 
 
       # Create Class DR 
@@ -56,24 +54,40 @@ set_mammals <- drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$t
       data_DR$InvRin=1-data_DR$Rin
 
     # Create Class DR 
-    data_DR$order="NA"
-
+      data_DR<-merge(data_DR,taxaInfo,by.x="row.names", by.y="ID")
+      data_DR <- data_DR[,-c(11:13,15,16)]
 
       # First version of the graph
-          data_DR<-merge(data_DR,mammalsID,by.x="row.names",by.y="ID")
           rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
           #order in the same order of the phylo
           data_DR<-data_DR[set_mammals$tip.label,] 
-          colour <-  viridis(6,option="D")
+          colour <-  viridis::viridis(6,option="D")
           colour[6]<- "grey"
           data_DR$cols <- colour[as.factor(data_DR$DR_class)]
   
           data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
           
-          #ltystyle <- c(2,2,1,2,1,2)
+                    #ltystyle <- c(2,2,1,2,1,2)
           #data_DR$ltystyle<- ltystyle[as.factor(data_DR$DR_class)]
      
-          plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = FALSE, edge.width = 0.4) # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
+          
+          # Prepare family labels
+          labelsArc <- as.character(unique(data_DR$order))
+          labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
+          labelsArc <- labelsArc[-which(labelsArc == "TUBULIDENTATA")]
+          labelsArc <- labelsArc[-which(labelsArc == "MICROBIOTHERIA") ]# the three order are absent from phylogeny but super weird like flying squirrel!!!
+          
+          nodesArc <- unlist(lapply(labelsArc, function(x){
+            
+            #x<-labelsArc[1]
+            node <- phytools::findMRCA(set_mammals,as.character(set_mammals$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
+            names(node) <- x
+            node
+          }))
+          nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
+          
+          # plotting PHYLOGENY TREE
+          plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = TRUE,tip.color="white", edge.width = 0.4) # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
           data_DR$colpointD75R75 <- data_DR$cols
           data_DR$colpointD75R75[ data_DR$colpointD75R75!="#7AD151FF"]<- NA
           
@@ -87,21 +101,87 @@ set_mammals <- drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$t
           tiplabels(pch = 19, col = data_DR$colpointD25R75, cex = 0.4 ,offset=10)
           tiplabels(pch = 19, col = data_DR$colpointD25R25, cex = 0.4 ,offset=15)
           
+          # plotting family labels/arcs
+          # offset <- c(seq(1.01,2.7, by = ((2.7-1.01)/23))[1:4],rep(seq(1.01,2.7, by = ((2.7-1.01)/23))[5:7], length(nodesArc)/3))
+          # offset <- offset+0.1
+          offset <- rep(1.15, length(nodesArc))
+          
+          
+          for(i in 1:length(nodesArc)){
+            
+            if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.06
+            if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.06
+            
+                 arc.cladelabels(text=paste0(names(nodesArc)[i]),
+                            node=nodesArc[i],
+                            ln.offset=offset[i],
+                            lab.offset=offset[i]+laboffset, 
+                            cex = 1, 
+                            col = c("black","grey"),
+                            lwd = 4, 
+                            lty = 1, 
+                            orientation = "curved",
+                            mark.node = FALSE)
+          }
+          
+          
+          arc.cladelabels(text=paste0(names(nodesArc)[2]),
+                          node=nodesArc[2],
+                          ln.offset=offset[2],
+                          lab.offset=offset[2], #+laboffset
+                          cex = 0,
+                          lwd = 10, 
+                          lty = 1, 
+                          col= "pink", 
+                          orientation = "curved")
+                          
+                          
+    
+          
+          
+          
+          
+          
+          data_DR$test<-NA
+          data_DR$test[data_DR$DR_class=="D75R75"] <- 4
+          data_DR$test[data_DR$DR_class=="D25R25"] <- 3
+          data_DR$test[data_DR$DR_class=="D25R75"] <- 2
+          data_DR$test[data_DR$DR_class=="D75R25"] <- 1
+          data_DR$test[is.na(data_DR$test)] <- 0
+          
+
+          
+          plotBranchbyTrait(set_mammals, x=data_DR$test, mode="edge", palette="rainbow", type = "fan")
+          
+          plotBranchbyTrait(tree, x, mode=c("edges","tips","nodes"), palette="rainbow", 
+                            legend=TRUE, xlims=NULL, ...)
+          
+          
+          
+          
+          
+          
+          
+          
+# Add figure  
+          require(png)
+          img<-readPNG(file=file.path(data_dir,"mammals",Images order, Afrosoricida.png))              
+                        
+                        
+          #now open a plot window with coordinates
+          plot(1:10,ty="n")
+          #specify the position of the image through bottom-left and top-right coords
+          rasterImage(img,2,2,4,4)          
+          
+          
+          
+          
+          
           
 
           
           
-          
-          
-          
-          
-
-          
-          
-          
-
-          for(i in 1:length(nodes)) {   arc.cladelabels(text=labels[i],node=nodes[i])   }
-          
+        
 
 
 
@@ -125,19 +205,6 @@ for(i in 1:length(spp)){
 }
 
 
-# Prepare family labels
-labelsArc <- as.character(unique(taxaInfo$order_))
-labelsUnq <- labelsArc[which(labelsArc == "RODENTIA")]
-labelsArc <- labelsArc[-which(labelsArc == "RODENTIA")]
-nodesArc <- unlist(lapply(labelsArc, function(x){
-  
-  node <- findMRCA(set_mammals,as.character(set_mammals$tip_name[which(as.character(myFishesSerf$fam) == x)]), type = "node")
-  
-  names(node) <- x
-  node
-}))
-
-nodesArc <- findMRCA(set_mammals,set_mammals$tip_name)
                  
                  
 draw.arc(50, 50, 100, deg2 = 1:10*10, col = "blue")

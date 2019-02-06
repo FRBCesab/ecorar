@@ -15,7 +15,7 @@ arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
                Nnode=obj$Nnode)
     class(tree)<-"phylo"
   }
-  d<-getDescendants(tree,node)
+  d<-phytools::getDescendants(tree,node)
   d<-sort(d[d<=Ntip(tree)])
   deg<-atan(obj$yy[d]/obj$xx[d])*180/pi
   ii<-intersect(which(obj$yy[d]>=0),which(obj$xx[d]<0))
@@ -24,11 +24,11 @@ arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
   deg[ii]<-180+deg[ii]
   ii<-intersect(which(obj$yy[d]<0),which(obj$xx[d]>=0))
   deg[ii]<-360+deg[ii]
-  draw.arc(x=0,y=0,radius=ln.offset*h,deg1=min(deg),
-           deg2=max(deg))
+  plotrix::draw.arc(x=0,y=0,radius=ln.offset*h,deg1=min(deg),
+           deg2=max(deg), ...)
   if(orientation=="curved")
-    arctext(text,radius=lab.offset*h,
-            middle=mean(range(deg*pi/180)),cex=cex)
+    plotrix::arctext(text,radius=lab.offset*h,
+            middle=mean(range(deg*pi/180)),cex=cex,...)
   else if(orientation=="horizontal"){
     x0<-lab.offset*cos(median(deg)*pi/180)*h
     y0<-lab.offset*sin(median(deg)*pi/180)*h
