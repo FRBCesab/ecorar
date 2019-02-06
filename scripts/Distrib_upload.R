@@ -22,7 +22,7 @@ reso="50km"
 
 load(file.path(results_dir,"mammals",reso,"mammalstrait.RData"))
 #ID 
-load(file=file.path(data_dir,"mammals",reso,"MammalsID.RData"))
+load(file=file.path(data_dir,"mammals","mammalsID.RData"))
 
     #Commun ID for mammalsID/occ_mammals/traitmammals ---
     mammalsID<-mammalsID[mammalsID$checkname_clean %in% mammalstrait$checkname_clean,]
