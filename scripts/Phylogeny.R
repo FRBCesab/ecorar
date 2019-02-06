@@ -27,6 +27,10 @@ load(file=file.path(data_dir,"mammals","taxaInfo.RData"))
 mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
 taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
 
+
+mammalsID<-merge(mammalsID,taxaInfo, by="ID")
+mammalsID<-mammalsID
+
 # Load Phylogeny
 load(file=file.path(data_dir,"mammals","mammalsPhy.RData"))
 
@@ -91,8 +95,7 @@ set_mammals <- drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$t
           
           
           
-          
-          
+
           
           
           

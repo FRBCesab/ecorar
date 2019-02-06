@@ -36,6 +36,7 @@ arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
          adj=c(if(x0>=0) 0 else 1,if(y0>=0) 0 else 1),
          offset=0)
   }
+}
   
 #DUPLICATED2 : modification of duplicated function to extract duplicated lines
 duplicated2 <- function(x){ 
