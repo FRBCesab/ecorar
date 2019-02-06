@@ -11,6 +11,7 @@ library(dplyr)
 library(gridExtra)
 library(cluster)
 library(rgdal)
+library(ape)
 library("RColorBrewer")
 
 #LOAD TRAITS MAPS AND DISTRIB----
@@ -104,37 +105,43 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
           # plotting family labels/arcs
           # offset <- c(seq(1.01,2.7, by = ((2.7-1.01)/23))[1:4],rep(seq(1.01,2.7, by = ((2.7-1.01)/23))[5:7], length(nodesArc)/3))
           # offset <- offset+0.1
-          offset <- rep(1.15, length(nodesArc))
+          offset <- rep(c(1.20,1.15), length(nodesArc)/2)
           
-          
-          for(i in 1:length(nodesArc)){
+        for(i in 1:length(nodesArc)){
             
             if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.06
             if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.06
             
-                 arc.cladelabels(text=paste0(names(nodesArc)[i]),
+            
+            if((i %% 2) == 0){ 
+                 arc.cladelabels(text="  ",
                             node=nodesArc[i],
                             ln.offset=offset[i],
                             lab.offset=offset[i]+laboffset, 
-                            cex = 1, 
-                            col = c("black","grey"),
-                            lwd = 4, 
+                            cex = 0.1, 
+                            colarc = "black",
+                            lwd = 3, 
                             lty = 1, 
                             orientation = "curved",
                             mark.node = FALSE)
-          }
+                 
+            }else{ 
+                 arc.cladelabels(text="  ",
+                                 node=nodesArc[i],
+                                 ln.offset=offset[i],
+                                 lab.offset=offset[i]+laboffset, 
+                                 cex = 0.1, 
+                                 colarc = "grey",
+                                 lwd = 3, 
+                                 lty = 1, 
+                                 orientation = "curved",
+                                 mark.node = FALSE)
+            }
+       }
           
           
-          arc.cladelabels(text=paste0(names(nodesArc)[2]),
-                          node=nodesArc[2],
-                          ln.offset=offset[2],
-                          lab.offset=offset[2], #+laboffset
-                          cex = 0,
-                          lwd = 10, 
-                          lty = 1, 
-                          col= "pink", 
-                          orientation = "curved")
-                          
+          
+
                           
     
           
