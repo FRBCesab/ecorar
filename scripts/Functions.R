@@ -1,5 +1,44 @@
 #FUNCTIONS 
 
+#ARC.CLADELABEL : add arc around phylogenie tree
+#Modifer version of ARC.CLADELABEL from phytools packages that do not allow change in color of arc 
+arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
+                          lab.offset=1.06,cex=1,orientation="curved",colarc="black",coltext="black",...){
+  obj<-get("last_plot.phylo",envir=.PlotPhyloEnv)
+  if(obj$type!="fan") stop("method works only for type=\"fan\"")
+  h<-max(sqrt(obj$xx^2+obj$yy^2))
+  if(hasArg(mark.node)) mark.node<-list(...)$mark.node
+  else mark.node<-TRUE
+  if(mark.node) points(obj$xx[node],obj$yy[node],pch=21,
+                       bg="red")
+  if(is.null(tree)){
+    tree<-list(edge=obj$edge,tip.label=1:obj$Ntip,
+               Nnode=obj$Nnode)
+    class(tree)<-"phylo"
+  }
+  d<-phytools::getDescendants(tree,node)
+  d<-sort(d[d<=Ntip(tree)])
+  deg<-atan(obj$yy[d]/obj$xx[d])*180/pi
+  ii<-intersect(which(obj$yy[d]>=0),which(obj$xx[d]<0))
+  deg[ii]<-180+deg[ii]
+  ii<-intersect(which(obj$yy[d]<0),which(obj$xx[d]<0))
+  deg[ii]<-180+deg[ii]
+  ii<-intersect(which(obj$yy[d]<0),which(obj$xx[d]>=0))
+  deg[ii]<-360+deg[ii]
+  plotrix::draw.arc(x=0,y=0,radius=ln.offset*h,deg1=min(deg),
+           deg2=max(deg),col=colarc, ...)
+  if(orientation=="curved")
+    plotrix::arctext(text,radius=lab.offset*h,
+            middle=mean(range(deg*pi/180)),cex=cex,col=coltext,...)
+  else if(orientation=="horizontal"){
+    x0<-lab.offset*cos(median(deg)*pi/180)*h
+    y0<-lab.offset*sin(median(deg)*pi/180)*h
+    text(x=x0,y=y0,label=text,
+         adj=c(if(x0>=0) 0 else 1,if(y0>=0) 0 else 1),
+         offset=0)
+  }
+}
+  
 #DUPLICATED2 : modification of duplicated function to extract duplicated lines
 duplicated2 <- function(x){ 
   if (sum(dup <- duplicated(x))==0) 
@@ -113,11 +152,11 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     # data<- funk_mammals
     # var <- "D75R75"
     #nlevels <- 6 #Choix du nombre de classe
-    #map<- map_mamals
-    #resultdir="mamals"
+    #resultdir="mammals"
     # plotpdf=TRUE
     # dalto: true of false
-    
+  #  log10
+  
     data<- data[,var]
     data[data==0]<-NA
     data<-as.numeric(data)
@@ -143,8 +182,9 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
       nf=layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
       plot(map,col=cols,main=var,lwd=0.005,border=colsborder)
       hist(data,main=paste0("Histogram of ",var),xlab="", las=2)
-      barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)}
+      barplot(summary(RSLAB)[-(nlevels+1)],col=c(colour),ylab="Number of cells", las=2, cex.names = 0.6)
       }
+}
   
 #PANEL COR : Function for correlation graphics 
   panel.cor <- function(x, y, digits=2, prefix="", cex.cor) 
@@ -296,3 +336,23 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
   }
 }
 
+  
+  
+  
+#TODO : TWO FUNCTION TO CHANGE COLOR OF FIGURE IN PHYLOGENY PLOT   
+  # function to calculate brightness values
+  brightness <- function(hex) {
+    v <- col2rgb(hex)
+    sqrt(0.299 * v[1]^2 + 0.587 * v[2]^2 + 0.114 * v[3]^2) /255
+  }
+  # given a color ramp, map brightness to ramp also taking into account 
+  # the alpha level. The defaul color ramp is grey
+  #
+  img_to_colorramp <- function(img, ramp=grey) {
+    cv <- as.vector(img)
+    b <- sapply(cv, brightness)
+    g <- ramp(b)
+    a <- substr(cv, 8,9)     # get alpha values
+    ga <- paste0(g, a)       # add alpha values to new colors
+    img.grey <- matrix(ga, nrow(img), ncol(img), byrow=TRUE)  
+  }
