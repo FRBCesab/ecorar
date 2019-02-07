@@ -196,89 +196,27 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
              }
           
           
+#Compute Lambda to know if           
+            
+            unlist(lapply(unique(myFishesSerf$fam), function(x){ 
+              l <- length(myFishesSerf$tip_name[which(myFishesSerf$fam == x)])
+              names(l) <- x
+              l} ))
+            
+            set_mammals$tip_name
+            
+            
+            trait <- myFishesSerf$Mean_tot
+            names(trait)<-myFishesSerf$tip_name
+            
+            phylosig(set100Serf[[1]], trait, method="lambda", test=TRUE)   
           
-   
-          
           
           
           
 
           
-          
-        
-
-
-
-#plot images of 1 representant of each family (clade)
-
-# library(png)
-w<-50
-for(i in 1:length(spp)){
-  # i = 13
-  if(i %in% c(seq(1,length(spp), by = 2))) arrl <- 180
-  if(i %in% c(seq(2,length(spp), by = 2))) arrl <- 180
-  
-  xy<-add.arrow(obj,spp[i],col="transparent",arrl=arrl,lwd=3,hedl=0.1)
-  img<-load.image(file.path(pathphoto_png,paste(grep(sppp[i],list.files(pathphoto_png), value = TRUE)[1],sep="")))
-  img <- as.raster(img)
-  img[img=='#FFFFFF']=NA  # pour forcer la transparence
-  asp<-dim(img)[1]/dim(img)[2]
-  rasterImage(img,xy$x0-w/2,xy$y0-w/2*asp,xy$x0+w/2,xy$y0+w/2*asp)
-  add.arrow(obj,spp[i],col="lightblue",arrl=arrl-22,lwd=2,hedl=0.05)
-  rm(img)
-}
-
-
-                 
-                 
-draw.arc(50, 50, 100, deg2 = 1:10*10, col = "blue")
-
-
-
-
-
-nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
-
-# plotting family labels/arcs
-offset <- c(seq(1.01,2.7, by = ((2.7-1.01)/17))[1:4],rep(seq(1.01,2.7, by = ((2.7-1.01)/17))[5:7], length(nodesArc)/3))
-# offset <- c(sample(seq(1.1,1.8, by = ((2.3-1.1)/17))))
-for(i in 1:length(nodesArc)){
-  
-  if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.06
-  if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.06
-  
-  
-  arc.cladelabels(text=paste0(names(nodesArc)[i]),
-                  # "\n",
-                  # round(mean(myFishesSerf$Mean_tot[which(as.character(myFishesSerf$fam) == names(nodesArc)[i])]),2),
-                  # "(",
-                  # "±",
-                  # round(sd(myFishesSerf$Mean_tot[which(as.character(myFishesSerf$fam) == names(nodesArc)[i])]),2),
-                  # ")"),
-                  node=nodesArc[i],
-                  ln.offset=offset[i],
-                  lab.offset=offset[i]+laboffset, #+laboffset
-                  cex = 0.7, 
-                  col = sample(colors()[grep("gold",colors())], 1),
-                  lwd = 1.3, 
-                  orientation = "curved",
-                  mark.node = FALSE)
-}
-
-
-
-arc.cladelabels(text=labelsUnq,node=which(obj$tree$tip.label=="Muraenidae_Gymnothorax_javanicus"),
-                orientation="curved",ln.offset=1.25,lab.offset=1.32, cex = 0.7,col = sample(colors()[grep("gold",colors())], 1), mark.node = FALSE)
-
-
-
-
-
-
-
-
-
-
+     
 
 # Second version
 
