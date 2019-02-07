@@ -113,12 +113,12 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
             if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.06
             
             
-            if((i %% 2) == 0){ 
-                 arc.cladelabels(text="  ",
+            if((i %% 2) == 0){  #If odd 
+                 arc.cladelabels(text="  ", #paste0(names(nodesArc)[i])
                             node=nodesArc[i],
                             ln.offset=offset[i],
                             lab.offset=offset[i]+laboffset, 
-                            cex = 0.1, 
+                            cex = 0.2, 
                             colarc = "black",
                             lwd = 3, 
                             lty = 1, 
@@ -126,11 +126,11 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
                             mark.node = FALSE)
                  
             }else{ 
-                 arc.cladelabels(text="  ",
+                 arc.cladelabels(text= "  ",#paste0(names(nodesArc)[i])
                                  node=nodesArc[i],
                                  ln.offset=offset[i],
                                  lab.offset=offset[i]+laboffset, 
-                                 cex = 0.1, 
+                                 cex = 0.2, 
                                  colarc = "grey",
                                  lwd = 3, 
                                  lty = 1, 
@@ -140,47 +140,64 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
        }
           
           
-          
-
-                          
-    
-          
-          
-          
-          
-          
-          data_DR$test<-NA
-          data_DR$test[data_DR$DR_class=="D75R75"] <- 4
-          data_DR$test[data_DR$DR_class=="D25R25"] <- 3
-          data_DR$test[data_DR$DR_class=="D25R75"] <- 2
-          data_DR$test[data_DR$DR_class=="D75R25"] <- 1
-          data_DR$test[is.na(data_DR$test)] <- 0
-          
-
-          
-          plotBranchbyTrait(set_mammals, x=data_DR$test, mode="edge", palette="rainbow", type = "fan")
-          
-          plotBranchbyTrait(tree, x, mode=c("edges","tips","nodes"), palette="rainbow", 
-                            legend=TRUE, xlims=NULL, ...)
-          
-          
-          
-          
-          
-          
-          
-          
-# Add figure  
+          # TODO MAKE THIS AUTOMATICATLY Add figure of mammals order  
           require(png)
-          img<-readPNG(file=file.path(data_dir,"mammals",Images order, Afrosoricida.png))              
-                        
-                        
-          #now open a plot window with coordinates
-          plot(1:10,ty="n")
-          #specify the position of the image through bottom-left and top-right coords
-          rasterImage(img,2,2,4,4)          
+          rodentia <- readPNG(file.path(data_dir,"mammals","Images_order","rodentia.png"))              
+          rasterImage(rodentia,5,180,80,240)
+         
+          lagomorpha <- readPNG(file.path(data_dir,"mammals","Images_order","Lagomorpha.png"))       
+          rasterImage(lagomorpha,-250,70,-200,110,fg="grey")
+ 
+          
+      
           
           
+  # Second version of the graph       
+          
+          # plotting PHYLOGENY TREE
+          plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = TRUE,tip.color="white", edge.width = 0.4) # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
+          data_DR$colpointD75R75 <- data_DR$cols
+          data_DR$colpointD75R75[ data_DR$colpointD75R75!="#7AD151FF"]<- NA
+          
+          data_DR$colpointD25R75 <- data_DR$cols
+          data_DR$colpointD25R75[ data_DR$colpointD25R75!="#2A788EFF"]<- NA
+          
+          data_DR$colpointD25R25 <- data_DR$cols
+          data_DR$colpointD25R25[ data_DR$colpointD25R25!="#414487FF"]<- NA
+          
+          tiplabels(pch = 19, col = data_DR$colpointD75R75, cex = 0.4 ,offset=5)
+          tiplabels(pch = 19, col = data_DR$colpointD25R75, cex = 0.4 ,offset=10)
+          tiplabels(pch = 19, col = data_DR$colpointD25R25, cex = 0.4 ,offset=15)
+          
+          # plotting family labels/arcs
+          #   offset <- sample(seq(1.12,1.8, length.out = length(nodesArc)), length(nodesArc), replace = FALSE, prob = NULL)
+            offset <- c(1.552727,1.645455,1.429091,1.181818,1.243636,
+            1.738182,1.614545,1.305455,1.150909,1.398182,
+            1.367273,1.707273,1.769091,1.583636,1.460000,
+            1.212727,1.274545,1.120000,1.505,1.645455,
+            1.336364,1.74,1.435)
+          
+
+          for(i in 1:length(nodesArc)){
+            
+            if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.02
+            if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.02
+       
+             arc.cladelabels(text= paste0(names(nodesArc)[i]),
+                              node=nodesArc[i],
+                              ln.offset=offset[i],
+                              lab.offset=offset[i]+laboffset, 
+                              cex = 0.4, 
+                              colarc = "black",
+                              lwd = 1, 
+                              lty = 1, 
+                              orientation = "curved",
+                              mark.node = FALSE)  
+             }
+          
+          
+          
+   
           
           
           

@@ -336,3 +336,23 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
   }
 }
 
+  
+  
+  
+#TODO : TWO FUNCTION TO CHANGE COLOR OF FIGURE IN PHYLOGENY PLOT   
+  # function to calculate brightness values
+  brightness <- function(hex) {
+    v <- col2rgb(hex)
+    sqrt(0.299 * v[1]^2 + 0.587 * v[2]^2 + 0.114 * v[3]^2) /255
+  }
+  # given a color ramp, map brightness to ramp also taking into account 
+  # the alpha level. The defaul color ramp is grey
+  #
+  img_to_colorramp <- function(img, ramp=grey) {
+    cv <- as.vector(img)
+    b <- sapply(cv, brightness)
+    g <- ramp(b)
+    a <- substr(cv, 8,9)     # get alpha values
+    ga <- paste0(g, a)       # add alpha values to new colors
+    img.grey <- matrix(ga, nrow(img), ncol(img), byrow=TRUE)  
+  }
