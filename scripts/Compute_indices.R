@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=FALSE,who="NM")
 
 library(funrar)
 library(moments)
@@ -17,7 +17,7 @@ library(rgdal)
 #LOAD TRAITS MAPS AND DISTRIB----
 reso="50km"
   # Load traits and distrib 
-    load(file=file.path(results_dir,"mammals",reso,"mammalsID.RData"))
+    load(file=file.path(results_dir,"mammals/mammalsID.RData"))
     load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
     load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
 #----
