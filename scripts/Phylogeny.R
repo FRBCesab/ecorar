@@ -15,27 +15,26 @@ library(ape)
 library("RColorBrewer")
 
 #LOAD TRAITS MAPS AND DISTRIB----
-reso="50km"
-# Load traits and distrib 
-load(file=file.path(data_dir,"mammals","mammalsID.RData"))
-load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
-load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
-load(file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
-
-load(file=file.path(data_dir,"mammals","taxaInfo.RData"))
+    reso="50km"
+    # Load traits and distrib 
+    load(file=file.path(data_dir,"mammals","mammalsID.RData"))
+    load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
+    load(file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
+    
+    load(file=file.path(data_dir,"mammals","taxaInfo.RData"))
 
 
 #----
-mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
-taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
+    mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
+    taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
 
 
 # Load Phylogeny
-load(file=file.path(data_dir,"mammals","mammalsPhy.RData"))
+    load(file=file.path(data_dir,"mammals","mammalsPhy.RData"))
 
-# Dropping names not mammals ID
-set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
-
+# Dropping names not in mammals ID
+    set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
 
       # Create Class DR 
       data_DR<-FR_mammals$FR
@@ -54,11 +53,12 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
       
       data_DR$InvRin=1-data_DR$Rin
 
-    # Create Class DR 
       data_DR<-merge(data_DR,taxaInfo,by.x="row.names", by.y="ID")
       data_DR <- data_DR[,-c(11:13,15,16)]
 
-      # First version of the graph
+      
+# First version of the graph
+      
           rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
           #order in the same order of the phylo
           data_DR<-data_DR[set_mammals$tip.label,] 
@@ -71,7 +71,6 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
                     #ltystyle <- c(2,2,1,2,1,2)
           #data_DR$ltystyle<- ltystyle[as.factor(data_DR$DR_class)]
      
-          
           # Prepare family labels
           labelsArc <- as.character(unique(data_DR$order))
           labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
@@ -140,6 +139,7 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
        }
           
           
+          
           # TODO MAKE THIS AUTOMATICATLY Add figure of mammals order  
           require(png)
           rodentia <- readPNG(file.path(data_dir,"mammals","Images_order","rodentia.png"))              
@@ -149,10 +149,7 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
           rasterImage(lagomorpha,-250,70,-200,110,fg="grey")
  
           
-      
-          
-          
-  # Second version of the graph       
+# Second version of the graph       
           
           # plotting PHYLOGENY TREE
           plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = TRUE,tip.color="white", edge.width = 0.4) # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
@@ -196,47 +193,22 @@ set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammals
              }
           
           
-#Compute Lambda to know if           
+#Compute Lambda to know if functional rare species are packaged           
             
-            unlist(lapply(unique(myFishesSerf$fam), function(x){ 
-              l <- length(myFishesSerf$tip_name[which(myFishesSerf$fam == x)])
-              names(l) <- x
-              l} ))
+           #Number of species per order 
+           sp_order<- unlist(lapply(unique(data_DR$order), function(x){ 
+                      l <- length(set_mammals$tip.label[which(data_DR$order == x)])
+                      names(l) <- x
+                      l} ))
             
-            set_mammals$tip_name
+            rarety <- data_DR$DR_class
+            rarety <- as.numeric(as.factor(rarety))
+            names(rarety)<-rownames(data_DR)
             
-            
-            trait <- myFishesSerf$Mean_tot
-            names(trait)<-myFishesSerf$tip_name
-            
-            phylosig(set100Serf[[1]], trait, method="lambda", test=TRUE)   
+            phytools::phylosig(set_mammals, rarety, method="lambda", test=TRUE)   
           
           
           
           
 
-          
      
-
-# Second version
-
-#colour <-c("cadetblue1","orange","red2")
-#data_DR[data_DR== "AVG"] <- NA
-#data_DR[data_DR== "D75R25"] <- NA
-#ata_DR[data_DR== "NA"] <- NA
-#
-data_DR<-merge(data_DR,mammalsID,by.x="row.names",by.y="ID")
-rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
-#order in the same order of the phylo
-data_DR<-data_DR[set_mammals$tip.label,] 
-
-colour <-c("cadetblue1","orange","red2")
-data_DR[data_DR== "AVG"] <- NA
-data_DR[data_DR== "D75R25"] <- NA
-data_DR[data_DR== "NA"] <- NA
-data_DR$cols <- colour[as.factor(data_DR$DR_class)]
-data_DR$cols[is.na(data_DR$cols)] <- "white"
-
-plot(set_mammals,type = "fan",edge.color = "black", show.tip.label = FALSE, edge.width = 0.3)
-tiplabels(pch = 15, col = data_DR$cols, cex = 1 )
-
