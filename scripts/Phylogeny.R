@@ -165,7 +165,7 @@ library("RColorBrewer")
           tiplabels(pch = 19, col = data_DR$cols, cex = 0.4 ,offset=5)
 
           # plotting family labels/arcs
-          offset <- rep(c(1.15,1.20,1.25),length(nodesArc)/2)
+          offset <- rep(c(1.16,1.21,1.26),length(nodesArc)/2)
         
            # rep(c(1.08,1.16,1.24), length(nodesArc)/2)
           for(i in 1:length(nodesArc)){
@@ -200,8 +200,7 @@ library("RColorBrewer")
           }
           
           
-          
-          
+          #add more opitoin in if else to avoid 
           
           
           
