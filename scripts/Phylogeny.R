@@ -205,7 +205,7 @@ library("RColorBrewer")
             rarety <- as.numeric(as.factor(rarety))
             names(rarety)<-rownames(data_DR)
             
-            phytools::phylosig(set_mammals, rarety, method="lambda", test=TRUE)   
+            lambda<-phytools::phylosig(set_mammals, rarety, method="lambda", test=TRUE)   
           
           
           
