@@ -184,7 +184,7 @@ mclapply(ids,function(id) {
             set_tree<-di2multi(set_tree)
             #Compute D and statistic
             FR_PhyloD <- comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
-            FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=1000)
+            FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=permut)
             
             #The estimated D value
             estimated_D <- FR_PhyloD$DEstimate
@@ -193,5 +193,7 @@ mclapply(ids,function(id) {
             #A p value, giving the result of testing whether D is significantly different from zero
             Pval0 <- FR_PhyloD$Pval0
             
+            Dstat <- data.frame(estimated_D,Pval1,Pval0)
+            return(Dstat)
             },mc.cores= proc)
 }
