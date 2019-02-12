@@ -61,17 +61,14 @@ library("magrittr")
 # First version of the graph
       
           rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
+          data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
           #order in the same order of the phylo
           data_DR<-data_DR[set_mammals$tip.label,] 
-          colour <-  viridis::viridis(6,option="D")
-          colour[6]<- "grey"
-          data_DR$cols <- colour[as.factor(data_DR$DR_class)]
-  
-          data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
           
-                    #ltystyle <- c(2,2,1,2,1,2)
-          #data_DR$ltystyle<- ltystyle[as.factor(data_DR$DR_class)]
-     
+          data_DR$cols <- NA
+          data_DR$cols[data_DR$DR_class=="D75R75"] <- "red"
+    
+          
           # Prepare family labels
           labelsArc <- as.character(unique(data_DR$order))
           labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
@@ -86,25 +83,7 @@ library("magrittr")
             node
           }))
           nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
-          
-          # plotting PHYLOGENY TREE
-
- 
-          
-# Second version of the graph      
-          rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
-          #order in the same order of the phylo
-          data_DR<-data_DR[set_mammals$tip.label,] 
-
-          data_DR$cols <- NA
-          data_DR$cols[data_DR$DR_class=="D75R75"] <- "red"
-          data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
-          
-          rarety <-  data_DR$cols
-          rarety <- as.numeric(as.factor(rarety))
-          rarety[is.na(rarety)]<-0
-          names(rarety)<-rownames(data_DR)
-          
+       
           # Change capita 
           names(nodesArc)<- dplyr::mutate_all(as.character(unique(data_DR$order)), funs=tolower)
           names(nodesArc) %<>% tolower
@@ -114,17 +93,21 @@ library("magrittr")
             x
           }
           names(nodesArc)<-firstup(names(nodesArc))
+         
+           # Add column binary for Functional Rarity: Yes/no
+          rarety <-  data_DR$cols 
+          rarety <- as.numeric(as.factor(rarety))
+          rarety[is.na(rarety)]<-0
+          names(rarety)<-rownames(data_DR)
           
+          set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
           
           # plotting PHYLOGENY TREE
-          # plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = TRUE,tip.color="white", edge.width = 0.4)  # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
-          color.terminal.branches(set_mammals, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=c(0.4), show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
+          color.terminal.branches(set_mammals, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
           tiplabels(pch = 18, col = data_DR$cols, cex = 0.4 ,offset=5)
 
           # plotting family labels/arcs
           offset <- rep(c(1.10,1.18,1.26),length(nodesArc)/2)
-        
-           # rep(c(1.08,1.16,1.24), length(nodesArc)/2)
           for(i in 1:length(nodesArc)){
             
             if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.03
@@ -142,8 +125,7 @@ library("magrittr")
                               orientation = "curved",
                               mark.node = FALSE,col="gray82")}
               
-              
-              if(i %in% c(2,5,8,11,14,17,20,23)){  #If odd 
+            if(i %in% c(2,5,8,11,14,17,20,23)){  #If odd 
                 arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                                 node=nodesArc[i],
                                 ln.offset=offset[i],
@@ -155,8 +137,8 @@ library("magrittr")
                                 orientation = "curved",
                                 mark.node = FALSE,col="gray75")}
                 
-                if(i %in% c(3,6,9,12,15,18,21)){  #If odd 
-                  arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
+            if(i %in% c(3,6,9,12,15,18,21)){  #If odd 
+                arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                                   node=nodesArc[i],
                                   ln.offset=offset[i],
                                   lab.offset=offset[i]+laboffset, 
@@ -167,100 +149,49 @@ library("magrittr")
                                   orientation = "curved",
                                   mark.node = FALSE,col="gray68")}
            
-             text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4)
+           #Add the names of Order
+           text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4)
           }
           
-
-     
-
-      
-    # offset <- c(1.552727,1.645455,1.429091,1.181818,1.243636,1.738182,1.614545,1.305455,1.150909,1.398182,1.367273,1.707273,1.769091,1.583636,1.460000,
-          #1.212727,1.274545,1.120000,1.505,1.645455, 1.336364,1.74,1.435)
-   
-          
+#---
 #Compute Lambda to know if functional rare species are packaged           
-         
-              # LAMBDA IS NOT GOOD FOR BINARY INFO
-            
-           #Number of species per order 
-           sp_order<- unlist(lapply(unique(data_DR$order), function(x){ 
-                      l <- length(set_mammals$tip.label[which(data_DR$order == x)])
-                      names(l) <- x
-                      l} ))
-            
-            rarety <- data_DR$colpointD75R75
-            rarety <- as.numeric(as.factor(rarety))
-            rarety[is.na(rarety)]<-0
-            names(rarety)<-rownames(data_DR)
-            
-            lambda<-phytools::phylosig(set_mammals, rarety, method="lambda", test=TRUE)   
-          
-#Compute FRITZ to know if functional rare species are packaged                 
-            onction phylo.d() dans le package caper
-            
-            Faut utiliser au préalable comparative.data() pour formater les data 
-            (traits, phylo etc....)
-   
 
+      #Compute FRITZ to know if functional rare species are packaged        
+            data_DR$rarety <- data_DR$cols
+            data_DR$rarety <- as.numeric(as.factor(data_DR$rarety))
+            data_DR$rarety[is.na(data_DR$rarety)]<-0
 
-            #OTHER VERSION OF GRAPH
+    
+          #Should be done with the 100 trees of mammals et 100 trees of birds
+            data_DR<-data_DR
+            data_DR$species<-rownames(data_DR)
             
-          plot(set_mammals,type = "fan",edge.color = "grey", show.tip.label = TRUE,tip.color="white", edge.width = 0.4) # ,edge.lty= data_DR$ltystyle,edge.color = data_DR$cols)
-          data_DR$colpointD75R75 <- data_DR$cols
-            data_DR$colpointD75R75[ data_DR$colpointD75R75!="#7AD151FF"]<- NA
+D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
+              #proc <- 2
+              #taxa <- mammals
+              #data_DR <- data_DR
+              #permut <- 10
+              #ids <- 1:2
+  
+mclapply(ids,function(id) { 
+  if (taxa == "mammals") tree<-read.tree(file=file.path(data_dir,"mammals","alltrees", paste0("FritzTree_mammals_updateCarnivora2012DEF",id,".tre"))) 
+  
+  if (taxa == "birds")   tree<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre"))) 
+          set_tree<- ape::drop.tip(tree,tree$tip.label[!is.element(tree$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
+          set_tree$node.label <- NULL
+        
+            #collapse or resolve multichotomies in phylogenetic trees TODO check that is mean exactely because ned it
+            set_tree<-di2multi(set_tree)
+            #Compute D and statistic
+            FR_PhyloD <- comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
+            FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=1000)
             
-            data_DR$colpointD25R75 <- data_DR$cols
-            data_DR$colpointD25R75[ data_DR$colpointD25R75!="#2A788EFF"]<- NA
+            #The estimated D value
+            estimated_D <- FR_PhyloD$DEstimate
+            #A p value,giving the result of testing whether D is significantly different from one
+            Pval1 <- FR_PhyloD$Pval1
+            #A p value, giving the result of testing whether D is significantly different from zero
+            Pval0 <- FR_PhyloD$Pval0
             
-            data_DR$colpointD25R25 <- data_DR$cols
-            data_DR$colpointD25R25[ data_DR$colpointD25R25!="#414487FF"]<- NA
-            
-            tiplabels(pch = 19, col = data_DR$colpointD75R75, cex = 0.4 ,offset=5)
-            tiplabels(pch = 19, col = data_DR$colpointD25R75, cex = 0.4 ,offset=10)
-            tiplabels(pch = 19, col = data_DR$colpointD25R25, cex = 0.4 ,offset=15)
-            
-            # plotting family labels/arcs
-            # offset <- c(seq(1.01,2.7, by = ((2.7-1.01)/23))[1:4],rep(seq(1.01,2.7, by = ((2.7-1.01)/23))[5:7], length(nodesArc)/3))
-            # offset <- offset+0.1
-            offset <- rep(c(1.20,1.15), length(nodesArc)/2)
-            
-            for(i in 1:length(nodesArc)){
-            
-            if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.06
-            if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.06
-            
-            
-            if((i %% 2) == 0){  #If odd 
-            arc.cladelabels(text="  ", #paste0(names(nodesArc)[i])
-            node=nodesArc[i],
-            ln.offset=offset[i],
-            lab.offset=offset[i]+laboffset, 
-            cex = 0.2, 
-            colarc = "black",
-            lwd = 3, 
-            lty = 1, 
-            orientation = "curved",
-            mark.node = FALSE)
-            
-            }else{ 
-            arc.cladelabels(text= "  ",#paste0(names(nodesArc)[i])
-            node=nodesArc[i],
-            ln.offset=offset[i],
-            lab.offset=offset[i]+laboffset, 
-            cex = 0.2, 
-            colarc = "grey",
-            lwd = 3, 
-            lty = 1, 
-            orientation = "curved",
-            mark.node = FALSE)
-            }
-            }
-            # TODO MAKE THIS AUTOMATICATLY Add figure of mammals order  
-            require(png)
-            rodentia <- readPNG(file.path(data_dir,"mammals","Images_order","rodentia.png"))              
-            rasterImage(rodentia,5,180,80,240)
-            
-            lagomorpha <- readPNG(file.path(data_dir,"mammals","Images_order","Lagomorpha.png"))       
-            rasterImage(lagomorpha,-250,70,-200,110,fg="grey")
-
-     
+            },mc.cores= proc)
+}

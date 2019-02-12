@@ -1,12 +1,15 @@
+
+
 #FUNCTIONS 
+######################################################################################################
 #----
-# COLOR TERMINAL BRANCHES: function to color only the last branch from Nick Crouch's GITHUB
+# COLOR TERMINAL BRANCHES: function to color only the last branch modified from Nick Crouch's GITHUB
 # phy: object of class phylo
 # data: named numeric vector
 # breaks: number of color breaks
 # cols: character vector of length 2, start col, end col
 # non.terminal.col: vector character length 1, color non terminal branches
-
+######################################################################################################
 color.terminal.branches <- function(phy, data, breaks=6, cols=c("black", "red"), non.terminal.col= "black", edge.width=1, col.bias=1, legend.title = "", show.tip.label=FALSE, alt.col.data=NULL,...){
   
   sapply(phy$tip.label, check.spp.search.duplicates, phy$tip.label)
@@ -88,7 +91,7 @@ color.terminal.branches <- function(phy, data, breaks=6, cols=c("black", "red"),
   #layout(l)
   #par(mfrow=c(1,2))
   #par(mai=rep(0.1,4))
-  plot(phy, show.tip.label=show.tip.label, edge.col=col.vector, edge.width=edge.width,type="fan",tip.color="white")
+  plot(phy, show.tip.label=show.tip.label, edge.col=col.vector, edge.width=edge.width,type="fan",tip.color="white") #Change white if you want to see names of species
   
   #image <- matrix(colors, ncol=1)
   #image <- as.matrix(rev(legend_image))
