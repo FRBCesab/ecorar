@@ -14,6 +14,9 @@ library(rgdal)
 library(ape)
 library("RColorBrewer")
 library("magrittr")
+require("ggplot2")
+require("grid")
+
 
 #LOAD TRAITS MAPS AND DISTRIB----
     reso="50km"
@@ -30,15 +33,19 @@ library("magrittr")
     mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
     taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
 
-
 # Load Phylogeny
-    load(file=file.path(data_dir,"mammals","mammalsPhy.RData"))
-
-# Dropping names not in mammals ID
+    load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
+    birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
+    
+# Dropping names not in  ID
     set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
-
-      # Create Class DR 
-      data_DR<-FR_mammals$FR
+    set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
+    
+    
+    
+draw.phylo <- function(FR_data,taxa,set_phylo) {
+    # Create Class DR 
+      #data_DR<-FR_mammals$FR
       data_DR$DR_class="NA"
       
       QD75 <- FR_mammals$Q$Q75_D
@@ -59,32 +66,30 @@ library("magrittr")
 
       
 # First version of the graph
-      
-          rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
-          data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
-          #order in the same order of the phylo
-          data_DR<-data_DR[set_mammals$tip.label,] 
+        rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
+        data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
+        #order in the same order of the phylo
+        data_DR<-data_DR[set_mammals$tip.label,] 
           
-          data_DR$cols <- NA
-          data_DR$cols[data_DR$DR_class=="D75R75"] <- "red"
+        data_DR$cols <- NA
+        data_DR$cols[data_DR$DR_class=="D75R75"] <- "red"
     
           
-          # Prepare family labels
-          labelsArc <- as.character(unique(data_DR$order))
-          labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
-          labelsArc <- labelsArc[-which(labelsArc == "TUBULIDENTATA")]
-          labelsArc <- labelsArc[-which(labelsArc == "MICROBIOTHERIA") ]# the three order are absent from phylogeny but super weird like flying squirrel!!!
+        # Prepare family labels
+        labelsArc <- as.character(unique(data_DR$order))
+        labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
+        labelsArc <- labelsArc[-which(labelsArc == "TUBULIDENTATA")]
+        labelsArc <- labelsArc[-which(labelsArc == "MICROBIOTHERIA") ]# the three order are absent from phylogeny but super weird like flying squirrel!!!
           
-          nodesArc <- unlist(lapply(labelsArc, function(x){
+        nodesArc <- unlist(lapply(labelsArc, function(x){
             
             #x<-labelsArc[1]
-            node <- phytools::findMRCA(set_mammals,as.character(set_mammals$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
+        node <- phytools::findMRCA(set_mammals,as.character(set_mammals$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
             names(node) <- x
-            node
-          }))
-          nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
+            node}))
+        nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
        
-          # Change capita 
+          # Change capita in the names of order
           names(nodesArc)<- dplyr::mutate_all(as.character(unique(data_DR$order)), funs=tolower)
           names(nodesArc) %<>% tolower
           
@@ -154,15 +159,12 @@ library("magrittr")
           }
           
 #---
-#Compute Lambda to know if functional rare species are packaged           
-
-      #Compute FRITZ to know if functional rare species are packaged        
+#Compute FRITZ to know if functional rare species are packaged        
             data_DR$rarety <- data_DR$cols
             data_DR$rarety <- as.numeric(as.factor(data_DR$rarety))
             data_DR$rarety[is.na(data_DR$rarety)]<-0
 
-    
-          #Should be done with the 100 trees of mammals et 100 trees of birds
+        #Should be done with the 100 trees of mammals et 100 trees of birds
             data_DR<-data_DR
             data_DR$species<-rownames(data_DR)
             
@@ -173,27 +175,43 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
               #permut <- 10
               #ids <- 1:2
   
-mclapply(ids,function(id) { 
-  if (taxa == "mammals") tree<-read.tree(file=file.path(data_dir,"mammals","alltrees", paste0("FritzTree_mammals_updateCarnivora2012DEF",id,".tre"))) 
+          mclapply(ids,function(id) { 
+                 if (taxa == "mammals") tree<-read.tree(file=file.path(data_dir,"mammals","alltrees", paste0("FritzTree_mammals_updateCarnivora2012DEF",id,".tre"))) 
+            
+                 if (taxa == "birds")   tree<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre"))) 
+                 
+                    set_tree<- ape::drop.tip(tree,tree$tip.label[!is.element(tree$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
+                    set_tree$node.label <- NULL
+                  
+                      #collapse or resolve multichotomies in phylogenetic trees TODO check that is mean exactely because need it
+                      set_tree<-di2multi(set_tree)
+                      
+                      #Compute D and statistic
+                      FR_PhyloD <- comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
+                      FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=permut)
+                      
+                      #The estimated D value
+                      estimated_D <- FR_PhyloD$DEstimate
+                      #A p value,giving the result of testing whether D is significantly different from one
+                      Pval1 <- FR_PhyloD$Pval1
+                      #A p value, giving the result of testing whether D is significantly different from zero
+                      Pval0 <- FR_PhyloD$Pval0
+                      
+                      Dstat <- data.frame(estimated_D,Pval1,Pval0)
+                      return(Dstat)
+                      },mc.cores= proc)
   
-  if (taxa == "birds")   tree<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre"))) 
-          set_tree<- ape::drop.tip(tree,tree$tip.label[!is.element(tree$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
-          set_tree$node.label <- NULL
-        
-            #collapse or resolve multichotomies in phylogenetic trees TODO check that is mean exactely because ned it
-            set_tree<-di2multi(set_tree)
-            #Compute D and statistic
-            FR_PhyloD <- comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
-            FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=permut)
-            
-            #The estimated D value
-            estimated_D <- FR_PhyloD$DEstimate
-            #A p value,giving the result of testing whether D is significantly different from one
-            Pval1 <- FR_PhyloD$Pval1
-            #A p value, giving the result of testing whether D is significantly different from zero
-            Pval0 <- FR_PhyloD$Pval0
-            
-            Dstat <- data.frame(estimated_D,Pval1,Pval0)
-            return(Dstat)
-            },mc.cores= proc)
-}
+          }
+#Mammals
+D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
+D_mammals_plot<-ggplot(D_mammals, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
+  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))
+D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
+
+#birds
+D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
+  theme(axis.title=element_text(size=8))
+D_birds_plot<-print(D_birds_plot, vp=viewport(.12, .85, .24, .22))
+
+
