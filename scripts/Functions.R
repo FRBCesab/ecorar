@@ -1,6 +1,14 @@
 
 
 #FUNCTIONS 
+
+#---
+#firstup the first letter is in CAPITA
+firstup <- function(x) {
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  x
+}
+#---
 ######################################################################################################
 #----
 # COLOR TERMINAL BRANCHES: function to color only the last branch modified from Nick Crouch's GITHUB
@@ -359,7 +367,7 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     vect = seq(bInf,bSup,length.out=(nlevels+1))
     RSLAB = cut(data, breaks=vect,include.lowest=TRUE,right=FALSE)
     cols <- colour[RSLAB]
-    cols[is.na(cols)] <- "white" #all NAs will be plot in black
+    cols[is.na(cols)] <- "gray82" #all NAs will be plot in black
     colsborder<-cols
     colsborder[colsborder=="white"]<-"gray82"
     

@@ -19,20 +19,36 @@ require("grid")
 
 
 #LOAD TRAITS MAPS AND DISTRIB----
-    reso="50km"
+
     # Load traits and distrib 
-    load(file=file.path(data_dir,"mammals","mammalsID.RData"))
-    load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
-    load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
-    load(file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
+
+        #Mammals
+
+        load(file=file.path(data_dir,"mammals","mammalsID.RData"))
+        load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
+        load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+        load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+        load(file=file.path(data_dir,"mammals","taxaInfo_mammals.RData"))
+        mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
+        taxaInfo_mammals<-taxaInfo_mammals[taxaInfo_mammals$ID %in% mammalsID$ID,]        
+       
     
-    load(file=file.path(data_dir,"mammals","taxaInfo.RData"))
+         #Birds
+        
+        load(file=file.path(data_dir,"birds","birdsID.RData"))
+        load(file=file.path(results_dir,"birds","birdstrait.RData"))
+        load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+        load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
+        load(file=file.path(data_dir,"birds","taxaInfo_birds.RData"))
+        birdsID<-birdsID[birdsID$ID %in% rownames(birdstrait),]
+        taxaInfo_birds<-taxaInfo_birds[taxaInfo_birds$ID %in% birdsID$ID,]      
 
-
+    
+          
+          
 #----
-    mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
-    taxaInfo<-taxaInfo[taxaInfo$ID %in% mammalsID$ID,]
 
+        
 # Load Phylogeny
     load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
     birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
@@ -41,17 +57,26 @@ require("grid")
     set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
     set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
     
-    
-    
-draw.phylo <- function(FR_data,taxa,set_phylo) {
-    # Create Class DR 
-      #data_DR<-FR_mammals$FR
+draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
+
+  #  FR_data<-FR_mammals
+  #  set_phylo <- set_mammals
+  #  taxaInfo<- taxaInfo_mammals
+  #  taxa="mammals"
+  
+  
+   FR_data<-FR_birds
+    set_phylo <- set_birds
+    taxaInfo<- taxaInfo_birds
+    taxa="birds"
+  
+      # Create Class DR 
+      data_DR<-FR_data$FR
       data_DR$DR_class="NA"
-      
-      QD75 <- FR_mammals$Q$Q75_D
-      QD25 <- FR_mammals$Q$Q25_D
-      QR75 <- FR_mammals$Q$Q75_R
-      QR25 <- FR_mammals$Q$Q25_R
+      QD75 <- FR_data$Q$Q75_D
+      QD25 <- FR_data$Q$Q25_D
+      QR75 <- FR_data$Q$Q75_R
+      QR25 <- FR_data$Q$Q25_R
       
       data_DR$DR_class[(data_DR$Din<QD25) & (data_DR$Rin<QR25)]="D25R25"
       data_DR$DR_class[(data_DR$Din>QD75) & (data_DR$Rin>QR75)]="D75R75"
@@ -61,54 +86,64 @@ draw.phylo <- function(FR_data,taxa,set_phylo) {
       
       data_DR$InvRin=1-data_DR$Rin
 
-      data_DR<-merge(data_DR,taxaInfo,by.x="row.names", by.y="ID")
-      data_DR <- data_DR[,-c(11:13,15,16)]
+      data_DR<-merge(data_DR,taxaInfo,by.x="row.names", by.y="ID")   # ATTENTION
+      #data_DR <- data_DR[,-c(11:13,15,16)]
+      data_DR <- data.frame(data_DR[,c(1:10)],data_DR$order)
+      colnames(data_DR)[11] <- "order"
 
       
-# First version of the graph
         rownames(data_DR)<-as.character(gsub(" ", "_", data_DR$Name))
-        data_DR<-data_DR[rownames(data_DR) %in% mammalsPhy$tip.label,]
+        data_DR<-data_DR[rownames(data_DR) %in% set_phylo$tip.label,]
         #order in the same order of the phylo
-        data_DR<-data_DR[set_mammals$tip.label,] 
-          
+        data_DR<-data_DR[set_phylo$tip.label,] 
+  
         data_DR$cols <- NA
         data_DR$cols[data_DR$DR_class=="D75R75"] <- "red"
     
-          
-        # Prepare family labels
-        labelsArc <- as.character(unique(data_DR$order))
-        labelsArc <- labelsArc[-which(labelsArc == "DERMOPTERA")]
-        labelsArc <- labelsArc[-which(labelsArc == "TUBULIDENTATA")]
-        labelsArc <- labelsArc[-which(labelsArc == "MICROBIOTHERIA") ]# the three order are absent from phylogeny but super weird like flying squirrel!!!
-          
+        
+        #The species  Coracina_melas  will cause problems - searching for this species in all the species present will return multiple species, consider renaming! 
+        data_DR <- data_DR[which(rownames(data_DR) != "Coracina_melas"),]  
+        data_DR <- data_DR[which(rownames(data_DR) != "Lanius_collurio"),] 
+        data_DR <- data_DR[which(rownames(data_DR) != "Lanius_excubitor"),]
+        data_DR <- data_DR[which(rownames(data_DR) != "Buteo_augur"),]
+        data_DR <- data_DR[which(rownames(data_DR) != "Haliaeetus_vocifer"),]
+        
+        # Prepare order labels
+        labelsArc <- na.omit(as.character(unique(data_DR$order)))
+        # Change capita in the names of order
+        labelsArc %<>% tolower
+        labelsArc<-firstup(labelsArc)
+
+        if (taxa=="mammals"){
+        labelsArc <- labelsArc[-which(labelsArc == "Dermanoptera")]
+        labelsArc <- labelsArc[-which(labelsArc == "Tubulidentata")] 
+        labelsArc <- labelsArc[-which(labelsArc == "Microbiotheria") ]} 
+
+        if (taxa=="birds"){
+        labelsArc <- labelsArc[-which(labelsArc == "Struthioniformes")]
+        labelsArc <- labelsArc[-which(labelsArc == "Caryophyllales")]
+        labelsArc <- labelsArc[-which(labelsArc == "Hemiptera")]
+        labelsArc <- labelsArc[-which(labelsArc == "Leptosomiformes")]
+        labelsArc <- labelsArc[-which(labelsArc == "Opisthocomiformes")]}
+        #TODO RESOUDRE CE PROBLEME!# order having only one species and make problem!!!
+        
+        #Finds nodes of Arc
         nodesArc <- unlist(lapply(labelsArc, function(x){
-            
-            #x<-labelsArc[1]
-        node <- phytools::findMRCA(set_mammals,as.character(set_mammals$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
-            names(node) <- x
-            node}))
+        node <- phytools::findMRCA(set_phylo,as.character(set_phylo$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
+                                   names(node) <- x
+                                   node}))
         nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
        
-          # Change capita in the names of order
-          names(nodesArc)<- dplyr::mutate_all(as.character(unique(data_DR$order)), funs=tolower)
-          names(nodesArc) %<>% tolower
-          
-          firstup <- function(x) {
-            substr(x, 1, 1) <- toupper(substr(x, 1, 1))
-            x
-          }
-          names(nodesArc)<-firstup(names(nodesArc))
-         
-           # Add column binary for Functional Rarity: Yes/no
+          # Add column binary for Functional Rarity: Yes/no
           rarety <-  data_DR$cols 
           rarety <- as.numeric(as.factor(rarety))
           rarety[is.na(rarety)]<-0
           names(rarety)<-rownames(data_DR)
           
-          set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
+          set_phylo <- ape::drop.tip(set_phylo,set_phylo$tip.label[!is.element(set_phylo$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
           
           # plotting PHYLOGENY TREE
-          color.terminal.branches(set_mammals, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
+          color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
           tiplabels(pch = 18, col = data_DR$cols, cex = 0.4 ,offset=5)
 
           # plotting family labels/arcs
@@ -118,7 +153,7 @@ draw.phylo <- function(FR_data,taxa,set_phylo) {
             if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.03
             if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.03
             
-            if(i %in% c(1,4,7,10,13,16,19,22)){  #If odd 
+            if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
               arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                               node=nodesArc[i],
                               ln.offset=offset[i],
@@ -130,7 +165,7 @@ draw.phylo <- function(FR_data,taxa,set_phylo) {
                               orientation = "curved",
                               mark.node = FALSE,col="gray82")}
               
-            if(i %in% c(2,5,8,11,14,17,20,23)){  #If odd 
+            if(i %in% c(2,5,8,11,14,17,20,23,26,29,32,35)){  #If odd 
                 arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                                 node=nodesArc[i],
                                 ln.offset=offset[i],
@@ -142,7 +177,7 @@ draw.phylo <- function(FR_data,taxa,set_phylo) {
                                 orientation = "curved",
                                 mark.node = FALSE,col="gray75")}
                 
-            if(i %in% c(3,6,9,12,15,18,21)){  #If odd 
+            if(i %in% c(3,6,9,12,15,18,21,24,27,30,33,36)){  #If odd 
                 arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                                   node=nodesArc[i],
                                   ln.offset=offset[i],
@@ -155,8 +190,10 @@ draw.phylo <- function(FR_data,taxa,set_phylo) {
                                   mark.node = FALSE,col="gray68")}
            
            #Add the names of Order
-           text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4)
-          }
+          if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4)
+          if (taxa=="birds"){text(x=170,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4) 
+           } 
+           }
           
 #---
 #Compute FRITZ to know if functional rare species are packaged        
@@ -204,14 +241,16 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
           }
 #Mammals
 D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
+save(D_mammals,file=file.path(results_dir,"mammals","50km","D_mammals.RData"))
 D_mammals_plot<-ggplot(D_mammals, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))
 D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
 
 #birds
 D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   theme(axis.title=element_text(size=8))
-D_birds_plot<-print(D_birds_plot, vp=viewport(.12, .85, .24, .22))
+D_birds_plot<-print(D_birds_plot, vp=viewport(.5, .5, .17, .15))# vp=viewport(.12, .85, .24, .22))
 
 
