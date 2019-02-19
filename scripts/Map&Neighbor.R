@@ -86,8 +86,11 @@ map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdi
 
 ## Join data with shapefile
 mapData <- merge(map, funk_mammals, by.x = 'ID', by.y = 'cell')
-## Import the raster file 
 
+## Import the raster file 
+World2<-spTransform(World,proj4string(mapData))
+
+var="TD_sp"
 ## Number of classes for the age data
 no_classes <- 6
 
@@ -107,14 +110,14 @@ pal[4]<-pal[3]
 pal[3]<-"orange2"
 pal[7]<-"black"
 
-displaypal(pal)
 ## Compute breaks with quantiles
-quantiles <- quantile(mapData$D75R75, 
+quantiles <- quantile(funk_mammals["TD_sp"], 
                       probs = seq(0, 1,
-                                  length.out = no_classes + 1),na.rm=T)
+                                  length.out = no_classes),na.rm=T)
 
-if(var=="D75R75") quantiles[1:8] <- c(0,1,2,3,4,6,8,10)
-
+quantiles_D75R75 <- c(0,1,2,3,4,6,13)
+quantiles_D25R25<-c(0,1,5,10,15,20,31)
+quantiles_TD_sp<-c(0,1,40,80,120,160,221)
 ## Not needed here, but a better alternative to original code (a "for"
 ## loop)
 ## labels <- paste(signif(quantiles[-7], 4),
@@ -123,11 +126,11 @@ if(var=="D75R75") quantiles[1:8] <- c(0,1,2,3,4,6,8,10)
 
 ## Create a trellis object using sp::spplot to display the
 ## SpatialPolygons object.spplot
-pdf(file.path(results_dir,resultdir,"50km",paste0("figs"),paste0("map","testD75R75",".pdf")))
-spplot(mapData["D75R75"],
-              col.regions = pal,
+
+map1 <- spplot(mapData["D75R75"],
+              col.regions = pal,main = "D75R75",
               ## define the points where the colors change
-              at = quantiles,
+              at = quantiles_D75R75,
               ## set the border color and width
               col = "#F2F2F202", lwd = 0.02,
               par.settings = list(axis.line=list(col="transparent")),
@@ -136,75 +139,46 @@ spplot(mapData["D75R75"],
                 list(space = 'bottom',
                      height = 0.7,
                      labels = list(
-                       at = quantiles,
-                       labels = signif(quantiles, 3),
+                       at = quantiles_D75R75,
+                       labels = signif(quantiles_D75R75, 3),
                        rot = 30)
-                )
-)
+                ))+ layer(sp.polygons(World2, lwd = 0.8))
 
+
+map2 <- spplot(mapData["TD_sp"],
+               col.regions = pal,main = "TD_sp",
+               ## define the points where the colors change
+               at = quantiles_TD_sp,
+               ## set the border color and width
+               col = "#F2F2F202", lwd = 0.02,
+               par.settings = list(axis.line=list(col="transparent")),
+               ## adjust the legend
+               colorkey =
+                 list(space = 'bottom',
+                      height = 0.7,
+                      labels = list(
+                        at = quantiles,
+                        labels = signif(quantiles, 3),
+                        rot = 30)
+                 ))+ layer(sp.polygons(World2, lwd = 0.8))
+
+map3 <- spplot(mapData["D25R25"],
+               col.regions = pal,main = "D25R25",
+               ## define the points where the colors change
+               at = quantiles_D25R25,
+               ## set the border color and width
+               col = "#F2F2F202", lwd = 0.02,
+               par.settings = list(axis.line=list(col="transparent")),
+               ## adjust the legend
+               colorkey =
+                 list(space = 'bottom',
+                      height = 0.7,
+                      labels = list(
+                        at = quantiles_D25R25,
+                        labels = signif(quantiles_D25R25, 3),
+                        rot = 30)
+                 ))+ layer(sp.polygons(World2, lwd = 0.8))
+
+pdf(file.path(results_dir,resultdir,"50km",paste0("figs"),paste0("map","testAllmap",".pdf")),paper="a4")
+grid.arrange(map1,map2,map3,nrow=3)
 dev.off()
-
-
-
-
-
-
-## Join data with shapefile
-mapData <- merge(map, log_funk_mammals, by.x = 'ID', by.y = 'cell')
-## Import the raster file 
-
-## Number of classes for the age data
-no_classes <- 40
-
-## Colors using the magma palette
-
-pal <-  magma(n = no_classes + 1 ,
-              ## Limit the first and last colors
-              begin = 0.1,
-              end = 0.8)
-
-pal<-pal[c(3,9,12,15,18,21,24,27,30,33,36)]
-pal<-rev(pal)
-pal[1]<-"gray92"
-pal[2]<-"goldenrod1" 
-pal[4]<-pal[3]
-pal[3]<-"orange2"
-pal[11]<-"black"
-displaypal(pal)
-## Compute breaks with quantiles
-quantiles <- quantile(mapData$D75R75, 
-                      probs = seq(0, 1,
-                                  length.out = 10 + 1),na.rm=T)
-
-
-
-quantiles[1:11]<-c(0,0.21,0.42,0.63,0.84,1.05,1.26,1.47,1.68,1.89,2.1)
-
-
-
-
-
-#----
-
-#FIND adjacent polygons in R (neighbors) ----
-library(rgeos)
-library(rgdal)
-library(sp)
-library(raster)
-combined <- info %>%
-  group_by(chuncks) %>%
-  do(sf::st_intersection(., map))
-
-a <- adjacent(map, ID_cell, pairs=F)
-
-##Neighbour for map_mammals
-Mat_neighbour<-gTouches(map, byid=T)
-###Transform in 1/0
-Mat_neighbour<-Mat_neighbour*1
-save(Mat_neighbour,file=file.path(data_dir,"ReferenceGrid50km"))
-
-neighbor<-mclapply(ID_cell[1:3],function(x) adjacent(map,x , directions=4, pairs=TRUE, target=NULL, sorted=FALSE, 
-         include=FALSE, id=FALSE),mc.cores=3)
-
-
-0.1)
