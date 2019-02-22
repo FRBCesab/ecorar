@@ -15,11 +15,11 @@ library(cluster)
 library(rgdal)
 
 #LOAD TRAITS MAPS AND DISTRIB----
-reso="50km"
+
   # Load traits and distrib 
     load(file=file.path(results_dir,"mammals/mammalsID.RData"))
     load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
-    load(file=file.path(results_dir,"mammals",reso,"occ_mammals_list.RData"))
+    load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
 #----
     mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
     
@@ -44,11 +44,11 @@ reso="50km"
 
     ###Compute the dist matrix
       disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
-      save(disTraits_mammals, file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
+      save(disTraits_mammals, file=file.path(results_dir,"mammals","50km","disTraits_mammals.RData"))
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
-      load(file=file.path(results_dir,"mammals",reso,"disTraits_mammals.RData"))
+      load(file=file.path(results_dir,"mammals","50km","disTraits_mammals.RData"))
       
      #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
       Sim_commu <- matrix(1,1,ncol(disTraits_mammals))
@@ -97,14 +97,14 @@ reso="50km"
                         Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
         
         FR_mammals <- list(FR=FR_data,Q=Q)
-        save(FR_mammals, file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
+        save(FR_mammals, file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
       
 
   ##Birds 
         # Load traits and distrib 
-        load(file=file.path(results_dir,"birds",reso,"birdsID.RData"))
-        load(file=file.path(results_dir,"birds",reso,"birdstrait.RData"))
-        load(file=file.path(results_dir,"birds",reso,"occ_birds_list.RData"))
+        load(file=file.path(data_dir,"birds","birdsID.RData"))
+        load(file=file.path(results_dir,"birds","birdstrait.RData"))
+        load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
         
         #----
      
@@ -128,7 +128,7 @@ reso="50km"
     ###Compute the dist matrix TODO we use scan=FALSE but we probably need to set it to TRUE and chose the best distances ... 
 
       disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
-      save(disTraits_birds, file=file.path(results_dir,"birds",reso,"disTraits_birds.RData"))
+      save(disTraits_birds, file=file.path(results_dir,"birds","50km","disTraits_birds.RData"))
 
       ##Compute funrare indices (note occ_mat are sparse matrices)
       #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
@@ -178,7 +178,7 @@ reso="50km"
                       Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
       
       FR_birds <- list(FR=FR_data,Q=Q)
-      save(FR_birds, file=file.path(results_dir,"birds",reso,"FR_birds.RData"))
+      save(FR_birds, file=file.path(results_dir,"birds","50km","FR_birds.RData"))
       
 #----
 
@@ -250,19 +250,19 @@ reso="50km"
         return(all)
       }
 
-load(file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
-load(file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","sub_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","sub_birds.RData"))
 
 sub_mammals <- sub.data(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,FR_data=FR_mammals)
-save(sub_mammals, file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
+save(sub_mammals, file=file.path(results_dir,"mammals","50km","sub_mammals.RData"))
 
 sub_birds <- sub.data(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,FR_data=FR_birds)
-save(sub_birds, file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
+save(sub_birds, file=file.path(results_dir,"birds","50km","sub_birds.RData"))
 
 
 
-load(file=file.path(results_dir,"birds",reso,"sub_birds.RData"))
-load(file=file.path(results_dir,"mammals",reso,"sub_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","sub_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","sub_mammals.RData"))
 
 ##Generate main results
 final.results <- function(ids,proc,occ_mat_list,sub_data){
@@ -300,10 +300,10 @@ final.results <- function(ids,proc,occ_mat_list,sub_data){
 }
 
 funk_mammals <- final.results(ids=names(occ_mammals_list),proc=3,occ_mat_list=occ_mammals_list,sub_data=sub_mammals)
-save(funk_mammals, file=file.path(results_dir,"mammals",reso,"funk_mammals.RData"))
+save(funk_mammals, file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 
 funk_birds <- final.results(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,sub_data=sub_birds)
-save(funk_birds, file=file.path(results_dir,"birds",reso,"funk_birds.RData"))
+save(funk_birds, file=file.path(results_dir,"birds","50km","funk_birds.RData"))
 
 
 
@@ -369,11 +369,11 @@ save(FR_mamals_all, file=file.path(results_dir,"mamals/FR_mamals_all.RData"))
 
 #----
 
-load(file=file.path(results_dir,"birds",reso,"funk_birds.RData"))
-load(file=file.path(results_dir,"mammals",reso,"funk_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 
-load(file=file.path(results_dir,"birds",reso,"FR_birds.RData"))
-load(file=file.path(results_dir,"mammals",reso,"FR_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
 #VISU ----
 ##Histograms of species numbers 
 

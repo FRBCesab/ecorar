@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=FALSE,who="NL")
 
 library(rredlist) 
 library(ggplot2)
@@ -15,6 +15,8 @@ library(ggsignif)
 #----
 
 #REDLIST FUNK RARE ---- 
+load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
 
 load(file=file.path(data_dir,"birds/redlist_birds.RData"))
 load(file=file.path(data_dir,"mammals/redlist_mammals.RData"))
@@ -28,12 +30,17 @@ redlist_birds <- redlist_birds[,c(1,2,4)]
 colnames(redlist_birds) <- c("Species","SpecID", "IUCN_status")
 
 redlist_mammals <- merge(mammalsID,redlist_mammals,by.x = "Name", by.y = "Scientific")
-redlist_mammals <- redlist_mammals[,c(4,2,7)]
+#redlist_mammals <- redlist_mammals[,c(4,2,7)]
+redlist_mammals <- redlist_mammals[,c(1,2,4)]
 colnames(redlist_mammals) <- c("Species","SpecID", "IUCN_status")
 
 plot.iucn <- function(taxa,FR_all,redlist){
   
-  #taxa="mammals"
+  #taxa= "birds"
+  #FR_all <- FR_birds
+  #redlist <- redlist_birds
+  
+  #taxa= "mammals"
   #FR_all <- FR_mammals
   #redlist <- redlist_mammals
   
@@ -90,24 +97,28 @@ plot.iucn <- function(taxa,FR_all,redlist){
   size=0.2
   width=0.2
   
-  a <- ggplot(data_iucnFR, aes(x=IUCN_status, y=Rin, fill=IUCN_status)) + geom_boxplot() + guides(fill=FALSE) +
-    geom_jitter(width = width,size=size,color="darkgrey") + scale_y_continuous(limits = c(0.8, 1.15)) + 
-    ggsignif::geom_signif(comparisons = list(c("LC_NT", "NE"),c("NE", "THR"),c("LC_NT", "THR")),y_position = c(1.05,1.1,1.15),map_signif_level=TRUE,tip_length=0.01)
+  #a <- ggplot(data_iucnFR, aes(x=IUCN_status, y=Rin, fill=IUCN_status)) + geom_boxplot() + guides(fill=FALSE) +
+  # geom_jitter(width = width,size=size,color="darkgrey") + scale_y_continuous(limits = c(0.8, 1.15)) + 
+  #  ggsignif::geom_signif(comparisons = list(c("LC_NT", "NE"),c("NE", "THR"),c("LC_NT", "THR")),y_position = c(1.05,1.1,1.15),map_signif_level=TRUE,tip_length=0.01)
   
-  b <- ggplot(data_iucnFR, aes(x=IUCN_status, y=Din, fill=IUCN_status)) + geom_boxplot() + guides(fill=FALSE) +
-    geom_jitter(width = width,size=size,color="darkgrey") + scale_y_continuous(limits = c(0.15, 1.15)) + 
-    ggsignif::geom_signif(comparisons = list(c("LC_NT", "NE"),c("NE", "THR"),c("LC_NT", "THR")),y_position = c(1.05,1.1,1.15),map_signif_level=TRUE,tip_length=0.01)
+  # b <- ggplot(data_iucnFR, aes(x=IUCN_status, y=Din, fill=IUCN_status)) + geom_boxplot() + guides(fill=FALSE) +
+  #  geom_jitter(width = width,size=size,color="darkgrey") + scale_y_continuous(limits = c(0.15, 1.15)) + 
+  #  ggsignif::geom_signif(comparisons = list(c("LC_NT", "NE"),c("NE", "THR"),c("LC_NT", "THR")),y_position = c(1.05,1.1,1.15),map_signif_level=TRUE,tip_length=0.01)
 
-  pdf(file.path(results_dir,paste0(taxa,"/",reso,"/figs/IUCN#1.pdf")),width=12,height=4)
-  grid.arrange(a,b,ncol=2)
-  dev.off()
+  # pdf(file.path(results_dir,paste0(taxa,"/","50km","/figs/IUCN#1.pdf")),width=12,height=4)
+  #grid.arrange(a,b,ncol=2)
+  # dev.off()
   
   #Plot#2
-  pdf(file.path(results_dir,paste0(taxa,"/",reso,"/figs/IUCN#2.pdf")),width=6,height=4)
-  ggplot(data=DR_IUCN, aes(x=IUCN, y=Freq, fill=DR)) +
-    geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status")
+  DR_IUCN$IUCN<- factor(DR_IUCN$IUCN,levels = c('LC_NT','NE','THR'),ordered = TRUE)
+  pdf(file.path(results_dir,paste0(taxa,"/","50km","/figs/IUCN#2.pdf")),width=6,height=4)
+  ggplot(data=DR_IUCN, aes(x=IUCN, y=Freq, fill=DR)) + scale_fill_manual(values=c("#5E4FA2",  "#66C2A5",  "#FDAE61", "#D53E4F", "#9E0142")) + 
+  geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status") + theme_bw()
   dev.off() 
 }
+
+
+
 
 plot.iucn(taxa="birds",FR_all=FR_birds,redlist=redlist_birds)
 plot.iucn(taxa="mammals",FR_all=FR_mammals,redlist=redlist_mammals)
