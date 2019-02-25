@@ -151,13 +151,9 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
 
 }
 
-
-
-
 plot_futur(taxa="birds",FR_all=FR_birds,id_scenar=scenar[4],futur_all=birds_future_scenar_all,ymax= 300)
 
 plot_futur(taxa="mammals",FR_all=FR_mammals,id_scenar=scenar[4],futur_all=mammals_future_scenar_all,ymax= 300)
-
 
 pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/FUTUR.pdf")),width=12,height=8)
 for (i in 1:length(scenar)){
