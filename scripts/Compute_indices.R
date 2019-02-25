@@ -44,11 +44,11 @@ library(rgdal)
 
     ###Compute the dist matrix
       disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
-      save(disTraits_mammals, file=file.path(results_dir,"mammals","50km","disTraits_mammals.RData"))
+      save(disTraits_mammals, file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
-      load(file=file.path(results_dir,"mammals","50km","disTraits_mammals.RData"))
+      load(file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
       
      #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
       Sim_commu <- matrix(1,1,ncol(disTraits_mammals))
@@ -130,6 +130,8 @@ library(rgdal)
       disTraits_birds <- dist.ktab(ktab.list.df(list(diet, ForStrat,bodymass, PelagicSpecialist, Nocturnal)), c("F","F","Q", "D","D"), scan = FALSE) %>% as.matrix()
       save(disTraits_birds, file=file.path(results_dir,"birds","50km","disTraits_birds.RData"))
 
+      load(file=file.path(results_dir,"birds","disTraits_birds.RData"))
+      
       ##Compute funrare indices (note occ_mat are sparse matrices)
       #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
       Sim_commu <- matrix(1,1,ncol(disTraits_birds))
