@@ -81,6 +81,10 @@ varmap <- names(funk_birds)[-1]
 lapply(varmap,function(i) map.Funk(data=funk_birds,map=map,var=i,nlevels=10,plotpdf=TRUE,resultdir="birds/50km",dalto=FALSE))
 map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="birds",dalto=FALSE)
 
+
+
+
+##########################
 # Import the world shapefile 
 World<-readOGR(file.path(data_dir,"ReferenceGrid50Km","Continents","GSHHS_i_L1.shp"))
 
@@ -188,8 +192,6 @@ dev.off()
 
 
 
-
-## ATTENTION TD _SP BIZARRE SUR TAsmanie
 
 
 
