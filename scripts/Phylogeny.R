@@ -12,18 +12,17 @@ library(gridExtra)
 library(cluster)
 library(rgdal)
 library(ape)
-library("RColorBrewer")
-library("magrittr")
-require("ggplot2")
-require("grid")
-
+library(RColorBrewer)
+library(magrittr)
+library(ggplot2)
+library(grid)
+library(picante)
 
 #LOAD TRAITS MAPS AND DISTRIB----
 
     # Load traits and distrib 
 
         #Mammals
-
         load(file=file.path(data_dir,"mammals","mammalsID.RData"))
         load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
         load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
@@ -33,8 +32,7 @@ require("grid")
         taxaInfo_mammals<-taxaInfo_mammals[taxaInfo_mammals$ID %in% mammalsID$ID,]        
        
     
-         #Birds
-        
+        #Birds
         load(file=file.path(data_dir,"birds","birdsID.RData"))
         load(file=file.path(results_dir,"birds","birdstrait.RData"))
         load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
@@ -44,8 +42,6 @@ require("grid")
         taxaInfo_birds<-taxaInfo_birds[taxaInfo_birds$ID %in% birdsID$ID,]      
 
     
-          
-          
 #----
 
         
@@ -57,6 +53,59 @@ require("grid")
     set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
     set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
     
+# Compute Evolutionary Distinctiveness 
+    #We use the identical framework (not based on tree but on distance)
+    distPhyl_mammals <- cophenetic(set_mammals)
+    distPhyl_mammals <- distPhyl_mammals/max(distPhyl_mammals)
+    distPhyl_birds <- cophenetic(set_birds)
+    distPhyl_birds <- distPhyl_birds/max(distPhyl_birds)
+    
+   
+
+    #Square root transformation (following Letten & Cornwell, 2014)
+      #allow comparision with function distinctiveness
+    distPhyl_mammals <- sqrt(distPhyl_mammals)
+    distPhyl_birds <- sqrt(distPhyl_birds)
+      
+    #Compute ED
+    
+            # Mammals
+            Sim_commu <- matrix(1,1,ncol(distPhyl_mammals))
+            colnames(Sim_commu) <- colnames(distPhyl_mammals)
+            EDi_mammals <- t(distinctiveness(Sim_commu,distPhyl_mammals))
+            colnames(EDi_mammals)<-"EDi"
+            
+            mammalsID2 = mammalsID
+            mammalsID2$Name<-  as.character(gsub(" ", "_", mammalsID2$Name))
+            EDi_mammals <- merge(EDi_mammals,mammalsID2, by.x="row.names", by.y="Name" )
+            EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
+            
+            #Evolutionary originarluity
+            ty <- evol.distinct(set_mammals,type="equal.splits")
+            ty <- merge(ty,mammalsID2, by.x="Species", by.y="Name" )
+            ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
+            rownames(ty)<-ty$ID
+            ty<- ty[,c(2,4)]
+              
+            #Evolutionary distinctiveness
+            EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
+            rownames(EDi_mammals) <- EDi_mammals$ID
+            EDi_mammals <- EDi_mammals[,c(2,4)]
+            FR_mammals2 <- FR_mammals
+            FR_mammals2$FR <- merge(FR_mammals2$FR,EDi_mammals,by="row.names",all.x = TRUE)
+            
+            
+            rownames(FR_mammals2$FR) <- FR_mammals2$FR$Row.names
+            FR_mammals2$FR <- merge(FR_mammals2$FR,ty,by="row.names",all.x = TRUE)
+            
+            # Birds
+            Sim_commu <- matrix(1,1,ncol(distPhyl_birds))
+            colnames(Sim_commu) <- colnames(distPhyl_birds)
+            EDi_birds <- distinctiveness(Sim_commu,distPhyl_birds)
+      
+            
+      
+      
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
 
   #  FR_data<-FR_mammals

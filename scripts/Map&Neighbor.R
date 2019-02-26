@@ -113,17 +113,17 @@ World2<-spTransform(World2,proj4string(mapData))
                                                    length.out = no_classes_D25R25),na.rm=T)
           pal_D25R25 <- rev(brewer.pal(no_classes_D25R25, "Spectral"))
           pal_D25R25<- pal_D25R25[c(1:5,7:11)]
-          pal_D25R25<-c("white",pal_D25R25) #gray92
+          pal_D25R25<-c("gray92",pal_D25R25) #white
           #displaypal(pal_D25R25)
 
           #D75R75
           
-          no_classes_D75R75 <- 6
+          no_classes_D75R75 <- 3
           quantiles_D75R75 <- quantile(funk_mammals["D75R75"], 
                                        probs = seq(0, 1,
                                                    length.out = no_classes_D75R75),na.rm=T)
-          quantiles_D75R75 <- c(0,1,2,3,4,13)
-          pal_D75R75<-pal_D25R25[c(1,7,8,9,10,11)]
+          quantiles_D75R75 <- c(0,1,4,6,13)
+          pal_D75R75<-pal_D25R25[c(1,3,5,11)]
 
           #TD_sp
           
@@ -150,7 +150,7 @@ map1 <- spplot(mapData["D75R75"],
               #         at = quantiles_D75R75,
               #         labels = signif(quantiles_D75R75, 1),
               #         rot = 0))
-                )+ layer(sp.polygons(World2, lwd = 0.6))
+                )+ layer(sp.polygons(World2, lwd = 0.45))
 
 map2 <- spplot(mapData["TD_sp"],
                col.regions = pal_TD_sp,main = "TD_sp",
@@ -167,7 +167,7 @@ map2 <- spplot(mapData["TD_sp"],
                #        at = quantiles_TD_sp,
                #        labels = signif(quantiles_TD_sp, 1),
                #        rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.6))
+                 )+ layer(sp.polygons(World2, lwd = 0.45))
 
 map3 <- spplot(mapData["D25R25"],
                col.regions = pal_D25R25,main = "D25R25",
@@ -184,7 +184,7 @@ map3 <- spplot(mapData["D25R25"],
                #        at = quantiles_D25R25,
                #        labels = signif(quantiles_D25R25, 1),
                #        rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.6))
+                 )+ layer(sp.polygons(World2, lwd = 0.45))
 
 pdf(file.path(results_dir,"mammals","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
 grid.arrange(map2,map1,map3,nrow=3)
