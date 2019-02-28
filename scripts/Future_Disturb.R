@@ -199,24 +199,31 @@ species_birds<-unique(unlist(occ_birds_list))
 #save(birds_PA,file=file.path(results_dir,"birds","50km","birds_PA.RData")) 
 load(file=file.path(results_dir,"birds","50km","birds_PA.RData"))
 
-species_mammals<-unique(unlist(occ_mammals_list))
-#mammals_PA<- do.call(rbind,mclapply(species_mammals, function(id) {
-#  cells <- sapply(1:length(occ_mammals_list), function(i) any(occ_mammals_list[[i]] == id))
-#  names(cells)<-names(occ_mammals_list)
-#  cells<-PA_Country[PA_Country$ID %in% names(cells[cells=="TRUE"]),]
-#  n_cell<-dim(cells)[1]
-#  n_pro<-sum(na.omit(cells$PA_DEF==1))
-#  PA_mean<-apply(cells[,c(30,32,34)],2,mean,na.rm=T)
-#  info<-t(data.frame(c(n_cell,n_pro,PA_mean)))
-#  colnames(info)<-c("N_cells","N_cells_protected","Percentagecover","meanConflict","meanHDI")
-#  rownames(info)<-id
-#  return(info)
-#},mc.cores=3))
+PA_Country$SurfaceProtected <- (PA_Country$PourcentagePA/100)*2500
 
-#mammals_PA<-merge(mammals_PA,FR_mammals$FR,by="row.names")
-#rownames(mammals_PA) <- mammals_PA[,1]
-#mammals_PA <- mammals_PA[,-1]
-#mammals_PA$PercentageCellsWithPA<- (mammals_PA$N_cells_protected/mammals_PA$N_cells)*100
+species_mammals<-unique(unlist(occ_mammals_list))
+mammals_PA<- do.call(rbind,mclapply(species_mammals, function(id) {
+  cells <- sapply(1:length(occ_mammals_list), function(i) any(occ_mammals_list[[i]] == id))
+  names(cells)<-names(occ_mammals_list)
+  cells<-PA_Country[PA_Country$ID %in% names(cells[cells=="TRUE"]),]
+  n_cell<-dim(cells)[1]
+  n_pro<-sum(na.omit(cells$PA_DEF==1))
+  PA_mean<-apply(cells[,c(30,32,34)],2,mean,na.rm=T)
+  PA_sum <-sum(cells[,35],na.rm=T)
+  info<-t(data.frame(c(n_cell,n_pro,PA_mean,PA_sum)))
+  colnames(info)<-c("N_cells","N_cells_protected","Percentagecover","meanConflict","meanHDI","TotalSurfaceProtected")
+  rownames(info)<-id
+  return(info)
+},mc.cores=3))
+
+mammals_PA<-merge(mammals_PA,FR_mammals$FR,by="row.names")
+rownames(mammals_PA) <- mammals_PA[,1]
+mammals_PA <- mammals_PA[,-1]
+mammals_PA$PercentageCellsWithPA <- (mammals_PA$N_cells_protected/mammals_PA$N_cells)*100
+mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals_PA$N_cells*2500))*100
+
+
+
 
 #save(mammals_PA,file=file.path(results_dir,"mammals","50km","mammals_PA.RData")) 
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))

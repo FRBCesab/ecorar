@@ -213,17 +213,18 @@ quantiles_D25R25 <- quantile(funk_birds["D25R25"],
 quantiles_D25R25[2] <- 1
 pal_D25R25 <- rev(brewer.pal(no_classes_D25R25, "Spectral"))
 pal_D25R25<- pal_D25R25[c(1:5,7:11)]
-pal_D25R25<-c("white",pal_D25R25) #gray92
+pal_D25R25<-c("gray92",pal_D25R25) #gray92
 #displaypal(pal_D25R25)
 
 #D75R75
 
-no_classes_D75R75 <- 6
+no_classes_D75R75 <- 3
 quantiles_D75R75 <- quantile(funk_birds["D75R75"], 
                              probs = seq(0, 1,
                                          length.out = no_classes_D75R75),na.rm=T)
-quantiles_D75R75 <- c(0,1,4,8,12,18)
-pal_D75R75<-pal_D25R25[c(1,7,8,9,10,11)]
+quantiles_D75R75 <- c(0,1,4,10,28)
+pal_D75R75<-pal_D25R25[c(1,3,5,11)]
+
 
 #TD_sp
 

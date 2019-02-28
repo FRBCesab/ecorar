@@ -60,8 +60,6 @@ library(picante)
     distPhyl_birds <- cophenetic(set_birds)
     distPhyl_birds <- distPhyl_birds/max(distPhyl_birds)
     
-   
-
     #Square root transformation (following Letten & Cornwell, 2014)
       #allow comparision with function distinctiveness
     distPhyl_mammals <- sqrt(distPhyl_mammals)
@@ -70,42 +68,62 @@ library(picante)
     #Compute ED
     
             # Mammals
-            Sim_commu <- matrix(1,1,ncol(distPhyl_mammals))
-            colnames(Sim_commu) <- colnames(distPhyl_mammals)
-            EDi_mammals <- t(distinctiveness(Sim_commu,distPhyl_mammals))
-            colnames(EDi_mammals)<-"EDi"
-            
-            mammalsID2 = mammalsID
-            mammalsID2$Name<-  as.character(gsub(" ", "_", mammalsID2$Name))
-            EDi_mammals <- merge(EDi_mammals,mammalsID2, by.x="row.names", by.y="Name" )
-            EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
-            
-            #Evolutionary originarluity
-            ty <- evol.distinct(set_mammals,type="equal.splits")
-            ty <- merge(ty,mammalsID2, by.x="Species", by.y="Name" )
-            ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
-            rownames(ty)<-ty$ID
-            ty<- ty[,c(2,4)]
-              
+                #Evolutionary distinctiveness
+                Sim_commu <- matrix(1,1,ncol(distPhyl_mammals))
+                colnames(Sim_commu) <- colnames(distPhyl_mammals)
+                EDi_mammals <- t(distinctiveness(Sim_commu,distPhyl_mammals))
+                colnames(EDi_mammals)<-"EDi"
+                
+                mammalsID2 = mammalsID
+                mammalsID2$Name<-  as.character(gsub(" ", "_", mammalsID2$Name))
+                EDi_mammals <- merge(EDi_mammals,mammalsID2, by.x="row.names", by.y="Name" )
+                EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
+                
+                #Evolutionary originarluity
+                ty <- evol.distinct(set_mammals,type="equal.splits")
+                ty <- merge(ty,mammalsID2, by.x="Species", by.y="Name" )
+                ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
+                rownames(ty)<-ty$ID
+                ty<- ty[,c(2,4)]
+                  
             #Evolutionary distinctiveness
             EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
             rownames(EDi_mammals) <- EDi_mammals$ID
             EDi_mammals <- EDi_mammals[,c(2,4)]
-            FR_mammals2 <- FR_mammals
-            FR_mammals2$FR <- merge(FR_mammals2$FR,EDi_mammals,by="row.names",all.x = TRUE)
+            rownames(EDi_mammals) <- EDi_mammals$ID
             
+            EDi_mammals <-merge (EDi_mammals,ty, by = "row.names")
+            rownames(EDi_mammals) <- EDi_mammals$ID
+            EDi_mammals <- EDi_mammals[,c(3,5:7)]
+            colnames(EDi_mammals) <- c("EDi", "EDin", "OriDi", "OriDin")
+          
+            FR_mammals$FR <- merge(FR_mammals$FR,EDi_mammals,by="row.names",all.x = TRUE)
+            rownames(FR_mammals$FR) <- FR_mammals$FR$Row.names
+            FR_mammals$FR <- FR_mammals$FR[,-1]
             
-            rownames(FR_mammals2$FR) <- FR_mammals2$FR$Row.names
-            FR_mammals2$FR <- merge(FR_mammals2$FR,ty,by="row.names",all.x = TRUE)
-            
-            # Birds
+            # Birds TODO
             Sim_commu <- matrix(1,1,ncol(distPhyl_birds))
             colnames(Sim_commu) <- colnames(distPhyl_birds)
             EDi_birds <- distinctiveness(Sim_commu,distPhyl_birds)
       
             
-      
-      
+            data_DR_mammals <- merge(data_DR_mammals,FR_mammals$FR,by ="row.names")
+            rownames(data_DR_mammals) <- data_DR_mammals$Row.names
+            data_DR_mammals <- data_DR_mammals[,-1]
+            
+            
+            data_DR_mammals <- na.omit(data_DR_mammals)
+a <- ggplot(data_DR_mammals, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+     geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammals$OriDin,na.rm=T),col="red",linetype="dashed") + 
+     labs(x = "DR class",y="OriDin")+theme_bw()
+            
+b <- ggplot(data_DR_mammals, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammals$EDin,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="EDin")+theme_bw()           
+            
+            
+            
+            
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
 
   #  FR_data<-FR_mammals

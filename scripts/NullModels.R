@@ -5,23 +5,39 @@ who.remote(remote=FALSE,who="NL")
 
 
 #Prepare data: DR class for each species
-    data_DR_mammals<-FR_mammals$FR
-    QD75 <- FR_mammals$Q$Q75_D
-    QD25 <- FR_mammals$Q$Q25_D
-    QR75 <- FR_mammals$Q$Q75_R
-    QR25 <- FR_mammals$Q$Q25_R
+    #Mammals
+        data_DR_mammals<-FR_mammals$FR
+        QD75 <- FR_mammals$Q$Q75_D
+        QD25 <- FR_mammals$Q$Q25_D
+        QR75 <- FR_mammals$Q$Q75_R
+        QR25 <- FR_mammals$Q$Q25_R
+        
+        data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
+        data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
+        data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
+        data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
+        data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
+        
+        data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
+        colnames(data_DR_mammals) <- "DR_class"
     
-    data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
-    data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
-    data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
-    data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
-    data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
-    
-    data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
-    colnames(data_DR_mammals) <- "DR_class"
-
-    
-    
+        
+    #Birds
+        data_DR_birds<-FR_birds$FR
+        QD75 <- FR_birds$Q$Q75_D
+        QD25 <- FR_birds$Q$Q25_D
+        QR75 <- FR_birds$Q$Q75_R
+        QR25 <- FR_birds$Q$Q25_R
+        
+        data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
+        data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
+        data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
+        data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
+        data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
+        
+        data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
+        colnames(data_DR_birds) <- "DR_class"
+        
 ##Generate number of species per DR_class
 Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
   
