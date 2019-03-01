@@ -5,6 +5,7 @@ who.remote(remote=FALSE,who="NL")
 
 
 #Prepare data: DR class for each species
+load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
     #Mammals
         data_DR_mammals<-FR_mammals$FR
         QD75 <- FR_mammals$Q$Q75_D
@@ -75,10 +76,13 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
 
 
 #Create random matrice where DR_class where randomly distributed among species (keep our number stable)
-data_DR_randomize_mammals <- lapply(1:10, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
+data_DR_randomize_mammals <- lapply(1:1000, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
 data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
 
-SES_funk <- lapply(1:10,function(i) {Nb.DR_class(ids= names(occ_mat_list)[1000:1010],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=2)})  
+SES_funk_mammals <- lapply(1:1000,function(i) {Nb.DR_class(ids= names(occ_mammals_list),data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=3)})  
+save(SES_funk_mammals, file ="SES_funk_mammals." )
+file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+
 
 # Change the first column to rownames and drop this column 
 SES_funk <- lapply(SES_funk, function(df) {df_out <- df[,-1]

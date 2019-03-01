@@ -77,8 +77,6 @@ b <- ggplot(Target_mammals_sub, aes(TargetMet_Percentagecover,fill=DR_class,colo
   theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(Target_mammals_sub$TargetMet_Percentagecover,na.rm=T),col="grey35",linetype="dashed")+
   labs(x = "Species target achievements")+theme_bw()
 
-
-
 c <- ggplot(Target_birds, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species target achievements")+theme_bw()

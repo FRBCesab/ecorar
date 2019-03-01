@@ -261,8 +261,6 @@ save(sub_mammals, file=file.path(results_dir,"mammals","50km","sub_mammals.RData
 sub_birds <- sub.data(ids=names(occ_birds_list),proc=3,occ_mat_list=occ_birds_list,FR_data=FR_birds)
 save(sub_birds, file=file.path(results_dir,"birds","50km","sub_birds.RData"))
 
-
-
 load(file=file.path(results_dir,"birds","50km","sub_birds.RData"))
 load(file=file.path(results_dir,"mammals","50km","sub_mammals.RData"))
 
@@ -309,64 +307,8 @@ save(funk_birds, file=file.path(results_dir,"birds","50km","funk_birds.RData"))
 
 
 
-#combine all indices 
-comp.fr.all <- function(datatraits,FR_raw,occmat)    
-{
-  # datatraits <- mamalstrait
-  # FR_raw <- FR_mamals
-  # occmat <-occ_mamals 
-  
-  #calcul the total occurences 
-  totocc <- data.frame(apply(occ_mamals,2,sum))
-  colnames(totocc) <- "occtot"
-  
-  
-  #Compute the FRs 
-  FR_data <- merge(FR_raw$Ui,FR_raw$Ri)
-  FR_data <- merge(FR_data,FR_raw$GDi)
-  
-  FR_data <- mutate(FR_data, Uin = (Ui-min(Ui)) / max(Ui-min(Ui)),Din = (Di-min(Di)) / max(Di-min(Di)),Rin = (Ri-min(Ri)) / max(Ri-min(Ri)))
-  
-  FR_data <- mutate(FR_data,FRU=(Uin+Rin)/2,FRD_A=(Din+Rin)/2,FRD_G=(Din*Rin)/2)
-  
-  #TDsp and rownames
-  FR_data$species <- as.character(FR_data$species)
-  rownames(FR_data) <- FR_data$species
-  
-  #Merge with toocc
-  
-  FR_data <- merge(FR_data,totocc,by=0)
-  rownames(FR_data) <- FR_data$species
-  FR_data <- FR_data[,-1]
-  
-  
-  # 90% quantile
-  Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
-  Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
-  Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
-  Q90_FRD_A <- as.numeric(quantile(FR_data$FRD_A,probs = seq(0, 1, 0.1))[10])
-  Q90_FRD_G <- as.numeric(quantile(FR_data$FRD_G,probs = seq(0, 1, 0.1))[10])
-  
-  # 75% quantile
-  Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
-  Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
-  
-  # 25% quantile
-  Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
-  Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
-  
-  Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,Q90_FRD_A=Q90_FRD_A,Q90_FRD_G=Q90_FRD_G,
-                  Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
-  
-  list(Di=FR_raw$Di,FR=FR_data,Q=Q)
-  
-}
 
-FR_birds_all <- comp.fr.all(datatraits=birdstrait,FR_raw=FR_birds)
-save(FR_birds_all, file=file.path(results_dir,"birds/FR_birds_all.RData"))
 
-FR_mamals_all <- comp.fr.all(datatraits=mamalstrait,FR_raw=FR_mamals)
-save(FR_mamals_all, file=file.path(results_dir,"mamals/FR_mamals_all.RData"))
 
 
 #----
@@ -398,7 +340,7 @@ grid.arrange(a,b,ncol=2)
 
 ##Di vs vs Ri BIRDS 
 
-sub_FR <- FR_birds_all$FR[,c('Rin','Din')]
+sub_FR <- FR_birds$FR[,c('Rin','Din')]
 sub_FR$inv_Rin <- 1-sub_FR$Rin
 
 
@@ -440,8 +382,25 @@ ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() +
   labs(x = "1-Rin",y="Din")
 
 ##Di Local vs regional 
+#Compute Di at the local scale
 
+DiLocal <- function (ids, occ_list, )
+id= mammalsID$ID[2]
+
+  list.2 <- names(unlist(lapply(occ_mammals_list, function(x) subset(x,x==id))))
+  list.3 <- occ_mammals_list
+  
 ###Birds Mean 
+  
+  cond <- lapply(l, function(x) length(x) > 3)
+  
+  
+  
+  
+  
+  
+
+
 LDi_temp <- apply(FR_birds$FR,2,mean,na.rm=TRUE)
 LDi <- data.frame(species=names(LDi_temp),LDi=as.numeric(LDi_temp))
 
