@@ -384,11 +384,34 @@ ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() +
 ##Di Local vs regional 
 #Compute Di at the local scale
 
-DiLocal <- function (ids, occ_list, )
+
 id= mammalsID$ID[2]
 
   list.2 <- names(unlist(lapply(occ_mammals_list, function(x) subset(x,x==id))))
   list.3 <- occ_mammals_list
+  
+DiLocal <- function (ids, occ_list, )
+
+  site_sp <- lapply(1:length(occ_mammals_list), function(x) subset(occ_mammals_list[[x]],occ_mammals_list[[x]]==id))
+  names(site_sp) <-names(occ_mammals_list)
+  site_sp <- c(names(unlist(site_sp)))
+
+ # test <- lapply(site,function(id) {cooccsp<-  occ_mammals_list[[id]]})
+
+
+
+  Sim_commu <- matrix(1,1,ncol=(length(occ_mammals_list[[site_sp[1]]])))
+  colnames(Sim_commu) <- occ_mammals_list[[site_sp[1]]]
+  
+  #Compute Ui (Global Uniqueness)
+        #Select trait 
+  traitsec <- disTraits_birds[,colnames(disTraits_birds) %in% colnames(Sim_commu)]
+  traitsec <- traitsec[rownames(traitsec) %in% colnames(Sim_commu),]
+  Ui<-uniqueness(Sim_commu,disTraits_birds)
+  rownames(Ui)<-Ui[,1]
+  #Compute Di (Global distinctiveness)
+  Di<-t(distinctiveness(Sim_commu,disTraits_birds))
+  colnames(Di)<-"Di"
   
 ###Birds Mean 
   
