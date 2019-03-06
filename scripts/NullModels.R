@@ -81,9 +81,9 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
 
           #Mammals
           load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-          data_DR_randomize_mammals <- lapply(1:100, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
+          data_DR_randomize_mammals <- lapply(1:10, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
           data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
-          SES_funk_mammals <- lapply(1:100,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:10],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=2)})  
+          SES_funk_mammals <- lapply(1:10,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:1000],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=2)})  
           save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
 
           #birds
