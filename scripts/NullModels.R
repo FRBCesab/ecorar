@@ -1,97 +1,97 @@
 #Null model
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=TRUE,who="NM")
+who.remote(remote=FALSE,who="NL")
 
 library(parallel)
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
-    #Mammals
-        data_DR_mammals<-FR_mammals$FR
-        QD75 <- FR_mammals$Q$Q75_D
-        QD25 <- FR_mammals$Q$Q25_D
-        QR75 <- FR_mammals$Q$Q75_R
-        QR25 <- FR_mammals$Q$Q25_R
-        
-        data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
-        data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
-        data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
-        data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
-        data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
-        
-        data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
-        colnames(data_DR_mammals) <- "DR_class"
-    
+#Mammals
+data_DR_mammals<-FR_mammals$FR
+QD75 <- FR_mammals$Q$Q75_D
+QD25 <- FR_mammals$Q$Q25_D
+QR75 <- FR_mammals$Q$Q75_R
+QR25 <- FR_mammals$Q$Q25_R
+
+data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
+data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
+data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
+data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
+data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
+
+data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
+colnames(data_DR_mammals) <- "DR_class"
+
 
 load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))        
-    #Birds
-        data_DR_birds<-FR_birds$FR
-        QD75 <- FR_birds$Q$Q75_D
-        QD25 <- FR_birds$Q$Q25_D
-        QR75 <- FR_birds$Q$Q75_R
-        QR25 <- FR_birds$Q$Q25_R
-        
-        data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
-        data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
-        data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
-        data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
-        data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
-        
-        data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
-        colnames(data_DR_birds) <- "DR_class"
-        
+#Birds
+data_DR_birds<-FR_birds$FR
+QD75 <- FR_birds$Q$Q75_D
+QD25 <- FR_birds$Q$Q25_D
+QR75 <- FR_birds$Q$Q75_R
+QR25 <- FR_birds$Q$Q25_R
+
+data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
+data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
+data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
+data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
+data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
+
+data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
+colnames(data_DR_birds) <- "DR_class"
+
 ##Generate number of species per DR_class
 Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
   
   # proc <- 50
   # occ_mat_list <- occ_mammals_list
   # ids <- names(occ_mat_list)
-  # data_DR_null <- data_DR_mammals
+  # data_DR_null <- data_DR_randomize_mammals[[i]]
   
-      Null_funk_all <-do.call(rbind,mclapply(ids,function(id) {    #cat("id:",i,"\n")
+  Null_funk_all <-do.call(rbind,mclapply(ids,function(id) {    #cat("id:",i,"\n")
     
-       #id <- ids[10000]
+    #id <- ids[1]
     
-       #Subset the species present in the site i 
-       spe_sub <- unique(occ_mat_list[[id]])
+    #Subset the species present in the site i 
+    spe_sub <- unique(occ_mat_list[[id]])
     
-        #Number of species within a sites with FR values above quantiles of species and functional distribution 
-        if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R75"))])>0) D75R75=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R75"))]) else D75R75=0
-        if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R75"))])>0) D25R75=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R75"))]) else D25R75=0
-        if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R25"))])>0) D75R25=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R25"))]) else D75R25=0
-        if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R25"))])>0) D25R25=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R25"))]) else D25R25=0
-        if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="AVG"))])>0) AVG=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="AVG"))]) else AVG=0
-        
-        #combine all 
-        res <- cbind.data.frame(id,AVG,D75R75,D25R25,D75R25,D25R75)
-        
-        names(res) <- c('cell','AVG','D75R75','D25R25','D75R25','D25R75')
-        return(res)
-        
-        
-    },mc.cores = proc))
-        
+    #Number of species within a sites with FR values above quantiles of species and functional distribution 
+    if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R75"))])>0) D75R75=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R75"))]) else D75R75=0
+    if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R75"))])>0) D25R75=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R75"))]) else D25R75=0
+    if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R25"))])>0) D75R25=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D75R25"))]) else D75R25=0
+    if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R25"))])>0) D25R25=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="D25R25"))]) else D25R25=0
+    if (length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="AVG"))])>0) AVG=length(spe_sub[spe_sub %in% rownames(subset(data_DR_null,data_DR_null$DR_class=="AVG"))]) else AVG=0
     
+    #combine all 
+    res <- cbind.data.frame(id,AVG,D75R75,D25R25,D75R25,D25R75)
+    
+    names(res) <- c('cell','AVG','D75R75','D25R25','D75R25','D25R75')
+    return(res)
+    
+    
+  },mc.cores = proc))
+  
+  
   return(Null_funk_all)
 }
 
 
 #Create random matrice where DR_class where randomly distributed among species (keep our number stable)
 
-          #Mammals
-          load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-          data_DR_randomize_mammals <- lapply(1:2, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
-          data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
-          SES_funk_mammals <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_mammals_list),data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=20)})  
-          save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
+#Mammals
+load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+data_DR_randomize_mammals <- lapply(1:10, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
+data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
+SES_funk_mammals <- lapply(1:10,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:1000],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=2)})  
+save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
 
-          #birds
-          load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
-          data_DR_randomize_birds <- lapply(1:2, function(i) data.frame(sample(data_DR_birds$DR_class),row.names = rownames(data_DR_birds)))
-          data_DR_randomize_birds <- lapply(data_DR_randomize_birds, setNames, "DR_class")
-          SES_funk_birds <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_birds_list),data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=20)})  
-          save(SES_funk_birds, file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
+#birds
+load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+data_DR_randomize_birds <- lapply(1:2, function(i) data.frame(sample(data_DR_birds$DR_class),row.names = rownames(data_DR_birds)))
+data_DR_randomize_birds <- lapply(data_DR_randomize_birds, setNames, "DR_class")
+SES_funk_birds <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_birds_list),data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=2)})  
+save(SES_funk_birds, file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
 
 
 # Change the first column to rownames and drop this column 
@@ -105,6 +105,6 @@ Null_sd <- as.data.frame(plyr::aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
 # Compute 
 SES_funk_mammals <- funk_mammals[,c(3:7)]
 SES_funk_mammals <- (SES_funk_mammals - Null_mean)/Null_sd
-  
+
 
 
