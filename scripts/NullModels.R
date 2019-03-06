@@ -77,7 +77,7 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
 }
 
 
-#Create random matrice where DR_class where randomly distributed among species (keep our number stable)
+#Create random matrice where DR_class where randomly distributed among species (keep our number stable) 
 
 #Mammals
 load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
