@@ -1,7 +1,7 @@
 #Null model
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=TRUE,who="NM")
 
 library(parallel)
 
@@ -47,11 +47,11 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
   # proc <- 50
   # occ_mat_list <- occ_mammals_list
   # ids <- names(occ_mat_list)
-  # data_DR_null <- data_DR_randomize_mammals[[i]]
+  # data_DR_null <- data_DR_mammals
   
       Null_funk_all <-do.call(rbind,mclapply(ids,function(id) {    #cat("id:",i,"\n")
     
-       #id <- ids[1]
+       #id <- ids[10000]
     
        #Subset the species present in the site i 
        spe_sub <- unique(occ_mat_list[[id]])
@@ -81,16 +81,16 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
 
           #Mammals
           load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-          data_DR_randomize_mammals <- lapply(1:10, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
+          data_DR_randomize_mammals <- lapply(1:2, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
           data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
-          SES_funk_mammals <- lapply(1:10,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:1000],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=2)})  
+          SES_funk_mammals <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_mammals_list),data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=20)})  
           save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
 
           #birds
           load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
           data_DR_randomize_birds <- lapply(1:2, function(i) data.frame(sample(data_DR_birds$DR_class),row.names = rownames(data_DR_birds)))
           data_DR_randomize_birds <- lapply(data_DR_randomize_birds, setNames, "DR_class")
-          SES_funk_birds <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_birds_list),data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=2)})  
+          SES_funk_birds <- lapply(1:2,function(i) {Nb.DR_class(ids= names(occ_birds_list),data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=20)})  
           save(SES_funk_birds, file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
 
 
