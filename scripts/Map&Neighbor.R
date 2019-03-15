@@ -82,7 +82,13 @@ lapply(varmap,function(i) map.Funk(data=funk_birds,map=map,var=i,nlevels=10,plot
 map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="birds",dalto=FALSE)
 
 
+###organised rownames 
+funk_mammals$cell<-as.numeric(as.character(funk_mammals$cell))
+rownames(funk_mammals)<-funk_mammals$cell
 
+###Link MapGrid with value of indices
+###same order for rownames 
+funk_mammals<-funk_mammals[match(map@data[,1], rownames(funk_mammals)),]
 
 ##########################
 # Import the world shapefile 
@@ -95,12 +101,11 @@ World2 <- World[World@data$area > 20000,]
 World2<-spTransform(World2,proj4string(mapData))
 
 
-#--- MAP MAMMAMLS
+#--- MAP MAMMALS
 
       # Join data with shapefile
       mapData <- merge(map, funk_mammals, by.x = 'ID', by.y = 'cell')
-
-
+      mapDataNull <- merge(map, SES_total_mammals, by.x = 'ID', by.y = 'cell')
     # Compute breaks with quantiles and assign color
           
        # Number of classes for the age data
@@ -186,8 +191,42 @@ map3 <- spplot(mapData["D25R25"],
                #        rot = 0))
                  )+ layer(sp.polygons(World2, lwd = 0.45))
 
+
+#D75R75
+
+no_classes_D75R75 <- 11
+quantiles_D75R75 <- quantile(SES_total_mammals["D75R75"], 
+                             probs = seq(0, 1,
+                                         length.out = no_classes_D75R75),na.rm=T)
+
+
+quantiles_D75R75 <- c(-4,-1.96,0,1.96,2,3,4,5,6,7,8)
+
+
+pal_D75R75<- rev(brewer.pal(no_classes_D25R25, "Spectral"))
+
+
+mapNull <- spplot(mapDataNull["D75R75"],
+               col.regions = pal_D75R75,main = "SES D75R75",
+               ## define the points where the colors change
+               at = quantiles_D75R75,
+               ## set the border color and width
+               col="transparent",
+               #col = pal[1], lwd = 0.01,
+               par.settings = list(axis.line=list(col="transparent")),
+               ## adjust the legend
+               #colorkey =
+               #  list(space = 'right',
+               #       height = 0.3,
+               #       labels = list(
+               #         at = quantiles_D75R75,
+               #         labels = signif(quantiles_D75R75, 1),
+               #         rot = 0))
+)+ layer(sp.polygons(World2, lwd = 0.45))
+
+
 pdf(file.path(results_dir,"mammals","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
-grid.arrange(map2,map1,map3,nrow=3)
+grid.arrange(map2,map1,map3,mapNull,nrow=4)
 dev.off()
 
 

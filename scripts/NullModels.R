@@ -4,6 +4,7 @@ source("./scripts/Functions.R")
 who.remote(remote=TRUE,who="NM")
 
 library(parallel)
+library(plyr)
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -80,31 +81,36 @@ Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
 #Create random matrice where DR_class where randomly distributed among species (keep our number stable) 
 
 #Mammals
-load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-data_DR_randomize_mammals <- lapply(1:1000, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
-data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
-SES_funk_mammals <- lapply(1:1000,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:61618],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=30)})  
-save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
+#load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+#data_DR_randomize_mammals <- lapply(1:1000, function(i) data.frame(sample(data_DR_mammals$DR_class),row.names = rownames(data_DR_mammals)))
+#data_DR_randomize_mammals <- lapply(data_DR_randomize_mammals, setNames, "DR_class")
+#SES_funk_mammals <- lapply(1:1000,function(i) {Nb.DR_class(ids= names(occ_mammals_list)[1:61618],data_DR_null=data_DR_randomize_mammals[[i]],occ_mammals_list,proc=30)})  
+#save(SES_funk_mammals, file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
 
 #birds
-load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
-data_DR_randomize_birds <- lapply(1:1000, function(i) data.frame(sample(data_DR_birds$DR_class),row.names = rownames(data_DR_birds)))
-data_DR_randomize_birds <- lapply(data_DR_randomize_birds, setNames, "DR_class")
-SES_funk_birds <- lapply(1:1000,function(i) {Nb.DR_class(ids= names(occ_birds_list)[1:61618],data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=30)})  
-save(SES_funk_birds, file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
+#load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+#data_DR_randomize_birds <- lapply(1:1000, function(i) data.frame(sample(data_DR_birds$DR_class),row.names = rownames(data_DR_birds)))
+#data_DR_randomize_birds <- lapply(data_DR_randomize_birds, setNames, "DR_class")
+#SES_funk_birds <- lapply(1:1000,function(i) {Nb.DR_class(ids= names(occ_birds_list)[1:61618],data_DR_null=data_DR_randomize_birds[[i]],occ_birds_list,proc=30)})  
+#save(SES_funk_birds, file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
 
 
 # Change the first column to rownames and drop this column 
-SES_funk <- lapply(SES_funk, function(df) {df_out <- df[,-1]
+load(file = file.path(results_dir,"mammals","50km","SES_funk_mammals.RData"))
+SES_funk <- lapply(SES_funk_mammals, function(df) {df_out <- df[,-1]
 rownames(df_out) <- df[[1]]
 df_out
 })
-Null_mean <-  as.data.frame(plyr::aaply(laply(SES_funk, as.matrix), c(2, 3), mean))
-Null_sd <- as.data.frame(plyr::aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
+Null_mean <-  as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), mean))
+Null_sd <- as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
 
 # Compute 
-SES_funk_mammals <- funk_mammals[,c(3:7)]
-SES_funk_mammals <- (SES_funk_mammals - Null_mean)/Null_sd
+SES_total_mammals <- data.frame(cell=funk_mammals$cell, 
+                                D75R75 = (funk_mammals$D75R75 - Null_mean$D75R75)/Null_sd$D75R75,
+                                AVG = (funk_mammals$AVG - Null_mean$AVG)/Null_sd$AVG,
+                                D25R25 = (funk_mammals$D25R25 - Null_mean$D25R25)/Null_sd$D25R25,
+                                D75R25 = (funk_mammals$D75R25 - Null_mean$D75R25)/Null_sd$D75R25,
+                                D25R75 = (funk_mammals$D25R75 - Null_mean$D25R75)/Null_sd$D25R75)
 
-
+SESval <- D75R25
 
