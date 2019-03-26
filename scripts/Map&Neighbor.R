@@ -40,6 +40,8 @@ ID_cell<-map@data[,1]
 load(file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
 load(file=file.path(results_dir,"mammals","50km","sub_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","SES_total_mammals.RData"))
+
 
 ###organised rownames 
 funk_mammals$cell<-as.numeric(as.character(funk_mammals$cell))
@@ -146,7 +148,7 @@ map1 <- spplot(mapData["D75R75"],
               ## set the border color and width
               col="transparent",
               #col = pal[1], lwd = 0.01,
-              par.settings = list(axis.line=list(col="transparent")),
+              par.settings = list(axis.line=list(col="transparent"))
               ## adjust the legend
               #colorkey =
               #  list(space = 'right',
@@ -163,7 +165,7 @@ map2 <- spplot(mapData["TD_sp"],
                at = quantiles_TD_sp,
                ## set the border color and width
                col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
+               par.settings = list(axis.line=list(col="transparent"))
                ## adjust the legend
                #colorkey =
                # list(space = 'right',
@@ -180,7 +182,7 @@ map3 <- spplot(mapData["D25R25"],
                at = quantiles_D25R25,
                ## set the border color and width
                col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
+               par.settings = list(axis.line=list(col="transparent"))
                ## adjust the legend
                #colorkey =
                # list(space = 'right',
@@ -192,7 +194,7 @@ map3 <- spplot(mapData["D25R25"],
                  )+ layer(sp.polygons(World2, lwd = 0.45))
 
 
-#D75R75
+# NULL D75R75
 
 no_classes_D75R75 <- 11
 quantiles_D75R75 <- quantile(SES_total_mammals["D75R75"], 
@@ -228,9 +230,6 @@ mapNull <- spplot(mapDataNull["D75R75"],
 pdf(file.path(results_dir,"mammals","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
 grid.arrange(map2,map1,map3,mapNull,nrow=4)
 dev.off()
-
-
-
 
 
 

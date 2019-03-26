@@ -132,10 +132,10 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   #  taxa="mammals"
   
   
-   FR_data<-FR_birds
-    set_phylo <- set_birds
-    taxaInfo<- taxaInfo_birds
-    taxa="birds"
+  # FR_data<-FR_birds
+  # set_phylo <- set_birds
+  # taxaInfo<- taxaInfo_birds
+  # taxa="birds"
   
       # Create Class DR 
       data_DR<-FR_data$FR
@@ -213,6 +213,16 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
           color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
           tiplabels(pch = 18, col = data_DR$cols, cex = 0.4 ,offset=5)
 
+          #Create color for each family
+          family_taxo<-as.numeric(as.factor(taxaInfo_birds$family))
+          names(family_taxo)<-taxaInfo_birds$Name
+          
+          color.terminal.branches(set_phylo, family_taxo, cols= rev(brewer.pal(11, "Spectral")), 
+                                  edge.width=0.4, show.tip.label=TRUE, non.terminal.col= "#A6A6A666")
+          
+          
+          
+          
           # plotting family labels/arcs
           offset <- rep(c(1.10,1.18,1.26),length(nodesArc)/2)
           for(i in 1:length(nodesArc)){
@@ -255,12 +265,14 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
                                   lty = 1, 
                                   orientation = "curved",
                                   mark.node = FALSE,col="gray68")}
+          
            
            #Add the names of Order
           if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4)
           if (taxa=="birds"){text(x=170,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4) 
            } 
-           }
+          }
+}
           
 #---
 #Compute FRITZ to know if functional rare species are packaged        
@@ -316,8 +328,10 @@ D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
 #birds
 D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
 save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
+load(file=file.path(results_dir,"birds","50km","D_birds.RData"))
 D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   theme(axis.title=element_text(size=8))
 D_birds_plot<-print(D_birds_plot, vp=viewport(.5, .5, .17, .15))# vp=viewport(.12, .85, .24, .22))
 
-
+D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_histogram(alpha = 0.1,fill="red",colour="red") + xlim(0.25, 0.75)+theme_bw()+  labs(x = "D")+
+  theme(axis.title=element_text(size=8))

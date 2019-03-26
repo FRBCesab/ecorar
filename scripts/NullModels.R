@@ -112,5 +112,5 @@ SES_total_mammals <- data.frame(cell=funk_mammals$cell,
                                 D75R25 = (funk_mammals$D75R25 - Null_mean$D75R25)/Null_sd$D75R25,
                                 D25R75 = (funk_mammals$D25R75 - Null_mean$D25R75)/Null_sd$D25R75)
 
-SESval <- D75R25
+save(SES_total_mammals,file = file.path(results_dir,"mammals","50km","SES_total_mammals.RData"))
 
