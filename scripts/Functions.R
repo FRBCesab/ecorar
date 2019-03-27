@@ -31,7 +31,6 @@ color.terminal.branches <- function(phy, data, breaks=6, cols=c("black", "red"),
   # Non-terminal branches will be black
   col.vector[phy$edge[,2]>n.tips] <- non.terminal.col
   
-  
   # Create a vector of colors 
   colors <-  colorRampPalette(cols, bias=col.bias)(breaks)
   
@@ -128,12 +127,6 @@ check.spp.search.duplicates <- function(search.spp, all.spp){
 
 #----
 
-# COLOR TERMINAL BRANCHES: function to compute only the last branch from Nick Crouch's GITHUB
-# phy:        Phylogeny of class 'phylo'
-# data:       'data.frame' containing data, must have a 'Species' column
-# plot.data:  column in data to be plotted. Must be numeric, starting at 1
-# pch:        plotting symbol
-# cols:       vector of cols?
 
 add.tip.icons <- function(phy, data, plot.data="Location", grouping="Species", pch=21, cols=c("red","blue","green"), cex=2){
   

@@ -114,3 +114,23 @@ SES_total_mammals <- data.frame(cell=funk_mammals$cell,
 
 save(SES_total_mammals,file = file.path(results_dir,"mammals","50km","SES_total_mammals.RData"))
 
+
+
+# Change the first column to rownames and drop this column 
+load(file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
+SES_funk <- lapply(SES_funk_birds, function(df) {df_out <- df[,-1]
+rownames(df_out) <- df[[1]]
+df_out
+})
+Null_mean <-  as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), mean))
+Null_sd <- as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
+
+# Compute 
+SES_total_birds <- data.frame(cell=funk_birds$cell, 
+                                D75R75 = (funk_birds$D75R75 - Null_mean$D75R75)/Null_sd$D75R75,
+                                AVG = (funk_birds$AVG - Null_mean$AVG)/Null_sd$AVG,
+                                D25R25 = (funk_birds$D25R25 - Null_mean$D25R25)/Null_sd$D25R25,
+                                D75R25 = (funk_birds$D75R25 - Null_mean$D75R25)/Null_sd$D75R25,
+                                D25R75 = (funk_birds$D25R75 - Null_mean$D25R75)/Null_sd$D25R75)
+
+save(SES_total_birds,file = file.path(results_dir,"birds","50km","SES_total_birds.RData"))
