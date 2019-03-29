@@ -51,162 +51,88 @@ rownames(funk_mammals)<-funk_mammals$cell
 ###same order for rownames 
 funk_mammals<-funk_mammals[match(map@data[,1], rownames(funk_mammals)),]
 
-##PLOT maps
-varmap <- names(funk_mammals)[-1]
-lapply(varmap,function(i) map.Funk(data=funk_mammals,map=map,var=i,nlevels=5,plotpdf=TRUE,resultdir="mammals/50km",dalto=TRUE))
-map.Funk(data=funk_mammals,map=map,var=varmap[3],nlevels=5,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
-
 
 
 ##########################
-# Import the world shapefile 
-World<-readOGR(file.path(data_dir,"ReferenceGrid50Km","Continents","GSHHS_i_L1.shp"))
-
-# Delete islands polygons (easy to read)
-World2 <- World[World@data$area > 20000,]
-
-# Change projection
-World2<-spTransform(World2,proj4string(mapData))
-
-
 #--- MAP MAMMALS
 
       # Join data with shapefile
       mapData <- merge(map, funk_mammals, by.x = 'ID', by.y = 'cell')
       mapDataNull <- merge(map, SES_total_mammals, by.x = 'ID', by.y = 'cell')
-    # Compute breaks with quantiles and assign color
-          
-       # Number of classes for the age data
-    
-          #D25R25
-          
-          no_classes_D25R25  <- 11
-          quantiles_D25R25 <- quantile(funk_mammals["D25R25"], 
-                                       probs = seq(0, 1,
-                                                   length.out = no_classes_D25R25),na.rm=T)
-          pal_D25R25 <- rev(brewer.pal(no_classes_D25R25, "Spectral"))
-          pal_D25R25<- pal_D25R25[c(1:5,7:11)]
-          pal_D25R25<-c("gray92",pal_D25R25) #white
-          #displaypal(pal_D25R25)
-
-          #D75R75
-          
-          no_classes_D75R75 <- 3
-          quantiles_D75R75 <- quantile(funk_mammals["D75R75"], 
-                                       probs = seq(0, 1,
-                                                   length.out = no_classes_D75R75),na.rm=T)
-          quantiles_D75R75 <- c(0,1,4,6,13)
-          pal_D75R75<-pal_D25R25[c(1,3,5,11)]
-
-          #TD_sp
-          
-          no_classes_TD_sp <- 11
-          quantiles_TD_sp <- quantile(funk_mammals["TD_sp"], 
-                                      probs = seq(0, 1,
-                                                  length.out = no_classes_TD_sp),na.rm=T)
-          quantiles_TD_sp[2] <- 1
-          pal_TD_sp <- pal_D25R25
-
-map1 <- spplot(mapData["D75R75"],
-              col.regions = pal_D75R75,main = "D75R75",
-              ## define the points where the colors change
-              at = quantiles_D75R75,
-              ## set the border color and width
-              col="transparent",
-              #col = pal[1], lwd = 0.01,
-              par.settings = list(axis.line=list(col="transparent"))
-              ## adjust the legend
-              #colorkey =
-              #  list(space = 'right',
-              #       height = 0.3,
-              #       labels = list(
-              #         at = quantiles_D75R75,
-              #         labels = signif(quantiles_D75R75, 1),
-              #         rot = 0))
-                )+ layer(sp.polygons(World2, lwd = 0.45))
-
-map2 <- spplot(mapData["TD_sp"],
-               col.regions = pal_TD_sp,main = "TD_sp",
-               ## define the points where the colors change
-               at = quantiles_TD_sp,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent"))
-               ## adjust the legend
-               #colorkey =
-               # list(space = 'right',
-               #      height = 0.3,
-               #      labels = list(
-               #        at = quantiles_TD_sp,
-               #        labels = signif(quantiles_TD_sp, 1),
-               #        rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.45))
-
-map3 <- spplot(mapData["D25R25"],
-               col.regions = pal_D25R25,main = "D25R25",
-               ## define the points where the colors change
-               at = quantiles_D25R25,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent"))
-               ## adjust the legend
-               #colorkey =
-               # list(space = 'right',
-               #      height = 0.3,
-               #      labels = list(
-               #        at = quantiles_D25R25,
-               #        labels = signif(quantiles_D25R25, 1),
-               #        rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.45))
-
-
-# NULL D75R75
-no_classes_D75R75 <- 11
-quantiles_D75R75 <- quantile(SES_total_mammals["D75R75"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D75R75),na.rm=T)
-
-
-quantiles_D75R75 <- c(-4,-1.96,0,1.96,2,3,4,5,6,7,8)
-
-pal_D75R75<- rev(brewer.pal(no_classes_D25R25, "Spectral"))
-
-mapNull <- spplot(mapDataNull["D75R75"],
-               col.regions = pal_D75R75,main = "SES D75R75",
-               ## define the points where the colors change
-               at = quantiles_D75R75,
-               ## set the border color and width
-               col="transparent",
-               #col = pal[1], lwd = 0.01,
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #  list(space = 'right',
-               #       height = 0.3,
-               #       labels = list(
-               #         at = quantiles_D75R75,
-               #         labels = signif(quantiles_D75R75, 1),
-               #         rot = 0))
-)+ layer(sp.polygons(World2, lwd = 0.45))
-
-
-pdf(file.path(results_dir,"mammals","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
-grid.arrange(map2,map1,map3,mapNull,nrow=4)
-dev.off()
-
-
+      
+      # Import the world shapefile 
+      World<-readOGR(file.path(data_dir,"ReferenceGrid50Km","Continents","GSHHS_i_L1.shp"))
+      
+      # Delete islands polygons (easy to read)
+      World2 <- World[World@data$area > 20000,]
+      
+      # Change projection
+      World2<-spTransform(World2,proj4string(mapData))
+      
+      # Plot Mammals
+      quantiles_D75R75<-c(0,1,2,3,4,5,max(mapData@data["D75R75"]))
+      mapData@data$cutD75R75 <- cut(mapData@data$D75R75, breaks = c(quantiles_D75R75),include.lowest = T,right=F) 
+      
+      quantiles_D25R25<-c(0,1,5,10,15,20,max(mapData@data["D25R25"]))
+      mapData@data$cutD25R25 <- cut(mapData@data$D25R25, breaks = c(quantiles_D25R25),include.lowest = T,right=F) 
+      
+      quantiles_TD_sp<-c(0,1,10,20,50,100,max(mapData@data["TD_sp"]))
+      mapData@data$cutTD_sp <- cut(mapData@data$TD_sp, breaks = c(quantiles_TD_sp),include.lowest = T,right=F) 
+      
+      quantiles_D75R75_Null <- c(round(min(na.omit(mapDataNull@data$D75R75)),1),-4,-1.96,1.96,4,round(max(na.omit(mapDataNull@data$D75R75)),1))
+      mapDataNull@data$cutD75R75_Null  <- cut(mapDataNull@data$D75R75, breaks = c(quantiles_D75R75_Null),include.lowest = T,right=F) 
+      
+      pal_DataNull <- c("#1874CDB3","#00CED1B3","#FFF68FB3","#FFA500B3","#FF0000B3")
+      pal_D75R75<- c("#EDEDEDB3", "#1874CDB3", "#00CED1B3", "#FFF68FB3", "#FFA500B3","#FF0000B3")
+      
+      map1 <-spplot(mapData["cutTD_sp"],col.regions = pal_D75R75,
+                    ## set the border color and width
+                    col="transparent",
+                    #col = pal[1], lwd = 0.01,
+                    par.settings = list(axis.line=list(col="transparent")),
+                    colorkey = list(height = 1, space = 'right',
+                                    labels = list(at = seq(0.5, length(quantiles_TD_sp) -0.5),
+                                                  labels = quantiles_TD_sp)),
+                    contour = T) + layer(sp.polygons(World2, lwd = 0.6))
+      
+      
+      map2 <-spplot(mapData["cutD75R75"],col.regions = pal_D75R75,
+                    ## set the border color and width
+                    col="transparent",
+                    #col = pal[1], lwd = 0.01,
+                    par.settings = list(axis.line=list(col="transparent")),
+                    colorkey = list(height = 1, space = 'right',
+                                    labels = list(at = seq(0.5, length(quantiles_D75R75) -0.5),
+                                                  labels = quantiles_D75R75)),
+                    contour = T) + layer(sp.polygons(World2, lwd = 0.6))
+      
+      map3 <-spplot(mapData["cutD25R25"],col.regions = pal_D25R25,
+                    ## set the border color and width
+                    col="transparent",
+                    #col = pal[1], lwd = 0.01,
+                    par.settings = list(axis.line=list(col="transparent")),
+                    colorkey = list(height = 1, space = 'right',
+                                    labels = list(at = seq(0.5, length(quantiles_D25R25) -0.5),
+                                                  labels = quantiles_D25R25)),
+                    contour = T) + layer(sp.polygons(World2, lwd = 0.6))
+      
+      map4 <-spplot(mapDataNull["cutD75R75_Null"],col.regions = pal_DataNull,
+                    ## set the border color and width
+                    col="transparent",
+                    #col = pal[1], lwd = 0.01,
+                    par.settings = list(axis.line=list(col="transparent")),
+                    colorkey = list(height = 1, space = 'right',
+                                    labels = list(at = seq(0.5, length(quantiles_D75R75_Null) -0.5),
+                                                  labels = quantiles_D75R75_Null)),
+                    contour = T) + layer(sp.polygons(World2, lwd = 0.6))
+      
+      pdf(file.path(results_dir,"mammals","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
+      grid.arrange(map1,map2,map3,map4,nrow=4)
+      dev.off()
+      
+      
 
 #--- MAP BIRDS
-
-# SORTIR LES POLYGONES TROP PETIT
-# MODIF COULEUR
-
-
-#----
-
-#----
-
-#BIRDS Rarity----
 
 ## LOAD birds values of functional rarity indices
 load(file.path(results_dir,"birds","50km","funk_birds.RData"))
@@ -218,12 +144,7 @@ rownames(funk_birds)<-funk_birds$cell
 ###Link MapGrid with value of indices
 ###same order for rownames 
 funk_birds<-funk_birds[match(map@data[,1], rownames(funk_birds)),]
-
 ##PLOT maps
-varmap <- names(funk_birds)[-1]
-lapply(varmap,function(i) map.Funk(data=funk_birds,map=map,var=i,nlevels=10,plotpdf=TRUE,resultdir="birds/50km",dalto=FALSE))
-map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="birds",dalto=FALSE)
-
 
 ###organised rownames 
 funk_birds$cell<-as.numeric(as.character(funk_birds$cell))
@@ -236,241 +157,85 @@ funk_birds<-funk_birds[match(map@data[,1], rownames(funk_birds)),]
 # Join data with shapefile
 mapData <- merge(map, funk_birds, by.x = 'ID', by.y = 'cell')
 mapDataNull <- merge(map, SES_total_birds, by.x = 'ID', by.y = 'cell')
-# Compute breaks with quantiles and assign color
-
-# Number of classes for the age data
-
-#D25R25
-no_classes_D25R25  <- 11
-quantiles_D25R25 <- quantile(funk_birds["D25R25"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D25R25),na.rm=T)
-quantiles_D25R25[2] <- 1
-pal_D25R25 <- rev(brewer.pal(no_classes_D25R25, "Spectral"))
-pal_D25R25<- pal_D25R25[c(1:5,7:11)]
-pal_D25R25<-c("gray92",pal_D25R25) #gray92
-#displaypal(pal_D25R25)
-col<-rev(c("#FF000080","#FFA54F80","#FFF68F80","#00CED180","#1874CD80","#BEBEBE80"))
-displaypal(col)
-
-#D75R75
-no_classes_D75R75 <- 3
-quantiles_D75R75 <- quantile(funk_birds["D75R75"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D75R75),na.rm=T)
-quantiles_D75R75 <- c(0,1,4,10,28)
-pal_D75R75<-pal_D25R25[c(1,3,5,11)]
 
 
-#TD_sp
-no_classes_TD_sp <- 11
-quantiles_TD_sp <- quantile(funk_birds["TD_sp"], 
-                            probs = seq(0, 1,
-                                        length.out = no_classes_TD_sp),na.rm=T)
-quantiles_TD_sp[1]<-0
-quantiles_TD_sp[2] <- 1
-pal_TD_sp <- pal_D25R25
+# Plot Mammals
+quantiles_D75R75<-c(0,1,2,5,10,20,max(mapData@data["D75R75"]))
+mapData@data$cutD75R75 <- cut(mapData@data$D75R75, breaks = c(quantiles_D75R75),include.lowest = T,right=F) 
+
+quantiles_D25R25<-c(0,1,5,20,50,70,max(mapData@data["D25R25"]))
+mapData@data$cutD25R25 <- cut(mapData@data$D25R25, breaks = c(quantiles_D25R25),include.lowest = T,right=F) 
+
+quantiles_TD_sp<-c(0,1,10,100,300,500,max(mapData@data["TD_sp"]))
+mapData@data$cutTD_sp <- cut(mapData@data$TD_sp, breaks = c(quantiles_TD_sp),include.lowest = T,right=F) 
+
+quantiles_D75R75_Null <- c(round(min(na.omit(mapDataNull@data$D75R75)),1),-4,-1.96,1.96,round(max(na.omit(mapDataNull@data$D75R75)),1))
+mapDataNull@data$cutD75R75_Null  <- cut(mapDataNull@data$D75R75, breaks = c(quantiles_D75R75_Null),include.lowest = T,right=F) 
+
+pal_DataNull <- c("#1874CDB3","#00CED1B3","#FFF68FB3","#FF0000B3")
+pal_D75R75<- c("#EDEDEDB3", "#1874CDB3", "#00CED1B3", "#FFF68FB3", "#FFA500B3","#FF0000B3")
+
+map1 <-spplot(mapData["cutTD_sp"],col.regions = pal_D75R75,
+              ## set the border color and width
+              col="transparent",
+              #col = pal[1], lwd = 0.01,
+              par.settings = list(axis.line=list(col="transparent")),
+              colorkey = list(height = 1, space = 'right',
+                              labels = list(at = seq(0.5, length(quantiles_TD_sp) -0.5),
+                                            labels = quantiles_TD_sp)),
+              contour = T) + layer(sp.polygons(World2, lwd = 0.6))
 
 
-map1 <- spplot(mapData["D75R75"],
-               col.regions = pal_D75R75,main = "D75R75",
-               ## define the points where the colors change
-               at = quantiles_D75R75,
-               ## set the border color and width
-               col="transparent",
-               #col = pal[1], lwd = 0.01,
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #   list(space = 'right',
-               #    height = 0.3,
-               #      labels = list(
-               #         at = quantiles_D75R75,
-               #        labels = signif(quantiles_D75R75, 3),
-               #         rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.6))
+map2 <-spplot(mapData["cutD75R75"],col.regions = pal_D75R75,
+              ## set the border color and width
+              col="transparent",
+              #col = pal[1], lwd = 0.01,
+              par.settings = list(axis.line=list(col="transparent")),
+              colorkey = list(height = 1, space = 'right',
+                              labels = list(at = seq(0.5, length(quantiles_D75R75) -0.5),
+                                            labels = quantiles_D75R75)),
+              contour = T) + layer(sp.polygons(World2, lwd = 0.6))
 
-map2 <- spplot(mapData["TD_sp"],
-               col.regions = pal_TD_sp,main = "TD_sp",
-               ## define the points where the colors change
-               at = quantiles_TD_sp,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #  list(space = 'right',
-               #       height = 0.3,
-               #       labels = list(
-               #         at = quantiles_TD_sp,
-               #         labels = signif(quantiles_TD_sp, 1),
-               #         rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.6))
+map3 <-spplot(mapData["cutD25R25"],col.regions = pal_D25R25,
+              ## set the border color and width
+              col="transparent",
+              #col = pal[1], lwd = 0.01,
+              par.settings = list(axis.line=list(col="transparent")),
+              colorkey = list(height = 1, space = 'right',
+                              labels = list(at = seq(0.5, length(quantiles_D25R25) -0.5),
+                                            labels = quantiles_D25R25)),
+              contour = T) + layer(sp.polygons(World2, lwd = 0.6))
 
-map3 <- spplot(mapData["D25R25"],
-               col.regions = pal_D25R25,main = "D25R25",
-               ## define the points where the colors change
-               at = quantiles_D25R25,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #  list(space = 'right',
-               #       height = 0.3,
-               #       labels = list(
-               #         at = quantiles_D25R25,
-               #         labels = signif(quantiles_D25R25, 1),
-               #         rot = 0))
-                 )+ layer(sp.polygons(World2, lwd = 0.6))
-# NULL D75R75
-no_classes_D75R75 <- 11
-quantiles_D75R75 <- quantile(SES_total_birds["D75R75"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D75R75),na.rm=T)
-
-
-quantiles_D75R75 <- c(-4,-1.96,0,1.96,2,3,4,5,6,7,8)
-
-pal_D75R75<- rev(brewer.pal(no_classes_D25R25, "Spectral"))
-mapNull <- spplot(mapDataNull["D75R75"],
-                  col.regions = pal_D75R75,main = "SES D75R75",
-                  ## define the points where the colors change
-                  at = quantiles_D75R75,
-                  ## set the border color and width
-                  col="transparent",
-                  #col = pal[1], lwd = 0.01,
-                  par.settings = list(axis.line=list(col="transparent")),
-                  ## adjust the legend
-                  #colorkey =
-                  #  list(space = 'right',
-                  #       height = 0.3,
-                  #       labels = list(
-                  #         at = quantiles_D75R75,
-                  #         labels = signif(quantiles_D75R75, 1),
-                  #         rot = 0))
-)+ layer(sp.polygons(World2, lwd = 0.45))
-
+map4 <-spplot(mapDataNull["cutD75R75_Null"],col.regions = pal_DataNull,
+              ## set the border color and width
+              col="transparent",
+              #col = pal[1], lwd = 0.01,
+              par.settings = list(axis.line=list(col="transparent")),
+              colorkey = list(height = 1, space = 'right',
+                              labels = list(at = seq(0.5, length(quantiles_D75R75_Null) -0.5),
+                                            labels = quantiles_D75R75_Null)),
+              contour = T) + layer(sp.polygons(World2, lwd = 0.6))
 
 pdf(file.path(results_dir,"birds","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
-grid.arrange(map2,map1,map3,mapNull,nrow=4)
+grid.arrange(map1,map2,map3,map4,nrow=4)
 dev.off()
 
- 
 
 
-col<-rev(c("#FF000080","#FFA54F80","#FFF68F80","#00CED180","#1874CD80","#BEBEBE80"))
-displaypal(col)
 
 
-#D25R25
-no_classes_D25R25  <- 6
-quantiles_D25R25 <- quantile(funk_birds["D25R25"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D25R25),na.rm=T)
-quantiles_D25R25[2] <- 1
-pal_D25R25 <- rev(c("#FF000080","#FFA54F80","#FFF68F80","#00CED180","#1874CD80","#BEBEBE80"))
-#displaypal(pal_D25R25)
-
-#D75R75
-no_classes_D75R75 <- 6
-quantiles_D75R75 <- quantile(funk_birds["D75R75"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D75R75),na.rm=T)
-quantiles_D75R75 <- c(0,1,3,4,10,28)
-pal_D75R75 <- pal_D25R25
-
-#TD_sp
-no_classes_TD_sp <- 6
-quantiles_TD_sp <- quantile(funk_birds["TD_sp"], 
-                            probs = seq(0, 1,
-                                        length.out = no_classes_TD_sp),na.rm=T)
-quantiles_TD_sp[1]<-0
-quantiles_TD_sp[2] <- 1
-pal_TD_sp <- pal_D25R25
 
 
-map1 <- spplot(mapData["D75R75"],
-               col.regions = pal_D75R75,main = "D75R75",
-               ## define the points where the colors change
-               at = quantiles_D75R75,
-               ## set the border color and width
-               col="transparent",
-               #col = pal[1], lwd = 0.01,
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #   list(space = 'right',
-               #    height = 0.3,
-               #      labels = list(
-               #         at = quantiles_D75R75,
-               #        labels = signif(quantiles_D75R75, 3),
-               #         rot = 0))
-)# + layer(sp.polygons(World2, lwd = 0.6))
-
-map2 <- spplot(mapData["TD_sp"],
-               col.regions = pal_TD_sp,main = "TD_sp",
-               ## define the points where the colors change
-               at = quantiles_TD_sp,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #  list(space = 'right',
-               #       height = 0.3,
-               #       labels = list(
-               #         at = quantiles_TD_sp,
-               #         labels = signif(quantiles_TD_sp, 1),
-               #         rot = 0))
-)# + layer(sp.polygons(World2, lwd = 0.6))
-
-map3 <- spplot(mapData["D25R25"],
-               col.regions = pal_D25R25,main = "D25R25",
-               ## define the points where the colors change
-               at = quantiles_D25R25,
-               ## set the border color and width
-               col="transparent",
-               par.settings = list(axis.line=list(col="transparent")),
-               ## adjust the legend
-               #colorkey =
-               #  list(space = 'right',
-               #       height = 0.3,
-               #       labels = list(
-               #         at = quantiles_D25R25,
-               #         labels = signif(quantiles_D25R25, 1),
-               #         rot = 0))
-)# + layer(sp.polygons(World2, lwd = 0.6))
-# NULL D75R75
-no_classes_D75R75 <- 6
-quantiles_D75R75 <- quantile(SES_total_birds["D75R75"], 
-                             probs = seq(0, 1,
-                                         length.out = no_classes_D75R75),na.rm=T)
 
 
-quantiles_D75R75 <- c(-7,-2,-1.96,0,1.96,2)
 
-pal_D75R75<- rev(brewer.pal(no_classes_D25R25, "Spectral"))
-mapNull <- spplot(mapDataNull["D75R75"],
-                  col.regions = pal_D75R75,main = "SES D75R75",
-                  ## define the points where the colors change
-                  at = quantiles_D75R75,
-                  ## set the border color and width
-                  col="transparent",
-                  #col = pal[1], lwd = 0.01,
-                  par.settings = list(axis.line=list(col="transparent")),
-                  ## adjust the legend
-                  #colorkey =
-                  #  list(space = 'right',
-                  #       height = 0.3,
-                  #       labels = list(
-                  #         at = quantiles_D75R75,
-                  #         labels = signif(quantiles_D75R75, 1),
-                  #         rot = 0))
-)# + layer(sp.polygons(World2, lwd = 0.45))
+##PLOT maps OLD VERSION 
+varmap <- names(funk_mammals)[-1]
+lapply(varmap,function(i) map.Funk(data=funk_mammals,map=map,var=i,nlevels=5,plotpdf=TRUE,resultdir="mammals/50km",dalto=TRUE))
+map.Funk(data=funk_mammals,map=map,var=varmap[3],nlevels=5,plotpdf=FALSE,resultdir="mammals",dalto=FALSE)
 
+varmap <- names(funk_birds)[-1]
+lapply(varmap,function(i) map.Funk(data=funk_birds,map=map,var=i,nlevels=10,plotpdf=TRUE,resultdir="birds/50km",dalto=FALSE))
+map.Funk(data=funk_birds,map=map,var=varmap[3],nlevels=10,plotpdf=FALSE,resultdir="birds",dalto=FALSE)
 
-pdf(file.path(results_dir,"birds","50km",paste0("figs"),paste0("map","testAllmap",".pdf")))
-grid.arrange(map2,map1,map3,mapNull,nrow=4)
-dev.off()
 

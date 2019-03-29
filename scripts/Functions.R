@@ -549,3 +549,13 @@ map.Funk <- function(data,map,var,nlevels,plotpdf,resultdir,dalto){
     ga <- paste0(g, a)       # add alpha values to new colors
     img.grey <- matrix(ga, nrow(img), ncol(img), byrow=TRUE)  
   }
+  
+#ADDLEVEL: Small function to add a new factor
+  addLevel <- function(x, newlevel=NULL) {
+    if(is.factor(x)) {
+      if (is.na(match(newlevel, levels(x))))
+        return(factor(x, levels=c(levels(x), newlevel)))
+    }
+    return(x)
+  }
+  
