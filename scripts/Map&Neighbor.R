@@ -85,42 +85,43 @@ funk_mammals<-funk_mammals[match(map@data[,1], rownames(funk_mammals)),]
       pal_colNull <- c("#1874CDB3","#00CED1B3","#FFF68FB3","#FFA500B3","#FF0000B3")
       pal_col<- c("#EDEDEDB3", "#1874CDB3", "#00CED1B3", "#FFF68FB3", "#FFA500B3","#FF0000B3")
       
-      map1 <-spplot(mapData["cutTD_sp"],col.regions = pal_D75R75,main = "TD_sp",
+      map1 <-spplot(mapData["cutTD_sp"],col.regions = pal_col,main = "TD_sp",
                     ## set the border color and width
                     col="transparent",
                     #col = pal[1], lwd = 0.01,
-                    par.settings = list(axis.line=list(col="transparent")),
+                    par.settings = list(axis.line=list(col="black")),
                     colorkey = list(height = 1, space = 'right',
                                     labels = list(at = seq(0.5, length(quantiles_TD_sp) -0.5),
                                                   labels = quantiles_TD_sp)),
                     contour = T) + layer(sp.polygons(World2, lwd = 0.6))
       
       
-      map2 <-spplot(mapData["cutD75R75"],col.regions = pal_D75R75,main = "D25R25",
+      map2 <-spplot(mapData["cutD75R75"],col.regions = pal_col,main = "D75R75",
                     ## set the border color and width
                     col="transparent",
                     #col = pal[1], lwd = 0.01,
-                    par.settings = list(axis.line=list(col="transparent")),
+                    par.settings = list(axis.line=list(col="black")),
                     colorkey = list(height = 1, space = 'right',
                                     labels = list(at = seq(0.5, length(quantiles_D75R75) -0.5),
                                                   labels = quantiles_D75R75)),
                     contour = T) + layer(sp.polygons(World2, lwd = 0.6))
       
-      map3 <-spplot(mapData["cutD25R25"],col.regions = pal_D25R25,main = "D25R25",
+      map3 <-spplot(mapData[,"cutD25R25"],col.regions = pal_col,main = "D25R25",
                     ## set the border color and width
                     col="transparent",
                     #col = pal[1], lwd = 0.01,
-                    par.settings = list(axis.line=list(col="transparent")),
+                    par.settings = list(axis.line=list(col="black")),
                     colorkey = list(height = 1, space = 'right',
                                     labels = list(at = seq(0.5, length(quantiles_D25R25) -0.5),
-                                                  labels = quantiles_D25R25)),
-                    contour = T) + layer(sp.polygons(World2, lwd = 0.6))
+                                     labels = quantiles_D25R25))) + layer(sp.polygons(World2, lwd = 0.6))
+                   
+ 
       
-      map4 <-spplot(mapDataNull["cutD75R75_Null"],col.regions = pal_DataNull,main = "SES D75R75",
+      map4 <-spplot(mapDataNull["cutD75R75_Null"],col.regions = pal_colNull,main = "SES D75R75",
                     ## set the border color and width
                     col="transparent",
                     #col = pal[1], lwd = 0.01,
-                    par.settings = list(axis.line=list(col="transparent")),
+                    par.settings = list(axis.line=list(col="black")),
                     colorkey = list(height = 1, space = 'right',
                                     labels = list(at = seq(0.5, length(quantiles_D75R75_Null) -0.5),
                                                   labels = quantiles_D75R75_Null)),
