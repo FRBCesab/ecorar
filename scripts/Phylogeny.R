@@ -88,7 +88,7 @@ library(viridis)
     
     
     #SOUS JEUX DE DONNEE POUR FAIRE DES TEST 
-    #Sset_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,sample(as.character(gsub(" ", "_", birdsID$Name)),200))])
+    #set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,sample(as.character(gsub(" ", "_", birdsID$Name)),200))])
     
 # Compute Evolutionary Distinctiveness 
     #We use the identical framework (not based on tree but on distance)
@@ -286,11 +286,6 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
           set_phylo <- ape::drop.tip(set_phylo,set_phylo$tip.label[!is.element(set_phylo$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
           # plotting PHYLOGENY TREE
           color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A666","red"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= pal_order_taxo)
-          
-          color.terminal.branches(set_phylo, rarety, breaks=4,cols=c("white","white"), edge.width=0.4, show.tip.label=TRUE, non.terminal.col= pal_order_taxo)
-          
-          
-          cols=pal_order_taxo,
           tiplabels(pch = 18, col = data_DR$cols, cex = 0.4 ,offset=5)
 
           #Create color for each family
@@ -298,14 +293,14 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
           #VIRIDIS
           pal_order_taxo <- data.frame(viridis(length(unique(na.omit(data_DR$order))),option= "A"))
           #OTHERS
-          redblue<-colorRampPalette(c("red","orange","blue"))
-          pal_order_taxo <-data.frame(redblue(length(unique(na.omit(data_DR$order)))))
+          #redblue<-colorRampPalette(c("red","orange","blue"))
+          #pal_order_taxo <-data.frame(redblue(length(unique(na.omit(data_DR$order)))))
           
           rownames(pal_order_taxo) <- unique(na.omit(data_DR$order))
           pal_order_taxo<-merge(order_taxo,pal_order_taxo,by.x="data_DR.order",by.y="row.names",sort = FALSE)
           pal_order_taxo<-as.character(pal_order_taxo[,2])
           
-           plot(set_phylo,  edge.col = pal_order_taxo,tip.color="black",cex = 0.2)
+           plot(set_phylo,  edge.col = pal_order_taxo,tip.color="black",cex = 0.2,type="f")
            tiplabels(pch = 18, col = data_DR$cols, cex = 0.2 ,offset=5)
            
            
