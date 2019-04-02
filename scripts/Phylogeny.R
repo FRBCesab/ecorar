@@ -17,6 +17,7 @@ library(magrittr)
 library(ggplot2)
 library(grid)
 library(picante)
+library(viridis)
 
 #LOAD TRAITS MAPS AND DISTRIB----
 
@@ -87,7 +88,7 @@ library(picante)
     
     
     #SOUS JEUX DE DONNEE POUR FAIRE DES TEST 
-    set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,sample(as.character(gsub(" ", "_", birdsID$Name)),200))])
+    #Sset_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,sample(as.character(gsub(" ", "_", birdsID$Name)),200))])
     
 # Compute Evolutionary Distinctiveness 
     #We use the identical framework (not based on tree but on distance)
@@ -164,7 +165,7 @@ library(picante)
              
               #Merge Data
                  EDi_birds <-merge (EDi_birds,ty, by = "row.names")
-                 rownames(EDi_birds) <- EDi_birds$ID
+                 rownames(EDi_birds) <- EDi_birds[,1]
                  EDi_birds <- EDi_birds[,c(3,5:7)]
                  colnames(EDi_birds) <- c("EDi", "EDin", "OriDi", "OriDin")
                  
@@ -191,12 +192,12 @@ a <- ggplot(data_DR_mammalsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geo
 c <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$OriDin,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="OriDin")+theme_bw()
-gridExtra::grid.arrange(a,c,nrow= 2,top =textGrob("Evolutionary distinctiveness",gp=gpar(fontsize=20,font=3)))    
+gridExtra::grid.arrange(a,c,ncol= 2,top =textGrob("Evolutionary distinctiveness",gp=gpar(fontsize=20,font=3)))    
 
 #d <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
 #  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$EDin,na.rm=T),col="red",linetype="dashed") + 
 #  labs(x = "DR class",y="EDin")+theme_bw()   
-  #Normal que le EDin fonctionne car même construction        
+  #Normal que le EDin fonctionne car même construction donc à ne pas utilisé  
 
         
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
