@@ -293,6 +293,11 @@ plot_PA <- function(taxa,FR_all,data_PA){
     theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanHDI,na.rm=T),col="grey35",linetype="dashed")+
     labs(x = "HDI")+theme_bw()
   
+  
+
+  
+  
+  
   pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/HDI.pdf")),width=12,height=8) 
   #grid.arrange(c,d,ncol=2,top = textGrob("Human Development Index" ,gp=gpar(fontsize=20,font=3)))
   grid.arrange(d,top = textGrob("Human Development Index" ,gp=gpar(fontsize=20,font=3)))
@@ -344,10 +349,34 @@ plot_PA(taxa="mammals",FR_mammals,mammals_PA)
 
 
 ################################################################################################################################################
+facep rep grid
+
+
+ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot() +scale_y_continuous(limits=c(0.25,1))
+ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + stat_summary()+scale_y_continuous(limits=c(0.25,1))
 
 
 
+df2 <- structure(list(Y = c(0.0869565217391304, 0.148148148148148, 0.172413793103448, 
+                            0.384615384615385, 0.5625), group = c(0L, 1L, 5L, 3L, 6L), se = c(0.0856368459098186, 
+                                                                                              0.079039229753282, 0.0762650540661762, 0.0805448741815074, 0.0726021684593052
+                            ), nudged = c(FALSE, TRUE, TRUE, TRUE, TRUE), incentive = structure(c(1L, 
+                                                                                                  2L, 3L, 3L, 4L), .Label = c("Default behavior", "Imbalance only", 
+                                                                                                                              "Money only", "Money & Imbalance together"), class = "factor"), 
+                      label = structure(1:5, .Label = c("0", "1", "1 cent", "5 cent", 
+                                                        "6"), class = "factor"), plot_order = c(0, 1, 2, 3, 4)), .Names = c("Y", 
+                                                                                                                            "group", "se", "nudged", "incentive", "label", "plot_order"), 
+                 row.names = c("as.factor(group)0", 
+                               "as.factor(group)1", "as.factor(group)5", "as.factor(group)3", 
+                               "as.factor(group)6"), class = "data.frame")
 
+g <- ggplot(df2, aes(x=Y, y=label)) + geom_point()
+# add manual scale
+g <- g+ scale_y_discrete(limits=c("0","1","1 cent","5 cent","6"))
+g <- g + facet_grid(incentive ~ .,   scale="free")
+g <- g + geom_errorbarh(aes(xmax = Y + se, xmin = Y - se))  
+g <- g + geom_vline(xintercept=1/6, linetype=2, colour="red") 
+g + xlab("%") + ylab("Groups")+theme(strip.text.y = element_text(angle = 0))
 
 
 
