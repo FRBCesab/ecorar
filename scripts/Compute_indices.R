@@ -13,6 +13,7 @@ library(dplyr)
 library(gridExtra)
 library(cluster)
 library(rgdal)
+library(plyr)
 
 
 #COMPUTE FR ----
@@ -54,12 +55,39 @@ library(rgdal)
           colnames(Sim_commu) <- colnames(disTraits_mammals)
       
         ####Compute Ui (Global Uniqueness)
-          Ui<-uniqueness(Sim_commu,disTraits_mammals)
+          Ui<-uniqueness(str(),disTraits_mammals)
           rownames(Ui)<-Ui[,1]
           
         ####Compute Di (Global distinctiveness)
           Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
           colnames(Di)<-"Di"
+          
+          ####Compute Di_local (Local distinctiveness)
+          
+          spnames <- unique(unlist(occ_mammals_list))
+          
+          proc=8
+          Di_locall <- mclapply(1:length(occ_mammals_list),function(i){
+            id <- occ_mammals_list[[i]]
+            if(!is.na(id[2])==TRUE) {  #compute Di only for communities with 2 species or more 
+              com <- matrix(data = 0, nrow = 1, ncol = length(spnames))
+              colnames(com) <- spnames
+              for (j in 1:length(id)) { com[1,id[j]]=1 }
+              Di_local <- t(distinctiveness(com,disTraits_mammals))
+              colnames(Di_local)<-names(occ_mammals_list[i])
+              Di_local <- as.data.frame(Di_local)
+              Di_local
+            }
+ 
+          },mc.cores = proc)
+          
+          Di_locall <- plyr::compact(Di_locall) #remove the NULL
+          Di_locall <- do.call(cbind,Di_locall)
+          
+          save(Di_locall, file=file.path(results_dir,"mammals","50km","Di_locall_mammals.RData"))
+          
+         
+          
      
         #####matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
           Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
