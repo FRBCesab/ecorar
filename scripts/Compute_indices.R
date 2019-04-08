@@ -14,20 +14,18 @@ library(gridExtra)
 library(cluster)
 library(rgdal)
 
-#LOAD TRAITS MAPS AND DISTRIB----
 
-  # Load traits and distrib 
-    load(file=file.path(results_dir,"mammals/mammalsID.RData"))
-    load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
-    load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-#----
-    mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
-    
 #COMPUTE FR ----
 
-## Mammals
- 
-      ###Format the traits 
+  ## MAMMALS
+
+    ### Load traits and distrib 
+        load(file=file.path(results_dir,"mammals/mammalsID.RData"))
+        load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
+        load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+        mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
+
+    ###Format the traits 
 
         diet <- prep.fuzzy(mammalstrait[,1:10], col.blocks = ncol(mammalstrait[,1:10]), label = "diet")
         
@@ -43,55 +41,57 @@ library(rgdal)
         bodymass <- bodymass/(max(bodymass, na.rm=T)-min(bodymass, na.rm=T))
 
     ###Compute the dist matrix
-      disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
-      save(disTraits_mammals, file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
+      
+        disTraits_mammals <- dist.ktab(ktab.list.df(list(diet, ForStrat, Activity, bodymass)), c("F","N","B","Q"), scan = FALSE) %>% as.matrix()
+        save(disTraits_mammals, file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
 
     ###Compute funrare indices (note occ_mat are sparse matrices)
       
-      load(file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
+        load(file=file.path(results_dir,"mammals","disTraits_mammals.RData"))
       
-     #matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
-      Sim_commu <- matrix(1,1,ncol(disTraits_mammals))
-      colnames(Sim_commu) <- colnames(disTraits_mammals)
+        ####matrice to big, build hypothetical community where all species are presents. Allow to compute Ui & Di for each species
+          Sim_commu <- matrix(1,1,ncol(disTraits_mammals))
+          colnames(Sim_commu) <- colnames(disTraits_mammals)
       
-      #Compute Ui (Global Uniqueness)
-        Ui<-uniqueness(Sim_commu,disTraits_mammals)
-        rownames(Ui)<-Ui[,1]
-      #Compute Di (Global distinctiveness)
-        Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
-        colnames(Di)<-"Di"
-     
-      #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
-        Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
-        rownames(Ri)<-Ri[,1]
-        Ri<-Ri[,-1, drop = FALSE]
-        Ri<-1-Ri
-        colnames(Ri)<-"Ri"
-
-        #Create the FR_data frame 
-        FR_data <- merge(Ui,Di, by="row.names")
-        rownames(FR_data) <- FR_data[,1]
-        FR_data <- FR_data[,-c(1,2)]
-        FR_data <- merge(FR_data,Ri, by="row.names")
-        rownames(FR_data) <- FR_data[,1]
-        FR_data <- FR_data[,-1]
+        ####Compute Ui (Global Uniqueness)
+          Ui<-uniqueness(Sim_commu,disTraits_mammals)
+          rownames(Ui)<-Ui[,1]
           
-        FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
-        FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
-        FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
+        ####Compute Di (Global distinctiveness)
+          Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
+          colnames(Di)<-"Di"
+     
+        #####matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
+          Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
+          rownames(Ri)<-Ri[,1]
+          Ri<-Ri[,-1, drop = FALSE]
+          Ri<-1-Ri
+          colnames(Ri)<-"Ri"
+
+        #####Create the FR_data frame 
+          FR_data <- merge(Ui,Di, by="row.names")
+          rownames(FR_data) <- FR_data[,1]
+          FR_data <- FR_data[,-c(1,2)]
+          FR_data <- merge(FR_data,Ri, by="row.names")
+          rownames(FR_data) <- FR_data[,1]
+          FR_data <- FR_data[,-1]
+          
+          FR_data$Uin<-(FR_data$Ui-min(FR_data$Ui)) / max(FR_data$Ui-min(FR_data$Ui))
+          FR_data$Din<-(FR_data$Di-min(FR_data$Di)) / max(FR_data$Di-min(FR_data$Di))
+          FR_data$Rin<-(FR_data$Ri-min(FR_data$Ri)) / max(FR_data$Ri-min(FR_data$Ri))
   
-        # 90% quantile
-        Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
-        Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
-        Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
+        ##### 90% quantile
+          Q90_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[10])
+          Q90_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.1))[10])
+          Q10_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.1))[2])
   
-        # 75% quantile
-        Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
-        Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
+        ##### 75% quantile
+          Q75_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[4])  
+          Q75_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[4])  
         
-        # 25% quantile
-        Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
-        Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
+        ##### 25% quantile
+          Q25_D <- as.numeric(quantile(FR_data$Din,probs = seq(0, 1, 0.25))[2])  
+          Q25_R <- as.numeric(quantile(FR_data$Rin,probs = seq(0, 1, 0.25))[2])  
         
         Q <- data.frame(Q90_D=Q90_D,Q10_D=Q10_D,Q90_R=Q90_R,
                         Q75_D=Q75_D,Q75_R=Q75_R,Q25_D=Q25_D,Q25_R=Q25_R)
@@ -100,7 +100,8 @@ library(rgdal)
         save(FR_mammals, file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
       
 
-  ##Birds 
+  ##BIRDS
+        
         # Load traits and distrib 
         load(file=file.path(data_dir,"birds","birdsID.RData"))
         load(file=file.path(results_dir,"birds","birdstrait.RData"))
@@ -308,9 +309,6 @@ save(funk_birds, file=file.path(results_dir,"birds","50km","funk_birds.RData"))
 
 
 
-
-
-
 #----
 
 load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
@@ -318,6 +316,9 @@ load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 
 load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+
+str(FR_mammals)
+
 #VISU ----
 ##Histograms of species numbers 
 
