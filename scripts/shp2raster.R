@@ -44,12 +44,12 @@ library(raster)
 
 
 ### PATH TO DATA
-path_data <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/data"        ### !!!
+path_data <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/data/"       ### !!!
 
 
 ### IMPORT STUDY AREA SHAPEFILE (WORLD GRID)
 map_shp <- readOGR(
-  dsn    = paste0(path_data, "/ReferenceGrid50km"),
+  dsn    = paste0(path_data, "ReferenceGrid50km"),                              ### !!!
   layer  = "gridLand50km"
 )
 
@@ -86,7 +86,47 @@ ras[][pos] <- 1
 ### EXPORT STUDY AREA RASTER
 writeRaster(
   x          = ras,
-  filename   = paste0(path_data, "/reference_grid_50km.tif"),                    ### !!!
+  filename   = paste0(path_data, "reference_grid_50km.tif"),                     ### !!!
   format     = "GTiff",
   overwrite  = TRUE
 )
+
+
+### CONVERT MAMMALS / BIRDS TO STACKED RASTER
+
+taxa <- c("birds", "mammals")
+
+for (k in 1:length(taxa)) {
+
+
+  # Import mammals and birds data
+  load(paste0(path_data, taxa[k], "/funk_", taxa[k], ".RData"))
+  datas <- eval(parse(text = paste0("funk_", taxa[k])))
+
+
+  # Get good cells id order
+  datas <- merge(cells_infos, datas, by.x = "cell_id", by.y = "cell")
+  pos   <- cellFromXY(ras, datas[ , c("x", "y")])
+
+
+  # Add data to raster (stacked raster)
+  sar <- ras
+  for (i in 4:ncol(datas)) {
+    tmp <- ras ; tmp[] <- NA
+    tmp[][pos] <- datas[ , i]
+    if (i == 4) {
+      sar <- tmp
+    } else {
+      sar <- stack(sar, tmp)
+    }
+  }
+
+  # Add layers names
+  names(sar) <- paste(taxa[k], colnames(datas)[-c(1:3)], sep = "_")
+
+  # Export stacked layer (RDS file)
+  saveRDS(
+    object  = sar,
+    file    = paste0(path_data, "funk_", taxa[k], ".rds")
+  )
+}
