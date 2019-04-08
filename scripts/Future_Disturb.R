@@ -229,9 +229,9 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
-   #taxa="mammals"
-   #FR_all=FR_mammals
-   #data_PA=mammals_PA
+   taxa="mammals"
+   FR_all=FR_mammals
+   data_PA=mammals_PA
 
   data_PA$DR_class="NA"
   
@@ -310,35 +310,35 @@ plot_PA <- function(taxa,FR_all,data_PA){
   #  ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
   #  labs(x = "DR class",y="Number of conflicts")+theme_bw()
   
-  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
-  f <- ggplot(data_plot_sub, aes(meanConflict,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
-    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
-    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanConflict,na.rm=T),col="grey35",linetype="dashed")+
-    labs(x = "Number of conflicts")+theme_bw()
-  
-  pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/Conflict.pdf")),width=12,height=8) 
-  #grid.arrange(e,f,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
-  grid.arrange(f,top = textGrob("Number of conflicts" ,gp=gpar(fontsize=20,font=3)))
-  dev.off()
-  
-  ymax=150
+        data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+        f <- ggplot(data_plot_sub, aes(meanConflict,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+          scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
+          theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanConflict,na.rm=T),col="grey35",linetype="dashed")+
+          labs(x = "Number of conflicts")+theme_bw()
+        
+        pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/Conflict.pdf")),width=12,height=8) 
+        #grid.arrange(e,f,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+        grid.arrange(f,top = textGrob("Number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+        dev.off()
+        
+        ymax=150
   #g <- ggplot(data_plot, aes(x=DR_class, y=PercentageCellsWithPA, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   #  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$PercentageCellsWithPA,na.rm=T),col="red",linetype="dashed") + 
   #  ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
   #  labs(x = "DR class",y="Number of conflicts")
   
-  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
-  h <- ggplot(data_plot_sub, aes(PercentageCellsWithPA,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
-    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
-    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$PercentageCellsWithPA,na.rm=T),col="grey35",linetype="dashed")+
-    labs(x = "Percentage of Cells With PA")
-  
-  pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/PercentageCellsWithPA.pdf")),width=12,height=8) 
-  #grid.arrange(g,h,ncol=2,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
-  grid.arrange(h,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
-  dev.off()
-  
-  }
+        data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+        h <- ggplot(data_plot_sub, aes(PercentageCellsWithPA,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+          scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
+          theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$PercentageCellsWithPA,na.rm=T),col="grey35",linetype="dashed")+
+          labs(x = "Percentage of Cells With PA")
+        
+        pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/PercentageCellsWithPA.pdf")),width=12,height=8) 
+        #grid.arrange(g,h,ncol=2,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
+        grid.arrange(h,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
+        dev.off()
+        
+        }
   
 
 plot_PA(taxa="birds",FR_birds,birds_PA)
@@ -350,7 +350,46 @@ plot_PA(taxa="mammals",FR_mammals,mammals_PA)
 
 ################################################################################################################################################
 facep rep grid
+D75R75<-subset(data_plot_sub,data_plot_sub$DR_class=="D75R75")
+D25R25<-subset(data_plot_sub,data_plot_sub$DR_class=="D25R25")
+AVG<-subset(data_plot_sub,data_plot_sub$DR_class=="AVG")
 
+
+D75R75<-rbind(cbind(mean(D75R75$meanConflict,na.rm=T),sd(D75R75$meanConflict,na.rm=T)),
+              cbind(mean(D75R75$meanHDI,na.rm=T),sd(D75R75$meanHDI,na.rm=T)),
+              cbind(mean(D75R75$Percentagecover,na.rm=T),sd(D75R75$Percentagecover,na.rm=T)))
+  
+D25R25<-rbind(cbind(mean(D25R25$meanConflict,na.rm=T),sd(D25R25$meanConflict,na.rm=T)),
+              cbind(mean(D25R25$meanHDI,na.rm=T),sd(D25R25$meanHDI,na.rm=T)),
+              cbind(mean(D25R25$Percentagecover,na.rm=T),sd(D25R25$Percentagecover,na.rm=T)))
+
+AVG<-rbind(cbind(mean(AVG$meanConflict,na.rm=T),sd(AVG$meanConflict,na.rm=T)),
+              cbind(mean(AVG$meanHDI,na.rm=T),sd(AVG$meanHDI,na.rm=T)),
+              cbind(mean(AVG$Percentagecover,na.rm=T),sd(AVG$Percentagecover,na.rm=T)))
+
+test<-rbind(D75R75,D25R25,AVG)
+test<-data.frame(test,c(rep("D75R75",3),rep("D25R25",3),rep("AVG",3)),rep(c("meanConflict","meanHDI","Percentagecover"),3))
+colnames(test) <- c("mean","sd","DR_class","threats")
+
+ggplot(data=test,aes(x = DR_class, y = mean)) +
+  geom_hline(aes(yintercept = mean(mean)), linetype = "dashed") +
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
+                width = .1) +
+  geom_point(aes(color = DR_class), size = 3) +
+  coord_flip() +
+  facet_wrap(~threats, scale = "free") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+ggplot(aes(x = Trait, y = estimate)) +
+  geom_hline(aes(yintercept = 0), linetype = "dashed") +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error),
+                width = .1) +
+  geom_point(aes(color = Trait), size = 3) +
+  coord_flip() +
+  facet_wrap(~outcome, scale = "free") +
+  theme_classic() +
+  theme(legend.position = "none")
 
 ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot() +scale_y_continuous(limits=c(0.25,1))
 ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + stat_summary()+scale_y_continuous(limits=c(0.25,1))
@@ -380,7 +419,15 @@ g + xlab("%") + ylab("Groups")+theme(strip.text.y = element_text(angle = 0))
 
 
 
-
+ggplot(data= df2, aes(x = incentive, y = Y)) +
+  geom_hline(aes(yintercept = 0), linetype = "dashed") +
+  geom_errorbar(aes(ymin = Y - std.error, ymax = Y + std.error),
+                width = .1) +
+  geom_point(aes(color = incentive), size = 3) +
+  coord_flip() +
+  facet_wrap(~nudged, scale = "free") +
+  theme_classic() +
+  theme(legend.position = "none")
 
 
 ######################################################################################################################################################
