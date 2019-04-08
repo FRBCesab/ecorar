@@ -54,12 +54,41 @@ library(rgdal)
           colnames(Sim_commu) <- colnames(disTraits_mammals)
       
         ####Compute Ui (Global Uniqueness)
-          Ui<-uniqueness(Sim_commu,disTraits_mammals)
+          Ui<-uniqueness(str(),disTraits_mammals)
           rownames(Ui)<-Ui[,1]
           
         ####Compute Di (Global distinctiveness)
           Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
           colnames(Di)<-"Di"
+          
+          ####Compute Di_local (Local distinctiveness)
+          
+          spnames <- unique(unlist(occ_mammals_list))
+          
+          proc=4
+          Di_locall <- mclapply(1:20,function(i){
+            id <- occ_mammals_list[[i]]
+          
+            #compute Di only for communities with 2 species or more 
+            if(!is.na(id[2])==TRUE) {
+              com <- matrix(data = 0, nrow = 1, ncol = length(spnames))
+              colnames(com) <- spnames
+              for (j in 1:length(id)) { com[1,id[j]]=1 }
+              Di_local <- t(distinctiveness(com,disTraits_mammals))
+              colnames(Di_local)<-names(occ_mammals_list[i])
+              Di_local <- as.data.frame(Di_local)
+              Di_local
+            }
+ 
+          },mc.cores = proc)
+          
+          
+          
+          test <- merge(Di_locall[[1]],Di_locall[[2]],by="row.names",all.x=TRUE)
+          
+          Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
+          colnames(Di)<-"Di"
+          
      
         #####matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
           Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
