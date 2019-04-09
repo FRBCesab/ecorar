@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=TRUE,who="NM")
 
 library(funrar)
 library(moments)
@@ -188,7 +188,7 @@ library(plyr)
       
       spnames <- unique(unlist(occ_birds_list))
       
-      proc=8
+      proc=40
       Di_locall <- mclapply(1:length(occ_birds_list),function(i){
         id <- occ_birds_list[[i]]
         if(!is.na(id[2])==TRUE) {  #compute Di only for communities with 2 species or more 
@@ -218,7 +218,7 @@ library(plyr)
       ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc)) + 
         geom_point(size=1) + 
         stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
-        ggtitle("Mamals") + 
+        ggtitle("Birds") + 
         geom_abline(intercept = 0, slope = 1, color="red", 
                     linetype="dashed", size=1)
       
