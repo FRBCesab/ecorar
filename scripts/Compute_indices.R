@@ -190,7 +190,7 @@ library(plyr)
       
       proc=8
       Di_locall <- mclapply(1:length(occ_birds_list),function(i){
-        id <- occ_mammals_list[[i]]
+        id <- occ_birds_list[[i]]
         if(!is.na(id[2])==TRUE) {  #compute Di only for communities with 2 species or more 
           com <- matrix(data = 0, nrow = 1, ncol = length(spnames))
           colnames(com) <- spnames
