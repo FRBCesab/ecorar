@@ -375,7 +375,7 @@ data_DR$AVG[is.na(data_DR$AVG)]<-0
 #Should be done with the 100 trees of mammals et 100 trees of birds
 data_DR$species<-rownames(data_DR)
 
-D.phylogeny <- function(ids,proc,data_DR,taxa,permut,indice) {
+D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
   #proc <- 2
   #taxa <- "birds"
   #data_DR <- data_DR
@@ -411,7 +411,7 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut,indice) {
   
 }
 #Mammals
-D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000,indice="D25R25"))
+#D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000,indice="D25R25"))
 #D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
 #save(D_mammals,file=file.path(results_dir,"mammals","50km","D_mammals.RData"))
 
@@ -422,6 +422,10 @@ D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
 
 #birds
 #D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:2,proc=25,data_DR=data_DR,taxa="birds",permut=2))
+#save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
+
+
 #save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birds.RData"))
 D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
