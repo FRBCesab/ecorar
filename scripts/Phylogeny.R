@@ -208,7 +208,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   taxaInfo<- taxaInfo_mammals
   taxa="mammals"
   
-  i <- 100
+  i <- 80
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
   set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
   
@@ -285,7 +285,8 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     node <- phytools::findMRCA(set_phylo,as.character(set_phylo$tip.label[which(as.character(data_DR$order) == x)]), type = "node")
     names(node) <- x
     node}))
-  
+ 
+
   nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
 
   # Add column binary for Functional Rarity: Yes/no
@@ -305,7 +306,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
   
   # plotting family labels/arcs
-  offset <- rep(c(1.10,1.18),length(nodesArc)/2)
+  offset <- rep(c(1.15,1.23),length(nodesArc))
   
   
   for(i in 1:length(nodesArc)){
@@ -313,24 +314,24 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.03
     if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.03
     
-    #if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
+   if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
       arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 0.6, 
+                      cex = 1, 
                       colarc = "gray82",
                       lwd = 1, 
                       lty = 1, cextext=0.5,
-                      orientation = "curved",
-                      mark.node = FALSE,col="gray82",coltext="gray82")#}
+                      orientation = "curved", mark.node = FALSE,
+                      col="gray82",coltext="gray82")}
     
     if(i %in% c(2,5,8,11,14,17,20,23,26,29,32,35)){  #If odd 
       arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 0.6, 
+                      cex = 1, 
                       colarc = "gray75",
                       lwd = 1, 
                       lty = 1, cextext=0.5,
@@ -342,7 +343,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 0.6, 
+                      cex = 1, 
                       colarc = "gray68",
                       lwd = 1, 
                       lty = 1, cextext=0.5,
