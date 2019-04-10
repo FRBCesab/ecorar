@@ -58,9 +58,6 @@ birds_future$SP <- paste0("sp",birds_future$SP)
 
 scenar <- unique(birds_future$SCE)
 
-
-
-
 birds_future_scenar_all <- lapply(scenar, function(id) {
   #id=scenar[1]
   birds_future_scenar <- subset(birds_future,birds_future$SCE==id)

@@ -18,200 +18,195 @@ library(ggplot2)
 library(grid)
 library(picante)
 library(viridis)
+library(caper)
 
 #LOAD TRAITS MAPS AND DISTRIB----
 
-# Load traits and distrib 
+    # Load traits and distrib 
 
-#Mammals
-load(file=file.path(data_dir,"mammals","mammalsID.RData"))
-load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
-load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
-load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
-load(file=file.path(data_dir,"mammals","taxaInfo_mammals.RData"))
-mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
-taxaInfo_mammals<-taxaInfo_mammals[taxaInfo_mammals$ID %in% mammalsID$ID,]        
-
-#Prepare data: DR class for each species
-load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
-data_DR_mammals<-FR_mammals$FR
-QD75 <- FR_mammals$Q$Q75_D
-QD25 <- FR_mammals$Q$Q25_D
-QR75 <- FR_mammals$Q$Q75_R
-QR25 <- FR_mammals$Q$Q25_R
-
-data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
-data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
-data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
-data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
-data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
-
-data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
-colnames(data_DR_mammals) <- "DR_class"
-
-
-#Birds
-load(file=file.path(data_dir,"birds","birdsID.RData"))
-load(file=file.path(results_dir,"birds","birdstrait.RData"))
-load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
-load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
-load(file=file.path(data_dir,"birds","taxaInfo_birds.RData"))
-birdsID<-birdsID[birdsID$ID %in% rownames(birdstrait),]
-taxaInfo_birds<-taxaInfo_birds[taxaInfo_birds$ID %in% birdsID$ID,]   
-
-#Prepare data: DR class for each species
-data_DR_birds<-FR_birds$FR
-QD75 <- FR_birds$Q$Q75_D
-QD25 <- FR_birds$Q$Q25_D
-QR75 <- FR_birds$Q$Q75_R
-QR25 <- FR_birds$Q$Q25_R
-
-data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
-data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
-data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
-data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
-data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
-
-data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
-colnames(data_DR_birds) <- "DR_class"
+              #Mammals
+              load(file=file.path(data_dir,"mammals","mammalsID.RData"))
+              load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
+              load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+              load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+              load(file=file.path(data_dir,"mammals","taxaInfo_mammals.RData"))
+              mammalsID<-mammalsID[mammalsID$ID %in% rownames(mammalstrait),]
+              taxaInfo_mammals<-taxaInfo_mammals[taxaInfo_mammals$ID %in% mammalsID$ID,]        
+              
+              
+              #Birds
+              load(file=file.path(data_dir,"birds","birdsID.RData"))
+              load(file=file.path(results_dir,"birds","birdstrait.RData"))
+              load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+              load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
+              load(file=file.path(data_dir,"birds","taxaInfo_birds.RData"))
+              birdsID<-birdsID[birdsID$ID %in% rownames(birdstrait),]
+              taxaInfo_birds<-taxaInfo_birds[taxaInfo_birds$ID %in% birdsID$ID,]   
 
 #----
-
-
 # Load Phylogeny
-load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
-birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-i <- 3
-birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
-# Dropping names not in  ID
-set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
-set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
+  load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
+  birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
+  i <- 3
+  birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
+
+          # Dropping names not in  ID
+            set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
+            set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
 
 
 #SOUS JEUX DE DONNEE POUR FAIRE DES TEST 
 #set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,sample(as.character(gsub(" ", "_", birdsID$Name)),200))])
 
 # Compute Evolutionary Distinctiveness 
-#We use the identical framework (not based on tree but on distance)
-distPhyl_mammals <- cophenetic(set_mammals)
-distPhyl_mammals <- distPhyl_mammals/max(distPhyl_mammals)
-distPhyl_birds <- cophenetic(set_birds)
-distPhyl_birds <- distPhyl_birds/max(distPhyl_birds)
-
-#Square root transformation (following Letten & Cornwell, 2014)
-#allow comparision with function distinctiveness
-distPhyl_mammals <- sqrt(distPhyl_mammals)
-distPhyl_birds <- sqrt(distPhyl_birds)
+          #We use the identical framework (not based on tree but on distance)
+          distPhyl_mammals <- cophenetic(set_mammals)
+          distPhyl_mammals <- distPhyl_mammals/max(distPhyl_mammals)
+          distPhyl_birds <- cophenetic(set_birds)
+          distPhyl_birds <- distPhyl_birds/max(distPhyl_birds)
+          
+          #Square root transformation (following Letten & Cornwell, 2014)
+          #allow comparision with function distinctiveness
+          distPhyl_mammals <- sqrt(distPhyl_mammals)
+          distPhyl_birds <- sqrt(distPhyl_birds)
 
 #Compute ED
-
-# Mammals
-
-#Evolutionary distinctiveness
-Sim_commu <- matrix(1,1,ncol(distPhyl_mammals))
-colnames(Sim_commu) <- colnames(distPhyl_mammals)
-EDi_mammals <- t(distinctiveness(Sim_commu,distPhyl_mammals))
-colnames(EDi_mammals)<-"EDi"
-
-mammalsID2 = mammalsID
-mammalsID2$Name<-  as.character(gsub(" ", "_", mammalsID2$Name))
-EDi_mammals <- merge(EDi_mammals,mammalsID2, by.x="row.names", by.y="Name" )
-EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
-EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
-rownames(EDi_mammals) <- EDi_mammals$ID
-
-#Evolutionary originarlity
-ty <- evol.distinct(set_mammals,type="equal.splits")
-ty <- merge(ty,mammalsID2, by.x="Species", by.y="Name" )
-ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
-rownames(ty)<-ty$ID
-ty<- ty[,c(2,4)]
-
-#Merge Data
-EDi_mammals <-merge (EDi_mammals,ty, by = "row.names")
-rownames(EDi_mammals) <- EDi_mammals$ID
-EDi_mammals <- EDi_mammals[,c(3,5:7)]
-colnames(EDi_mammals) <- c("EDi", "EDin", "OriDi", "OriDin")
-
-FR_mammals$FR <- merge(FR_mammals$FR,EDi_mammals,by="row.names",all.x = TRUE)
-rownames(FR_mammals$FR) <- FR_mammals$FR$Row.names
-FR_mammals$FR <- FR_mammals$FR[,-1]
-
-data_DR_mammals <- merge(data_DR_mammals,FR_mammals$FR,by ="row.names")
-rownames(data_DR_mammals) <- data_DR_mammals$Row.names
-data_DR_mammals <- data_DR_mammals[,-1]
-
-
-# Birds
-
-#Evolutionary distinctiveness
-Sim_commu <- matrix(1,1,ncol(distPhyl_birds))
-colnames(Sim_commu) <- colnames(distPhyl_birds)
-EDi_birds <- t(distinctiveness(Sim_commu,distPhyl_birds))
-colnames(EDi_birds)<-"EDi"
-
-birdsID2 = birdsID
-birdsID2$Name<-  as.character(gsub(" ", "_", birdsID2$Name))
-EDi_birds <- merge(EDi_birds,birdsID2, by.x="row.names", by.y="Name" )
-EDi_birds$EDin <-(EDi_birds$EDi-min(EDi_birds$EDi)) / max(EDi_birds$EDi-min(EDi_birds$EDi))
-EDi_birds$EDin <-(EDi_birds$EDi-min(EDi_birds$EDi)) / max(EDi_birds$EDi-min(EDi_birds$EDi))
-rownames(EDi_birds) <- EDi_birds$ID
-
-#Evolutionary originarlity
-ty <- evol.distinct(set_birds,type="equal.splits")
-ty <- merge(ty,birdsID2, by.x="Species", by.y="Name" )
-ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
-rownames(ty)<-ty$ID
-ty<- ty[,c(2,4)]
-
-#Merge Data
-EDi_birds <-merge (EDi_birds,ty, by = "row.names")
-rownames(EDi_birds) <- EDi_birds[,1]
-EDi_birds <- EDi_birds[,c(3,5:7)]
-colnames(EDi_birds) <- c("EDi", "EDin", "OriDi", "OriDin")
-
-FR_birds$FR <- merge(FR_birds$FR,EDi_birds,by="row.names",all.x = TRUE)
-rownames(FR_birds$FR) <- FR_birds$FR$Row.names
-FR_birds$FR <- FR_birds$FR[,-1]
-
-data_DR_birds <- merge(data_DR_birds,FR_birds$FR,by ="row.names")
-rownames(data_DR_birds) <- data_DR_birds$Row.names
-data_DR_birds <- data_DR_birds[,-1]
-
-#Plot Evolutionary originality and distinctiveness           
-data_DR_mammalsPlot <- na.omit(data_DR_mammals)
-data_DR_birdsPlot <- na.omit(data_DR_birds)
-a <- ggplot(data_DR_mammalsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
-  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammalsPlot$OriDin,na.rm=T),col="red",linetype="dashed") + 
-  labs(x = "DR class",y="OriDin")+theme_bw()
-
-#b <- ggplot(data_DR_mammalsPlot, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
-#  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammalsPlot$EDin,na.rm=T),col="red",linetype="dashed") + 
-#  labs(x = "DR class",y="EDin")+theme_bw()           
+          #Prepare data: DR class for each species
+          load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+          data_DR_mammals<-FR_mammals$FR
+          QD75 <- FR_mammals$Q$Q75_D
+          QD25 <- FR_mammals$Q$Q25_D
+          QR75 <- FR_mammals$Q$Q75_R
+          QR25 <- FR_mammals$Q$Q25_R
+          
+          data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
+          data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
+          data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
+          data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
+          data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
+          
+          data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
+          colnames(data_DR_mammals) <- "DR_class"
+          
+          #Prepare data: DR class for each species
+          data_DR_birds<-FR_birds$FR
+          QD75 <- FR_birds$Q$Q75_D
+          QD25 <- FR_birds$Q$Q25_D
+          QR75 <- FR_birds$Q$Q75_R
+          QR25 <- FR_birds$Q$Q25_R
+          
+          data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
+          data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
+          data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
+          data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
+          data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
+          
+          data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
+          colnames(data_DR_birds) <- "DR_class"  
+  # Mammals
+          
+          #Evolutionary distinctiveness
+          Sim_commu <- matrix(1,1,ncol(distPhyl_mammals))
+          colnames(Sim_commu) <- colnames(distPhyl_mammals)
+          EDi_mammals <- t(distinctiveness(Sim_commu,distPhyl_mammals))
+          colnames(EDi_mammals)<-"EDi"
+          
+          mammalsID2 = mammalsID
+          mammalsID2$Name<-  as.character(gsub(" ", "_", mammalsID2$Name))
+          EDi_mammals <- merge(EDi_mammals,mammalsID2, by.x="row.names", by.y="Name" )
+          EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
+          EDi_mammals$EDin <-(EDi_mammals$EDi-min(EDi_mammals$EDi)) / max(EDi_mammals$EDi-min(EDi_mammals$EDi))
+          rownames(EDi_mammals) <- EDi_mammals$ID
+          
+          #Evolutionary originarlity
+          ty <- evol.distinct(set_mammals,type="equal.splits")
+          ty <- merge(ty,mammalsID2, by.x="Species", by.y="Name" )
+          ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
+          rownames(ty)<-ty$ID
+          ty<- ty[,c(2,4)]
+          
+          #Merge Data
+          EDi_mammals <-merge (EDi_mammals,ty, by = "row.names")
+          rownames(EDi_mammals) <- EDi_mammals$ID
+          EDi_mammals <- EDi_mammals[,c(3,5:7)]
+          colnames(EDi_mammals) <- c("EDi", "EDin", "OriDi", "OriDin")
+          
+          FR_mammals$FR <- merge(FR_mammals$FR,EDi_mammals,by="row.names",all.x = TRUE)
+          rownames(FR_mammals$FR) <- FR_mammals$FR$Row.names
+          FR_mammals$FR <- FR_mammals$FR[,-1]
+          
+          data_DR_mammals <- merge(data_DR_mammals,FR_mammals$FR,by ="row.names")
+          rownames(data_DR_mammals) <- data_DR_mammals$Row.names
+          data_DR_mammals <- data_DR_mammals[,-1]
 
 
-c <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
-  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$OriDin,na.rm=T),col="red",linetype="dashed") + 
-  labs(x = "DR class",y="OriDin")+theme_bw()
-gridExtra::grid.arrange(a,c,ncol= 2,top =textGrob("Evolutionary distinctiveness",gp=gpar(fontsize=20,font=3)))    
+  # Birds
+          
+          #Evolutionary distinctiveness
+          Sim_commu <- matrix(1,1,ncol(distPhyl_birds))
+          colnames(Sim_commu) <- colnames(distPhyl_birds)
+          EDi_birds <- t(distinctiveness(Sim_commu,distPhyl_birds))
+          colnames(EDi_birds)<-"EDi"
+          
+          birdsID2 = birdsID
+          birdsID2$Name<-  as.character(gsub(" ", "_", birdsID2$Name))
+          EDi_birds <- merge(EDi_birds,birdsID2, by.x="row.names", by.y="Name" )
+          EDi_birds$EDin <-(EDi_birds$EDi-min(EDi_birds$EDi)) / max(EDi_birds$EDi-min(EDi_birds$EDi))
+          EDi_birds$EDin <-(EDi_birds$EDi-min(EDi_birds$EDi)) / max(EDi_birds$EDi-min(EDi_birds$EDi))
+          rownames(EDi_birds) <- EDi_birds$ID
+          
+          #Evolutionary originarlity
+          ty <- evol.distinct(set_birds,type="equal.splits")
+          ty <- merge(ty,birdsID2, by.x="Species", by.y="Name" )
+          ty$tyin<-(ty$w-min(ty$w)) / max(ty$w-min(ty$w))
+          rownames(ty)<-ty$ID
+          ty<- ty[,c(2,4)]
+          
+          #Merge Data
+          EDi_birds <-merge (EDi_birds,ty, by = "row.names")
+          rownames(EDi_birds) <- EDi_birds[,1]
+          EDi_birds <- EDi_birds[,c(3,5:7)]
+          colnames(EDi_birds) <- c("EDi", "EDin", "OriDi", "OriDin")
+          
+          FR_birds$FR <- merge(FR_birds$FR,EDi_birds,by="row.names",all.x = TRUE)
+          rownames(FR_birds$FR) <- FR_birds$FR$Row.names
+          FR_birds$FR <- FR_birds$FR[,-1]
+          
+          data_DR_birds <- merge(data_DR_birds,FR_birds$FR,by ="row.names")
+          rownames(data_DR_birds) <- data_DR_birds$Row.names
+          data_DR_birds <- data_DR_birds[,-1]
 
-#d <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
-#  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$EDin,na.rm=T),col="red",linetype="dashed") + 
-#  labs(x = "DR class",y="EDin")+theme_bw()   
-#Normal que le EDin fonctionne car m??me construction donc ?? ne pas utilis??  
+#Plot Evolutionary originality and distinctiveness  
+               
+          
+          data_DR_mammalsPlot <- na.omit(data_DR_mammals)
+          data_DR_birdsPlot <- na.omit(data_DR_birds)
+          a <- ggplot(data_DR_mammalsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
+            geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammalsPlot$OriDin,na.rm=T),col="red",linetype="dashed") + 
+            labs(x = "DR class",y="OriDin")+theme_bw()
+          
+          #b <- ggplot(data_DR_mammalsPlot, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
+          #  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_mammalsPlot$EDin,na.rm=T),col="red",linetype="dashed") + 
+          #  labs(x = "DR class",y="EDin")+theme_bw()           
+          
+          
+          c <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=OriDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
+            geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$OriDin,na.rm=T),col="red",linetype="dashed") + 
+            labs(x = "DR class",y="OriDin")+theme_bw()
+          gridExtra::grid.arrange(a,c,ncol= 2,top =textGrob("Evolutionary distinctiveness",gp=gpar(fontsize=20,font=3)))    
+          
+          #d <- ggplot(data_DR_birdsPlot, aes(x=DR_class, y=EDin, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + #scale_fill_manual(values=col_br)+
+          #  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, 1)) + geom_hline(yintercept=mean(data_DR_birdsPlot$EDin,na.rm=T),col="red",linetype="dashed") + 
+          #  labs(x = "DR class",y="EDin")+theme_bw()   
+          #Normal que le EDin fonctionne car m??me construction donc ?? ne pas utilis??  
 
 
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
-  FR_data<-FR_mammals
-  set_phylo <- set_mammals
-  taxaInfo<- taxaInfo_mammals
-  taxa="mammals"
-  
-  i <- 80
-  birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
-  set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
-  
+  #FR_data<-FR_mammals
+  #set_phylo <- set_mammals
+  #taxaInfo<- taxaInfo_mammals
+  #taxa="mammals"
   
   FR_data<-FR_birds
   set_phylo <- set_birds
@@ -250,7 +245,6 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
   data_DR$colsAVG <- NA
   data_DR$colsAVG[data_DR$DR_class=="AVG"] <- "#00AFBB"
-  
   
   
   #The species  Coracina_melas  will cause problems - searching for this species in all the species present will return multiple species, consider renaming! 
@@ -358,31 +352,41 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
 }
 
 #---
-#Compute FRITZ to know if functional rare species are packaged        
-data_DR$rarety <- data_DR$cols
+#Compute FRITZ to know if functional rare species are packaged      
+
+data_DR$rarety <- data_DR$colsD75R75
 data_DR$rarety <- as.numeric(as.factor(data_DR$rarety))
 data_DR$rarety[is.na(data_DR$rarety)]<-0
 
+
+
+data_DR$D75R75 <- data_DR$colsD75R75
+data_DR$D75R75 <- as.numeric(as.factor(data_DR$D75R75))
+data_DR$D75R75[is.na(data_DR$D75R75)]<-0
+
+data_DR$D25R25 <- data_DR$colsD25R25
+data_DR$D25R25 <- as.numeric(as.factor(data_DR$D25R25))
+data_DR$D25R25[is.na(data_DR$D25R25)]<-0
+
+data_DR$AVG <- data_DR$colsAVG
+data_DR$AVG <- as.numeric(as.factor(data_DR$AVG))
+data_DR$AVG[is.na(data_DR$AVG)]<-0
+
 #Should be done with the 100 trees of mammals et 100 trees of birds
-data_DR<-data_DR
 data_DR$species<-rownames(data_DR)
 
-
-
-
-
-
-D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
+D.phylogeny <- function(ids,proc,data_DR,taxa,permut,indice) {
   #proc <- 2
-  #taxa <- mammals
+  #taxa <- "birds"
   #data_DR <- data_DR
   #permut <- 10
   #ids <- 1:2
+  #indice="D75R75"
   
   mclapply(ids,function(id) { 
     if (taxa == "mammals") tree<-read.tree(file=file.path(data_dir,"mammals","alltrees", paste0("FritzTree_mammals_updateCarnivora2012DEF",id,".tre"))) 
     
-    if (taxa == "birds")   tree<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre"))) 
+    if (taxa == "birds")   tree<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",id,".tre"))) 
     
     set_tree<- ape::drop.tip(tree,tree$tip.label[!is.element(tree$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
     set_tree$node.label <- NULL
@@ -391,8 +395,8 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
     set_tree<-di2multi(set_tree)
     
     #Compute D and statistic
-    FR_PhyloD <- comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
-    FR_PhyloD <- phylo.d(FR_PhyloD, binvar=rarety,permut=permut)
+    FR_PhyloD <- caper::comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
+    FR_PhyloD <- caper::phylo.d(FR_PhyloD, binvar=AVG,permut=permut)
     
     #The estimated D value
     estimated_D <- FR_PhyloD$DEstimate
@@ -407,6 +411,7 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
   
 }
 #Mammals
+D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000,indice="D25R25"))
 #D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
 #save(D_mammals,file=file.path(results_dir,"mammals","50km","D_mammals.RData"))
 
