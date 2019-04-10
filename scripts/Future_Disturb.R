@@ -58,9 +58,6 @@ birds_future$SP <- paste0("sp",birds_future$SP)
 
 scenar <- unique(birds_future$SCE)
 
-
-
-
 birds_future_scenar_all <- lapply(scenar, function(id) {
   #id=scenar[1]
   birds_future_scenar <- subset(birds_future,birds_future$SCE==id)
@@ -86,7 +83,7 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   # id_scenar=scenar[11]
   # futur_all=mammals_future_scenar_all
   # ymax <- 300
-
+  
   # taxa="birds"
   # FR_all=FR_birds
   # id_scenar=scenar[15]
@@ -145,10 +142,10 @@ plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
   d <- ggplot(data_plot_sub, aes(delta,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(-100, ymax)+ 
     scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
     theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=0,col="grey35",linetype="dashed") + theme_bw() 
-
+  
   #grid.arrange(a,b,c,d,ncol=2,top = textGrob(id_scenar,gp=gpar(fontsize=20,font=3)))
   grid.arrange(d,top = textGrob(id_scenar,gp=gpar(fontsize=20,font=3)))
-
+  
 }
 
 plot_futur(taxa="birds",FR_all=FR_birds,id_scenar=scenar[4],futur_all=birds_future_scenar_all,ymax= 300)
@@ -162,7 +159,7 @@ for (i in 1:length(scenar)){
 dev.off()  
 
 taxa=
-pdf(file.path(results_dir,paste0(taxa,"/figs/FUTUR.pdf")),width=12,height=8)
+  pdf(file.path(results_dir,paste0(taxa,"/figs/FUTUR.pdf")),width=12,height=8)
 for (i in 1:length(scenar)){
   plot_futur(taxa="mammals",FR_all=FR_mammals,id_scenar=scenar[i],futur_all=mammals_future_scenar_all,ymax= 300)
 }
@@ -177,7 +174,7 @@ dev.off()
 load(file=file.path(data_dir,"Environmental","50km","PA&Country.RData"))
 load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
 
-# Pour chaque espèce: Il faut le nombre cells protégées, nombre cell tot, le pourcentage de couverture de no take, le nombre de conflit moyen, 
+# Pour chaque esp??ce: Il faut le nombre cells prot??g??es, nombre cell tot, le pourcentage de couverture de no take, le nombre de conflit moyen, 
 species_birds<-unique(unlist(occ_birds_list))
 #birds_PA<- do.call(rbind,mclapply(species_birds, function(id) {
 #  cells <- sapply(1:length(occ_birds_list), function(i) any(occ_birds_list[[i]] == id))
@@ -229,10 +226,13 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
-   taxa="mammals"
-   FR_all=FR_mammals
-   data_PA=mammals_PA
-
+  taxa="mammals"
+  FR_all=FR_mammals
+  data_PA=mammals_PA
+  
+  #taxa="birds"
+  #FR_all=FR_birds
+  #data_PA=birds_PA
   data_PA$DR_class="NA"
   
   QD75 <- FR_all$Q$Q75_D
@@ -245,14 +245,14 @@ plot_PA <- function(taxa,FR_all,data_PA){
   data_PA$DR_class[(data_PA$Din<QD25) & (data_PA$Rin>QR75)]="D25R75"
   data_PA$DR_class[(data_PA$Din>QD75) & (data_PA$Rin<QR25)]="D75R25"
   data_PA$DR_class[(((data_PA$Din>QD25) & (data_PA$Din<QD75)) & ((data_PA$Rin>QR25) & (data_PA$Rin<QR75)))]="AVG"
-
+  
   data_PA$InvRin=1-data_PA$Rin
   
   data_plot <- data_PA[data_PA$DR_class!='NA',]
   
- # col_br <- brewer.pal(n = 5, name = "Spectral")
+  # col_br <- brewer.pal(n = 5, name = "Spectral")
   
-   col_br <- viridis(n = 6, option = "A") # for colorblind people
+  col_br <- viridis(n = 6, option = "A") # for colorblind people
   
   data_summary <- function(x) {
     m <- mean(x)
@@ -274,12 +274,12 @@ plot_PA <- function(taxa,FR_all,data_PA){
     scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+  scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
     theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$Percentagecover,na.rm=T),col="grey35",linetype="dashed")+
     labs(x = "Percentage")+theme_bw()
- 
+  
   pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/Average cover of protected area per cells.pdf")),width=12,height=8) 
   #grid.arrange(a,b,ncol=2,top = textGrob("Average cover of protected area per cells" ,gp=gpar(fontsize=20,font=3)))
   grid.arrange(b,top = textGrob("Average cover of protected area per cells" ,gp=gpar(fontsize=20,font=3)))
   dev.off()
-
+  
   
   ymax=1.1
   #c <- ggplot(data_plot, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
@@ -294,7 +294,7 @@ plot_PA <- function(taxa,FR_all,data_PA){
     labs(x = "HDI")+theme_bw()
   
   
-
+  
   
   
   
@@ -310,36 +310,36 @@ plot_PA <- function(taxa,FR_all,data_PA){
   #  ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
   #  labs(x = "DR class",y="Number of conflicts")+theme_bw()
   
-        data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
-        f <- ggplot(data_plot_sub, aes(meanConflict,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
-          scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
-          theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanConflict,na.rm=T),col="grey35",linetype="dashed")+
-          labs(x = "Number of conflicts")+theme_bw()
-        
-        pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/Conflict.pdf")),width=12,height=8) 
-        #grid.arrange(e,f,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
-        grid.arrange(f,top = textGrob("Number of conflicts" ,gp=gpar(fontsize=20,font=3)))
-        dev.off()
-        
-        ymax=150
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  f <- ggplot(data_plot_sub, aes(meanConflict,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$meanConflict,na.rm=T),col="grey35",linetype="dashed")+
+    labs(x = "Number of conflicts")+theme_bw()
+  
+  pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/Conflict.pdf")),width=12,height=8) 
+  #grid.arrange(e,f,ncol=2,top = textGrob("Average number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+  grid.arrange(f,top = textGrob("Number of conflicts" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+  
+  ymax=150
   #g <- ggplot(data_plot, aes(x=DR_class, y=PercentageCellsWithPA, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   #  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(data_plot$PercentageCellsWithPA,na.rm=T),col="red",linetype="dashed") + 
   #  ggsignif::geom_signif(comparisons = list(c("D25R25", "D75R75"),c("D25R25", "D25R75"),c("D25R25", "D75R25")),y_position = c(ymax-25,ymax-12,ymax),map_signif_level=TRUE,tip_length=0.01)+
   #  labs(x = "DR class",y="Number of conflicts")
   
-        data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
-        h <- ggplot(data_plot_sub, aes(PercentageCellsWithPA,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
-          scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
-          theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$PercentageCellsWithPA,na.rm=T),col="grey35",linetype="dashed")+
-          labs(x = "Percentage of Cells With PA")
-        
-        pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/PercentageCellsWithPA.pdf")),width=12,height=8) 
-        #grid.arrange(g,h,ncol=2,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
-        grid.arrange(h,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
-        dev.off()
-        
-        }
+  data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+  h <- ggplot(data_plot_sub, aes(PercentageCellsWithPA,fill=DR_class,color=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, ymax)+ 
+    scale_fill_manual(values=c(col_br[1],col_br[2],col_br[5]))+ scale_color_manual(values=c(col_br[1],col_br[2],"red"))+
+    theme(legend.position = c(0.9, 0.8)) + geom_vline(xintercept=mean(data_plot_sub$PercentageCellsWithPA,na.rm=T),col="grey35",linetype="dashed")+
+    labs(x = "Percentage of Cells With PA")
   
+  pdf(file.path(results_dir,paste0(taxa,"/50km","/figs/PercentageCellsWithPA.pdf")),width=12,height=8) 
+  #grid.arrange(g,h,ncol=2,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
+  grid.arrange(h,top = textGrob("Percentage of Cells With PA" ,gp=gpar(fontsize=20,font=3)))
+  dev.off()
+  
+}
+
 
 plot_PA(taxa="birds",FR_birds,birds_PA)
 plot_PA(taxa="mammals",FR_mammals,mammals_PA)
@@ -358,14 +358,14 @@ AVG<-subset(data_plot_sub,data_plot_sub$DR_class=="AVG")
 D75R75<-rbind(cbind(mean(D75R75$meanConflict,na.rm=T),sd(D75R75$meanConflict,na.rm=T)),
               cbind(mean(D75R75$meanHDI,na.rm=T),sd(D75R75$meanHDI,na.rm=T)),
               cbind(mean(D75R75$Percentagecover,na.rm=T),sd(D75R75$Percentagecover,na.rm=T)))
-  
+
 D25R25<-rbind(cbind(mean(D25R25$meanConflict,na.rm=T),sd(D25R25$meanConflict,na.rm=T)),
               cbind(mean(D25R25$meanHDI,na.rm=T),sd(D25R25$meanHDI,na.rm=T)),
               cbind(mean(D25R25$Percentagecover,na.rm=T),sd(D25R25$Percentagecover,na.rm=T)))
 
 AVG<-rbind(cbind(mean(AVG$meanConflict,na.rm=T),sd(AVG$meanConflict,na.rm=T)),
-              cbind(mean(AVG$meanHDI,na.rm=T),sd(AVG$meanHDI,na.rm=T)),
-              cbind(mean(AVG$Percentagecover,na.rm=T),sd(AVG$Percentagecover,na.rm=T)))
+           cbind(mean(AVG$meanHDI,na.rm=T),sd(AVG$meanHDI,na.rm=T)),
+           cbind(mean(AVG$Percentagecover,na.rm=T),sd(AVG$Percentagecover,na.rm=T)))
 
 test<-rbind(D75R75,D25R25,AVG)
 test<-data.frame(test,c(rep("D75R75",3),rep("D25R25",3),rep("AVG",3)),rep(c("meanConflict","meanHDI","Percentagecover"),3))
@@ -395,31 +395,63 @@ ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot(
 ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + stat_summary()+scale_y_continuous(limits=c(0.25,1))
 
 
+test<-data.frame(data_plot_sub$Percentagecover,data_plot_sub$DR_class,rep("Percentagecover",dim(data_plot_sub)[1]))
+colnames(test)<-c("Value","DR_class","Threats")
+test2<-data.frame(data_plot_sub$meanConflict,data_plot_sub$DR_class,rep("meanConflict",dim(data_plot_sub)[1]))
+colnames(test2)<-c("Value","DR_class","Threats")
+test3<-data.frame(data_plot_sub$meanHDI,data_plot_sub$DR_class,rep("meanHDI",dim(data_plot_sub)[1]))
+colnames(test3)<-c("Value","DR_class","Threats")
+mammals_threats <-rbind(test,test2,test3)
 
-df2 <- structure(list(Y = c(0.0869565217391304, 0.148148148148148, 0.172413793103448, 
-                            0.384615384615385, 0.5625), group = c(0L, 1L, 5L, 3L, 6L), se = c(0.0856368459098186, 
-                                                                                              0.079039229753282, 0.0762650540661762, 0.0805448741815074, 0.0726021684593052
-                            ), nudged = c(FALSE, TRUE, TRUE, TRUE, TRUE), incentive = structure(c(1L, 
-                                                                                                  2L, 3L, 3L, 4L), .Label = c("Default behavior", "Imbalance only", 
-                                                                                                                              "Money only", "Money & Imbalance together"), class = "factor"), 
-                      label = structure(1:5, .Label = c("0", "1", "1 cent", "5 cent", 
-                                                        "6"), class = "factor"), plot_order = c(0, 1, 2, 3, 4)), .Names = c("Y", 
-                                                                                                                            "group", "se", "nudged", "incentive", "label", "plot_order"), 
-                 row.names = c("as.factor(group)0", 
-                               "as.factor(group)1", "as.factor(group)5", "as.factor(group)3", 
-                               "as.factor(group)6"), class = "data.frame")
-
-g <- ggplot(df2, aes(x=Y, y=label)) + geom_point()
-# add manual scale
-g <- g+ scale_y_discrete(limits=c("0","1","1 cent","5 cent","6"))
-g <- g + facet_grid(incentive ~ .,   scale="free")
-g <- g + geom_errorbarh(aes(xmax = Y + se, xmin = Y - se))  
-g <- g + geom_vline(xintercept=1/6, linetype=2, colour="red") 
-g + xlab("%") + ylab("Groups")+theme(strip.text.y = element_text(angle = 0))
+data_plot_sub_birds <- data_plot_sub
+test<-data.frame(data_plot_sub_birds$Percentagecover,data_plot_sub_birds$DR_class,rep("Percentagecover",dim(data_plot_sub_birds)[1]))
+colnames(test)<-c("Value","DR_class","Threats")
+test2<-data.frame(data_plot_sub_birds$meanConflict,data_plot_sub_birds$DR_class,rep("meanConflict",dim(data_plot_sub_birds)[1]))
+colnames(test2)<-c("Value","DR_class","Threats")
+test3<-data.frame(data_plot_sub_birds$meanHDI,data_plot_sub_birds$DR_class,rep("meanHDI",dim(data_plot_sub_birds)[1]))
+colnames(test3)<-c("Value","DR_class","Threats")
+birds_threats <-rbind(test,test2,test3)
 
 
+data_future_birds<- data.frame(data_future$delta,data_future$DR_class,rep("Climate change",dim(data_future)[1]))
+colnames(data_future_birds)<-c("Value","DR_class","Threats")
+data_future_birds<- subset(data_future_birds,data_future_birds$DR_class=="AVG"   | data_future_birds$DR_class=="D75R75"      | data_future_birds$DR_class=="D25R25")
 
-ggplot(data= df2, aes(x = incentive, y = Y)) +
+birds_threats2 <- rbind(birds_threats,data_future_birds)
+mammals_threats2 <- rbind(mammals_threats,data.frame(Value=c(NA,NA,NA),DR_class=c("AVG","D75R75","D25R25"), Threats= rep("Climate change",3)))
+
+threats <- data.frame(rbind(mammals_threats2,birds_threats2),c(rep("mammals",dim(mammals_threats2)[1]),rep("birds",dim(birds_threats2)[1])))
+colnames(threats)<-c("Value","DR_class","Threats","Taxa")
+
+mycomparisons <- list( c("D75R75", "D25R25"), c("AVG", "D25R25"),c("D75R75", "AVG"))
+
+g <- ggplot(threats, aes(x=DR_class, y=Value,group =DR_class)) + geom_boxplot(aes(fill=DR_class)) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered"))
+g <- g + facet_grid(Threats ~ Taxa,   scale="free")
+g <- g + xlab("") + ylab("Value")+theme(strip.text.y = element_text(angle = 0,size=10,face="bold"),
+                                        strip.background = element_rect(color="black", fill="gray87", size=1.5, linetype="solid"),
+                                        strip.text.x = element_text(angle = 0,size=10,face="bold"),
+                                        panel.background = element_rect(fill = "white",
+                                                                        colour = "black",
+                                                                        size = 0.5, linetype = "solid"),
+                                        panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                                                        colour = "gray87"),
+                                        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                                                        colour = "gray87"),legend.position="none") +stat_compare_means(paired = FALSE, method = 'wilcox.test', label = "p.signif",
+                                                                                                                                       show.legend = FALSE, comparisons = mycomparisons)
+
+
+g
+
+
+<<<<<<< HEAD
+p <- ggplot(mtcars, aes(mpg, wt)) + 
+  geom_point() +
+  facet_wrap(~ cyl)
+
+mean_wt <- data.frame(cyl = c(4, 6, 8), wt = c(2.28, 3.11, 4.00))
+p + geom_hline(aes(yintercept = wt), mean_wt)
+=======
+  ggplot(data= df2, aes(x = incentive, y = Y)) +
   geom_hline(aes(yintercept = 0), linetype = "dashed") +
   geom_errorbar(aes(ymin = Y - std.error, ymax = Y + std.error),
                 width = .1) +
@@ -428,8 +460,10 @@ ggplot(data= df2, aes(x = incentive, y = Y)) +
   facet_wrap(~nudged, scale = "free") +
   theme_classic() +
   theme(legend.position = "none")
+>>>>>>> f87718c11ee1386f9210cb8851abe1b58fa35a18
 
 
+mean_value <- data.frame(cyl = c(4, 6, 8), taxa = c("mammals","birds")),DR_class=c("AVG","D75R75","D25R25"))
 ######################################################################################################################################################
 
 

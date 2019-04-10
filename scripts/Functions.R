@@ -196,7 +196,7 @@ add.tip.icons <- function(phy, data, plot.data="Location", grouping="Species", p
 #ARC.CLADELABEL : add arc around phylogenie tree
 #Modifer version of ARC.CLADELABEL from phytools packages that do not allow change in color of arc 
 arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
-                          lab.offset=1.06,cex=1,orientation="curved",colarc="black",coltext="black",...){
+                          lab.offset=1.06,cex=1,orientation="curved",colarc="black",col="black",cextext=1,coltext="black",...){
   obj<-get("last_plot.phylo",envir=.PlotPhyloEnv)
   if(obj$type!="fan") stop("method works only for type=\"fan\"")
   h<-max(sqrt(obj$xx^2+obj$yy^2))
@@ -219,19 +219,19 @@ arc.cladelabels<-function(tree=NULL,text,node,ln.offset=1.02,
   ii<-intersect(which(obj$yy[d]<0),which(obj$xx[d]>=0))
   deg[ii]<-360+deg[ii]
   plotrix::draw.arc(x=0,y=0,radius=ln.offset*h,deg1=min(deg),
-           deg2=max(deg),col=colarc, ...)
+                    deg2=max(deg),col=colarc, ...)
   if(orientation=="curved")
     plotrix::arctext(text,radius=lab.offset*h,
-            middle=mean(range(deg*pi/180)),cex=cex,col=coltext,...)
+                     middle=mean(range(deg*pi/180)),cex=cex,col=col,...)
   else if(orientation=="horizontal"){
     x0<-lab.offset*cos(median(deg)*pi/180)*h
     y0<-lab.offset*sin(median(deg)*pi/180)*h
-    text(x=x0,y=y0,label=text,
+    text(x=x0,y=y0,label=text,cex=cextext,col=coltext,
          adj=c(if(x0>=0) 0 else 1,if(y0>=0) 0 else 1),
          offset=0)
   }
 }
-  
+
 #DUPLICATED2 : modification of duplicated function to extract duplicated lines
 duplicated2 <- function(x){ 
   if (sum(dup <- duplicated(x))==0) 
