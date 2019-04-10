@@ -81,7 +81,8 @@ colnames(data_DR_birds) <- "DR_class"
 # Load Phylogeny
 load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
 birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-
+i <- 3
+birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 # Dropping names not in  ID
 set_mammals <- ape::drop.tip(mammalsPhy,mammalsPhy$tip.label[!is.element(mammalsPhy$tip.label,as.character(gsub(" ", "_", mammalsID$Name)))])
 set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
@@ -207,6 +208,10 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   taxaInfo<- taxaInfo_mammals
   taxa="mammals"
   
+  i <- 100
+  birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
+  set_birds <- ape::drop.tip(birdsPhy,birdsPhy$tip.label[!is.element(birdsPhy$tip.label,as.character(gsub(" ", "_", birdsID$Name)))])
+  
   
   FR_data<-FR_birds
   set_phylo <- set_birds
@@ -281,19 +286,17 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     names(node) <- x
     node}))
   
-  
-  
-  
-  
   nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
-  nodesArc <- nodesArc[-3]
+
   # Add column binary for Functional Rarity: Yes/no
   rarety <-  data_DR$colsD75R75 
   rarety <- as.numeric(as.factor(rarety))
   rarety[is.na(rarety)]<-0
   names(rarety)<-rownames(data_DR)
-  
+
+    
   set_phylo <- ape::drop.tip(set_phylo,set_phylo$tip.label[!is.element(set_phylo$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
+  data_DR <-data_DR[as.character(gsub(" ", "_", rownames(data_DR)))%in%set_phylo$tip.label,]
   # plotting PHYLOGENY TREE
   color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A63F","orangered"), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
   tiplabels(pch = 16, col = data_DR$colsD75R75, cex = 0.4 ,offset=9)
@@ -302,15 +305,15 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
   
   # plotting family labels/arcs
-  offset <- sample(rep(c(1.10,1.18,1.26,1.34,1.42,1.5,1.58,1.66,1.74,1.82,1.9),length(nodesArc)/2))
-  offset <- seq(from=1.15,to=1.9,by=0.02)
+  offset <- rep(c(1.10,1.18),length(nodesArc)/2)
+  
   
   for(i in 1:length(nodesArc)){
     
     if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.03
     if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.03
     
-    if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
+    #if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
       arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                       node=nodesArc[i],
                       ln.offset=offset[i],
@@ -320,7 +323,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
                       lwd = 1, 
                       lty = 1, cextext=0.5,
                       orientation = "curved",
-                      mark.node = FALSE,col="gray82",coltext="gray82")}
+                      mark.node = FALSE,col="gray82",coltext="gray82")#}
     
     if(i %in% c(2,5,8,11,14,17,20,23,26,29,32,35)){  #If odd 
       arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
@@ -349,8 +352,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     
     #Add the names of Order
     if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5)
-    if (taxa=="birds"){text(x=170,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4) 
-    } 
+    if (taxa=="birds")   text(x=170,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4) 
   }
 }
 
