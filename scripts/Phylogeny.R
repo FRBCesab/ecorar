@@ -422,7 +422,7 @@ D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
 
 #birds
 #D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
-D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:2,proc=25,data_DR=data_DR,taxa="birds",permut=2))
+D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 #save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 
 
