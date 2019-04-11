@@ -396,7 +396,7 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
     
     #Compute D and statistic
     FR_PhyloD <- caper::comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
-    FR_PhyloD <- caper::phylo.d(FR_PhyloD, binvar=AVG,permut=permut)
+    FR_PhyloD <- caper::phylo.d(FR_PhyloD, binvar=D25R25,permut=permut)
     
     #The estimated D value
     estimated_D <- FR_PhyloD$DEstimate
@@ -422,9 +422,11 @@ D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
 
 #birds
 #D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
-D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
-#save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
+#D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
+#save(D_birdsAVG,file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
 
+D_birdsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
+save(D_birdsD25R25,file=file.path(results_dir,"birds","50km","D_birdsD25R25.RData"))
 
 #save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birds.RData"))
