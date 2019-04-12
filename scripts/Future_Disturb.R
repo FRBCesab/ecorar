@@ -78,17 +78,17 @@ names(birds_future_scenar_all) <- scenar
 plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
 {
   
-  # taxa="mammals"
+  #taxa="mammals"
   # FR_all=FR_mammals
-  # id_scenar=scenar[11]
-  # futur_all=mammals_future_scenar_all
-  # ymax <- 300
+   #id_scenar=scenar[15]
+   #futur_all=mammals_future_scenar_all
+   #ymax <- 300
   
-  # taxa="birds"
-  # FR_all=FR_birds
-  # id_scenar=scenar[15]
-  # futur_all=birds_future_scenar_all
-  # ymax <- 300
+   taxa="birds"
+   FR_all=FR_birds
+   id_scenar=scenar[15]
+   futur_all=birds_future_scenar_all
+   ymax <- 300
   
   future <- futur_all[[id_scenar]]
   #rownames(future) <- future$ID
@@ -226,13 +226,13 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
-  taxa="mammals"
-  FR_all=FR_mammals
-  data_PA=mammals_PA
+ ## taxa="mammals"
+  #FR_all=FR_mammals
+  #data_PA=mammals_PA
   
-  #taxa="birds"
-  #FR_all=FR_birds
-  #data_PA=birds_PA
+  taxa="birds"
+  FR_all=FR_birds
+  data_PA=birds_PA
   data_PA$DR_class="NA"
   
   QD75 <- FR_all$Q$Q75_D
@@ -349,61 +349,163 @@ plot_PA(taxa="mammals",FR_mammals,mammals_PA)
 
 
 ################################################################################################################################################
-facep rep grid
-D75R75<-subset(data_plot_sub,data_plot_sub$DR_class=="D75R75")
-D25R25<-subset(data_plot_sub,data_plot_sub$DR_class=="D25R25")
-AVG<-subset(data_plot_sub,data_plot_sub$DR_class=="AVG")
+
+#taxa="mammals"
+#FR_all=FR_mammals
+#data_PA=mammals_PA
+
+taxa="birds"
+FR_all=FR_birds
+data_PA=birds_PA
+data_PA$DR_class="NA"
+
+QD75 <- FR_all$Q$Q75_D
+QD25 <- FR_all$Q$Q25_D
+QR75 <- FR_all$Q$Q75_R
+QR25 <- FR_all$Q$Q25_R
+
+data_PA$DR_class[(data_PA$Din<QD25) & (data_PA$Rin<QR25)]="D25R25"
+data_PA$DR_class[(data_PA$Din>QD75) & (data_PA$Rin>QR75)]="D75R75"
+data_PA$DR_class[(data_PA$Din<QD25) & (data_PA$Rin>QR75)]="D25R75"
+data_PA$DR_class[(data_PA$Din>QD75) & (data_PA$Rin<QR25)]="D75R25"
+data_PA$DR_class[(((data_PA$Din>QD25) & (data_PA$Din<QD75)) & ((data_PA$Rin>QR25) & (data_PA$Rin<QR75)))]="AVG"
+
+data_PA$InvRin=1-data_PA$Rin
+
+data_plot <- data_PA[data_PA$DR_class!='NA',]
+data_plot_sub <- data_plot[((data_plot$DR_class=='D25R25') | (data_plot$DR_class=='D75R75') | (data_plot$DR_class=='AVG')),]
+
+data_plot_sub_mammals <- data_plot_sub
+data_plot_sub_birds <- data_plot_sub
 
 
-D75R75<-rbind(cbind(mean(D75R75$meanConflict,na.rm=T),sd(D75R75$meanConflict,na.rm=T)),
-              cbind(mean(D75R75$meanHDI,na.rm=T),sd(D75R75$meanHDI,na.rm=T)),
-              cbind(mean(D75R75$Percentagecover,na.rm=T),sd(D75R75$Percentagecover,na.rm=T)))
 
-D25R25<-rbind(cbind(mean(D25R25$meanConflict,na.rm=T),sd(D25R25$meanConflict,na.rm=T)),
-              cbind(mean(D25R25$meanHDI,na.rm=T),sd(D25R25$meanHDI,na.rm=T)),
-              cbind(mean(D25R25$Percentagecover,na.rm=T),sd(D25R25$Percentagecover,na.rm=T)))
 
-AVG<-rbind(cbind(mean(AVG$meanConflict,na.rm=T),sd(AVG$meanConflict,na.rm=T)),
-           cbind(mean(AVG$meanHDI,na.rm=T),sd(AVG$meanHDI,na.rm=T)),
-           cbind(mean(AVG$Percentagecover,na.rm=T),sd(AVG$Percentagecover,na.rm=T)))
 
-test<-rbind(D75R75,D25R25,AVG)
-test<-data.frame(test,c(rep("D75R75",3),rep("D25R25",3),rep("AVG",3)),rep(c("meanConflict","meanHDI","Percentagecover"),3))
-colnames(test) <- c("mean","sd","DR_class","threats")
+D75R75_mammals<-subset(data_plot_sub_mammals,data_plot_sub_mammals$DR_class=="D75R75")
+D25R25_mammals<-subset(data_plot_sub_mammals,data_plot_sub_mammals$DR_class=="D25R25")
+AVG_mammals<-subset(data_plot_sub_mammals,data_plot_sub_mammals$DR_class=="AVG")
 
-ggplot(data=test,aes(x = DR_class, y = mean)) +
-  geom_hline(aes(yintercept = mean(mean)), linetype = "dashed") +
+
+
+
+D75R75_mammals_threats<-cbind(rbind(cbind(mean(D75R75_mammals$meanConflict,na.rm=T),sd(D75R75_mammals$meanConflict,na.rm=T)),
+                                    cbind(mean(D75R75_mammals$meanHDI,na.rm=T),sd(D75R75_mammals$meanHDI,na.rm=T)),
+                                    cbind(mean(D75R75_mammals$Percentagecover,na.rm=T),sd(D75R75_mammals$Percentagecover,na.rm=T)),cbind(NA,NA)),
+                              rbind(mean(na.omit(c(D75R75_mammals$meanConflict,D25R25_mammals$meanConflict,AVG_mammals$meanConflict))),
+                                    mean(na.omit(c(D75R75_mammals$meanHDI,D25R25_mammals$meanHDI,AVG_mammals$meanHDI))),
+                                    mean(na.omit(c(D75R75_mammals$Percentagecover,D25R25_mammals$Percentagecover,AVG_mammals$Percentagecover))),NA))
+
+D25R25_mammals_threats<-cbind(rbind(cbind(mean(D25R25_mammals$meanConflict,na.rm=T),sd(D25R25_mammals$meanConflict,na.rm=T)),
+                                  cbind(mean(D25R25_mammals$meanHDI,na.rm=T),sd(D25R25_mammals$meanHDI,na.rm=T)),
+                                  cbind(mean(D25R25_mammals$Percentagecover,na.rm=T),sd(D25R25_mammals$Percentagecover,na.rm=T)),cbind(NA,NA)),
+                            rbind(mean(na.omit(c(D75R75_mammals$meanConflict,D25R25_mammals$meanConflict,AVG_mammals$meanConflict))),
+                                  mean(na.omit(c(D75R75_mammals$meanHDI,D25R25_mammals$meanHDI,AVG_mammals$meanHDI))),
+                                  mean(na.omit(c(D75R75_mammals$Percentagecover,D25R25_mammals$Percentagecover,AVG_mammals$Percentagecover))),NA))
+
+AVG_mammals_threats<-cbind(rbind(cbind(mean(AVG_mammals$meanConflict,na.rm=T),sd(AVG_mammals$meanConflict,na.rm=T)),
+                               cbind(mean(AVG_mammals$meanHDI,na.rm=T),sd(AVG_mammals$meanHDI,na.rm=T)),
+                               cbind(mean(AVG_mammals$Percentagecover,na.rm=T),sd(AVG_mammals$Percentagecover,na.rm=T)),cbind(NA,NA)),
+                         rbind(mean((c(D75R75_mammals$meanConflict,D25R25_mammals$meanConflict,AVG_mammals$meanConflict))),
+                               mean(na.omit(c(D75R75_mammals$meanHDI,D25R25_mammals$meanHDI,AVG_mammals$meanHDI))),
+                               mean(na.omit(c(D75R75_mammals$Percentagecover,D25R25_mammals$Percentagecover,AVG_mammals$Percentagecover))),NA))
+
+mammalsPlots<-rbind(D75R75_mammals_threats,D25R25_mammals_threats,AVG_mammals_threats)
+mammalsPlots<-data.frame(mammalsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Climate change"),3),rep("mammals",12))
+colnames(mammalsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
+
+futurbirds<-data_plot
+D75R75_birds_futur<-subset(futurbirds,futurbirds$DR_class=="D75R75")
+D25R25_birds_futur<-subset(futurbirds,futurbirds$DR_class=="D25R25")
+AVG_birds_futur<-subset(futurbirds,futurbirds$DR_class=="AVG")
+
+D75R75_birds<-subset(data_plot_sub_birds,data_plot_sub_birds$DR_class=="D75R75")
+D25R25_birds<-subset(data_plot_sub_birds,data_plot_sub_birds$DR_class=="D25R25")
+AVG_birds<-subset(data_plot_sub_birds,data_plot_sub_birds$DR_class=="AVG")
+
+
+D75R75_birds_threats<-cbind(rbind(cbind(mean(D75R75_birds$meanConflict,na.rm=T),sd(D75R75_birds$meanConflict,na.rm=T)),
+                                    cbind(mean(D75R75_birds$meanHDI,na.rm=T),sd(D75R75_birds$meanHDI,na.rm=T)),
+                                    cbind(mean(D75R75_birds$Percentagecover,na.rm=T),sd(D75R75_birds$Percentagecover,na.rm=T)),
+                                    cbind(mean(D75R75_birds_futur$delta,na.rm=T),sd(D75R75_birds_futur$delta,na.rm=T))),
+                              rbind(mean(na.omit(c(D75R75_birds$meanConflict,D25R25_birds$meanConflict,AVG_birds$meanConflict))),
+                                    mean(na.omit(c(D75R75_birds$meanHDI,D25R25_birds$meanHDI,AVG_birds$meanHDI))),
+                                    mean(na.omit(c(D75R75_birds$Percentagecover,D25R25_birds$Percentagecover,AVG_birds$Percentagecover))),
+                                    mean(na.omit(c(D75R75_birds_futur$delta,D25R25_birds_futur$delta,AVG_birds_futur$delta)))))
+
+D25R25_birds_threats<-cbind(rbind(cbind(mean(D25R25_birds$meanConflict,na.rm=T),sd(D25R25_birds$meanConflict,na.rm=T)),
+                                  cbind(mean(D25R25_birds$meanHDI,na.rm=T),sd(D25R25_birds$meanHDI,na.rm=T)),
+                                  cbind(mean(D25R25_birds$Percentagecover,na.rm=T),sd(D25R25_birds$Percentagecover,na.rm=T)),
+                                  cbind(mean(D25R25_birds_futur$delta,na.rm=T),sd(D25R25_birds_futur$delta,na.rm=T))),
+                            rbind(mean(na.omit(c(D75R75_birds$meanConflict,D25R25_birds$meanConflict,AVG_birds$meanConflict))),
+                                  mean(na.omit(c(D75R75_birds$meanHDI,D25R25_birds$meanHDI,AVG_birds$meanHDI))),
+                                  mean(na.omit(c(D75R75_birds$Percentagecover,D25R25_birds$Percentagecover,AVG_birds$Percentagecover))),
+                                  mean(na.omit(c(D75R75_birds_futur$delta,D25R25_birds_futur$delta,AVG_birds_futur$delta)))))
+
+
+AVG_birds_threats<-cbind(rbind(cbind(mean(AVG_birds$meanConflict,na.rm=T),sd(AVG_birds$meanConflict,na.rm=T)),
+                                  cbind(mean(AVG_birds$meanHDI,na.rm=T),sd(AVG_birds$meanHDI,na.rm=T)),
+                                  cbind(mean(AVG_birds$Percentagecover,na.rm=T),sd(AVG_birds$Percentagecover,na.rm=T)),
+                                  cbind(mean(AVG_birds_futur$delta,na.rm=T),sd(AVG_birds_futur$delta,na.rm=T))),
+                         rbind(mean(na.omit(c(D75R75_birds$meanConflict,D25R25_birds$meanConflict,AVG_birds$meanConflict))),
+                               mean(na.omit(c(D75R75_birds$meanHDI,D25R25_birds$meanHDI,AVG_birds$meanHDI))),
+                               mean(na.omit(c(D75R75_birds$Percentagecover,D25R25_birds$Percentagecover,AVG_birds$Percentagecover))),
+                               mean(na.omit(c(D75R75_birds_futur$delta,D25R25_birds_futur$delta,AVG_birds_futur$delta)))))
+
+
+birdsPlots<-rbind(D75R75_birds_threats,D25R25_birds_threats,AVG_birds_threats)
+birdsPlots<-data.frame(birdsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Climate change"),3),rep("birds",12))
+colnames(birdsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
+
+test<-rbind(birdsPlots,mammalsPlots)
+
+ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
+  geom_hline(aes(yintercept = allmean), linetype = "dashed") +
+  geom_point(aes(color = DR_class), size = 3) +  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
-                width = .1) +
-  geom_point(aes(color = DR_class), size = 3) +
-  coord_flip() +
-  facet_wrap(~threats, scale = "free") +
-  theme_classic() +
-  theme(legend.position = "none")
-
-ggplot(aes(x = Trait, y = estimate)) +
-  geom_hline(aes(yintercept = 0), linetype = "dashed") +
-  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error),
-                width = .1) +
-  geom_point(aes(color = Trait), size = 3) +
-  coord_flip() +
-  facet_wrap(~outcome, scale = "free") +
-  theme_classic() +
-  theme(legend.position = "none")
-
-ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + geom_boxplot() +scale_y_continuous(limits=c(0.25,1))
-ggplot(data_plot_sub, aes(x=DR_class, y=meanHDI, fill=DR_class)) + stat_summary()+scale_y_continuous(limits=c(0.25,1))
+                width = .1)  +
+    coord_flip() +
+  facet_grid(taxa~threats, scale = "free") +
+ theme(strip.text.y = element_text(angle = 0,size=10,face="bold"),
+         strip.background = element_rect(color="black", fill="gray87", size=1.5, linetype="solid"),
+         strip.text.x = element_text(angle = 0,size=10,face="bold"),
+         panel.background = element_rect(fill = "white",
+                                         colour = "black",
+                                         size = 0.5, linetype = "solid"),
+         panel.grid.major = element_line(size = 0.25, linetype = 'solid',
+                                         colour = "gray87"),
+         panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                         colour = "gray87"),legend.position="none")
+  
+  
 
 
-test<-data.frame(data_plot_sub$Percentagecover,data_plot_sub$DR_class,rep("Percentagecover",dim(data_plot_sub)[1]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+test<-data.frame(data_plot_sub_mammals$Percentagecover,data_plot_sub_mammals$DR_class,rep("Percentagecover",dim(data_plot_sub_mammals)[1]))
 colnames(test)<-c("Value","DR_class","Threats")
-test2<-data.frame(data_plot_sub$meanConflict,data_plot_sub$DR_class,rep("meanConflict",dim(data_plot_sub)[1]))
+test2<-data.frame(data_plot_sub_mammals$meanConflict,data_plot_sub_mammals$DR_class,rep("meanConflict",dim(data_plot_sub_mammals)[1]))
 colnames(test2)<-c("Value","DR_class","Threats")
-test3<-data.frame(data_plot_sub$meanHDI,data_plot_sub$DR_class,rep("meanHDI",dim(data_plot_sub)[1]))
+test3<-data.frame(data_plot_sub_mammals$meanHDI,data_plot_sub_mammals$DR_class,rep("meanHDI",dim(data_plot_sub_mammals)[1]))
 colnames(test3)<-c("Value","DR_class","Threats")
 mammals_threats <-rbind(test,test2,test3)
 
-data_plot_sub_birds <- data_plot_sub
+
 test<-data.frame(data_plot_sub_birds$Percentagecover,data_plot_sub_birds$DR_class,rep("Percentagecover",dim(data_plot_sub_birds)[1]))
 colnames(test)<-c("Value","DR_class","Threats")
 test2<-data.frame(data_plot_sub_birds$meanConflict,data_plot_sub_birds$DR_class,rep("meanConflict",dim(data_plot_sub_birds)[1]))
@@ -411,7 +513,6 @@ colnames(test2)<-c("Value","DR_class","Threats")
 test3<-data.frame(data_plot_sub_birds$meanHDI,data_plot_sub_birds$DR_class,rep("meanHDI",dim(data_plot_sub_birds)[1]))
 colnames(test3)<-c("Value","DR_class","Threats")
 birds_threats <-rbind(test,test2,test3)
-
 
 data_future_birds<- data.frame(data_future$delta,data_future$DR_class,rep("Climate change",dim(data_future)[1]))
 colnames(data_future_birds)<-c("Value","DR_class","Threats")

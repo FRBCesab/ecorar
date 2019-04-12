@@ -222,15 +222,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
   ##Chosing between birds and mammals
     
-    # pco_data <- pco_birds
-    # traits <- birdstrait
-    # FR_data <- FR_birds
-    # taxa <- "birds"
+     pco_data <- pco_birds
+     traits <- birdstrait
+     FR_data <- FR_birds
+     taxa <- "birds"
     
-    pco_data <- pco_mammals
-    traits <- mammalstrait
-    FR_data <- FR_mammals
-    taxa <- "mammals"
+    #pco_data <- pco_mammals
+    #traits <- mammalstrait
+    #FR_data <- FR_mammals
+    #taxa <- "mammals"
     
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
@@ -345,12 +345,12 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     }
     
     a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     
     b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
                       var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
                       DR="D25R25",Funk="Din")
     
