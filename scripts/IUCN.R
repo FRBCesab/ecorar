@@ -69,30 +69,30 @@ plot.iucn <- function(taxa,FR_all,redlist){
   colnames(D25R25) <- c('IUCN','N')
   D25R25$Freq <- D25R25$N/sum(D25R25$N)
   D25R25 <- cbind(DR="D25R25",D25R25)
-  
+ 
   D75R75 <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="D75R75","IUCN_status"]))
   colnames(D75R75) <- c('IUCN','N')
   D75R75$Freq <- D75R75$N/sum(D75R75$N)
   D75R75 <- cbind(DR="D75R75",D75R75)
   
-  D25R75 <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="D25R75","IUCN_status"]))
-  colnames(D25R75) <- c('IUCN','N')
-  D25R75$Freq <- D25R75$N/sum(D25R75$N)
-  D25R75 <- cbind(DR="D25R75",D25R75)
+  #D25R75 <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="D25R75","IUCN_status"]))
+  #colnames(D25R75) <- c('IUCN','N')
+  #D25R75$Freq <- D25R75$N/sum(D25R75$N)
+  #D25R75 <- cbind(DR="D25R75",D25R75)
   
-  D75R25 <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="D75R25","IUCN_status"]))
-  colnames(D75R25) <- c('IUCN','N')
-  D75R25$Freq <- D75R25$N/sum(D75R25$N)
-  D75R25 <- cbind(DR="D75R25",D75R25)
+  #D75R25 <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="D75R25","IUCN_status"]))
+  #colnames(D75R25) <- c('IUCN','N')
+  #D75R25$Freq <- D75R25$N/sum(D75R25$N)
+  #D75R25 <- cbind(DR="D75R25",D75R25)
   
   AVG <- as.data.frame(table(data_iucnFR[data_iucnFR$DR_class=="AVG","IUCN_status"]))
   colnames(AVG) <- c('IUCN','N')
   AVG$Freq <- AVG$N/sum(AVG$N)
   AVG <- cbind(DR="AVG",AVG)
   
-  DR_IUCN <- rbind(D25R25,AVG,D75R25,D25R75,D75R75)
-  
-  
+  #DR_IUCN <- rbind(D25R25,AVG,D75R25,D25R75,D75R75)
+  DR_IUCN <- rbind(AVG,D25R25,D75R75)
+  if(taxa=="mammals")  DR_IUCN <- rbind(DR_IUCN,data.frame(DR="D25R25",IUCN="NE",N="NA",Freq=0))
   #Plot#1 
   size=0.2
   width=0.2
@@ -111,10 +111,10 @@ plot.iucn <- function(taxa,FR_all,redlist){
   
   #Plot#2
   DR_IUCN$IUCN<- factor(DR_IUCN$IUCN,levels = c('LC_NT','NE','THR'),ordered = TRUE)
-  pdf(file.path(results_dir,paste0(taxa,"/","50km","/figs/IUCN#2.pdf")),width=6,height=4)
-  ggplot(data=DR_IUCN, aes(x=IUCN, y=Freq, fill=DR)) + scale_fill_manual(values=c("#5E4FA2",  "#66C2A5",  "#FDAE61", "#D53E4F", "#9E0142")) + 
-  geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status") + theme_bw()
-  dev.off() 
+  #pdf(file.path(results_dir,paste0(taxa,"/","50km","/figs/IUCN#2.pdf")),width=6,height=4)
+  ggplot(data=DR_IUCN, aes(x=IUCN, y=Freq, fill=DR)) + scale_fill_manual(values=c("#00AFBB", "#E7B800","orangered"))+#    scale_fill_manual(values=c("#5E4FA2",  "#66C2A5",  "#FDAE61", "#D53E4F", "#9E0142")) + 
+  geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status") + theme_bw() + scale_y_continuous(name="Frequence", limits=c(0, 1))
+  #dev.off() 
 }
 
 
@@ -122,7 +122,4 @@ plot.iucn <- function(taxa,FR_all,redlist){
 
 plot.iucn(taxa="birds",FR_all=FR_birds,redlist=redlist_birds)
 plot.iucn(taxa="mammals",FR_all=FR_mammals,redlist=redlist_mammals)
-
-
-
 

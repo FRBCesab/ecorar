@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=TRUE,who="NM")
 
 library(funrar)
 library(moments)
@@ -62,7 +62,7 @@ library(plyr)
           Di<-t(distinctiveness(Sim_commu,disTraits_mammals))
           colnames(Di)<-"Di"
           
-          ####Compute Di_local (Local distinctiveness)
+        ####Compute Di_local (Local distinctiveness)
           
           spnames <- unique(unlist(occ_mammals_list))
           
@@ -86,9 +86,20 @@ library(plyr)
           
           save(Di_locall, file=file.path(results_dir,"mammals","50km","Di_locall_mammals.RData"))
           
-         
+          load(file=file.path(results_dir,"mammals","50km","Di_locall_mammals.RData"))
+          mean_loc_Di <- apply(Di_locall,1,function(x) mean(x, na.rm = T)) 
+          mean_loc_Di <- data.frame(mean_loc_Di)
+
+          Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
+          colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc")
           
-     
+          ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc)) + 
+            geom_point(size=1) + 
+            stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
+            ggtitle("Mamals") + 
+            geom_abline(intercept = 0, slope = 1, color="red", 
+                          linetype="dashed", size=1)
+          
         #####matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
           Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))
           rownames(Ri)<-Ri[,1]
@@ -172,6 +183,45 @@ library(plyr)
       #Compute Di (Global distinctiveness)
       Di<-t(distinctiveness(Sim_commu,disTraits_birds))
       colnames(Di)<-"Di"
+      
+      ####Compute Di_local (Local distinctiveness)
+      
+      spnames <- unique(unlist(occ_birds_list))
+      
+      proc=40
+      Di_locall <- mclapply(1:length(occ_birds_list),function(i){
+        id <- occ_birds_list[[i]]
+        if(!is.na(id[2])==TRUE) {  #compute Di only for communities with 2 species or more 
+          com <- matrix(data = 0, nrow = 1, ncol = length(spnames))
+          colnames(com) <- spnames
+          for (j in 1:length(id)) { com[1,id[j]]=1 }
+          Di_local <- t(distinctiveness(com,disTraits_birds))
+          colnames(Di_local)<-names(occ_birds_list[i])
+          Di_local <- as.data.frame(Di_local)
+          Di_local
+        }
+        
+      },mc.cores = proc)
+      
+      Di_locall <- plyr::compact(Di_locall) #remove the NULL
+      Di_locall <- do.call(cbind,Di_locall)
+      
+      save(Di_locall, file=file.path(results_dir,"birds","50km","Di_locall_birds.RData"))
+      
+      load(file=file.path(results_dir,"birds","50km","Di_locall_birds.RData"))
+      mean_loc_Di <- apply(Di_locall,1,function(x) mean(x, na.rm = T)) 
+      mean_loc_Di <- data.frame(mean_loc_Di)
+      
+      Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
+      colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc")
+      
+      ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc)) + 
+        geom_point(size=1) + 
+        stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
+        ggtitle("Birds") + 
+        geom_abline(intercept = 0, slope = 1, color="red", 
+                    linetype="dashed", size=1)
+      
       
       #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
       Ri<-data.frame(table(unlist(occ_birds_list))/length(occ_birds_list))
