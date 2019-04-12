@@ -415,6 +415,9 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
 #D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
 #save(D_mammals,file=file.path(results_dir,"mammals","50km","D_mammals.RData"))
 
+D_mammalsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
+save(D_mammalsD25R25,file=file.path(results_dir,"mammals","50km","D_mammalsD25R25.RData"))
+
 load(D_mammals)
 D_mammals_plot<-ggplot(D_mammals, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))
