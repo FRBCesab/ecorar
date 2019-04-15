@@ -57,10 +57,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     FR_data <- FR_birds
     taxa <- "birds"
     
-    pco_data <- pco_mammals
-    traits <- mammalstrait
-    FR_data <- FR_mammals
-    taxa <- "mammals"
+    #pco_data <- pco_mammals
+    #traits <- mammalstrait
+    #FR_data <- FR_mammals
+    #taxa <- "mammals"
   
   ###histo of first eigenvalues 
   

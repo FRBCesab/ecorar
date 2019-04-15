@@ -223,7 +223,31 @@ library(plyr)
                     linetype="dashed", size=1)
       
       #Extract outliers species 
-      up<- subset()
+      Di_loc_glob <- Di_loc_glob[Di_loc_glob$ID %in% birdsID$ID,]
+      
+      
+      up <- Di_loc_glob[Di_loc_glob[,"Di_glob"]<0.55,]
+      up <- up[up[,"Di_loc"]>0.7,]
+      upspecies <- birdsID[birdsID$ID %in% up$ID,]
+      
+      down <- Di_loc_glob[Di_loc_glob[,"Di_glob"]>0.75,]
+      down <- down[down[,"Di_loc"]<0.5,]
+      downspecies <- birdsID[birdsID$ID %in% down$ID,]
+      
+      
+      ids <- upspecies$ID
+      subUP <- mclapply(ids,function(id) {  
+        spe_up <-  names(unlist(lapply(occ_birds_list, function(x) x[x==id])))
+      },mc.cores = 4)
+      names(subUP) <- ids
+      
+      
+      ids <- downspecies$ID
+      subdown <- mclapply(ids,function(id) {  
+        spe_down <-  names(unlist(lapply(occ_birds_list, function(x) x[x==id])))
+      },mc.cores = 4)
+      names(subdown) <- ids
+      
       
       
       #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.

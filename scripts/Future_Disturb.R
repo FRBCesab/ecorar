@@ -350,13 +350,14 @@ plot_PA(taxa="mammals",FR_mammals,mammals_PA)
 
 ################################################################################################################################################
 
-#taxa="mammals"
-#FR_all=FR_mammals
-#data_PA=mammals_PA
+taxa="mammals"
+FR_all=FR_mammals
+data_PA=mammals_PA
 
-taxa="birds"
-FR_all=FR_birds
-data_PA=birds_PA
+#taxa="birds"
+#FR_all=FR_birds
+#data_PA=birds_PA
+
 data_PA$DR_class="NA"
 
 QD75 <- FR_all$Q$Q75_D
@@ -523,6 +524,7 @@ mammals_threats2 <- rbind(mammals_threats,data.frame(Value=c(NA,NA,NA),DR_class=
 
 threats <- data.frame(rbind(mammals_threats2,birds_threats2),c(rep("mammals",dim(mammals_threats2)[1]),rep("birds",dim(birds_threats2)[1])))
 colnames(threats)<-c("Value","DR_class","Threats","Taxa")
+save(threats,file=file.path(results_dir,"threats.RData"))
 
 mycomparisons <- list( c("D75R75", "D25R25"), c("AVG", "D25R25"),c("D75R75", "AVG"))
 
