@@ -222,6 +222,9 @@ library(plyr)
         geom_abline(intercept = 0, slope = 1, color="red", 
                     linetype="dashed", size=1)
       
+      #Extract outliers species 
+      up<- subset()
+      
       
       #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
       Ri<-data.frame(table(unlist(occ_birds_list))/length(occ_birds_list))
