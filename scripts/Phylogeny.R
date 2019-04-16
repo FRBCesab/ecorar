@@ -429,9 +429,6 @@ D_all <- data.frame(rbind(D_mammalsD75R75,D_mammalsAVG,D_mammalsD25R25),DR_class
 D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered")) +
   theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))+theme_bw()
- 
-  
-  
   D_all_mammals_plot<-print(D_all_mammals_plot, vp=viewport(.5, .5, .17, .15))
   
 
@@ -439,7 +436,7 @@ D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class))
 
 
 #birds
-D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 #D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 #save(D_birdsAVG,file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
