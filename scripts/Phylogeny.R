@@ -25,7 +25,7 @@ library(caper)
     # Load traits and distrib 
 
               #Mammals
-              load(file=file.path(data_dir,"mammals","mammalsID.RData"))
+              load(file=file.path(results_dir,"mammals","mammalsID.RData"))
               load(file=file.path(results_dir,"mammals","mammalstrait.RData"))
               load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
               load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -45,7 +45,7 @@ library(caper)
 
 #----
 # Load Phylogeny
-  load(file=file.path(data_dir,"mammals","mammalsPhy.RData")) # Both corresponding to Tree1 of the phylogeny
+  load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
   i <- 3
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
@@ -204,15 +204,15 @@ library(caper)
           gridExtra::grid.arrange(a,b,c,d,ncol= 2)  
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
-  #FR_data<-FR_mammals
-  #set_phylo <- set_mammals
-  #taxaInfo<- taxaInfo_mammals
-  #taxa="mammals"
+  FR_data<-FR_mammals
+  set_phylo <- set_mammals
+  taxaInfo<- taxaInfo_mammals
+  taxa="mammals"
   
-  FR_data<-FR_birds
-  set_phylo <- set_birds
-  taxaInfo<- taxaInfo_birds
-  taxa="birds"
+  #FR_data<-FR_birds
+  #set_phylo <- set_birds
+  #taxaInfo<- taxaInfo_birds
+  #taxa="birds"
   
   # Create Class DR 
   data_DR<-FR_data$FR
@@ -397,7 +397,7 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
     
     #Compute D and statistic
     FR_PhyloD <- caper::comparative.data(set_tree, data_DR,"species",na.omit=FALSE)
-    FR_PhyloD <- caper::phylo.d(FR_PhyloD, binvar=D25R25,permut=permut)
+    FR_PhyloD <- caper::phylo.d(FR_PhyloD, binvar=D75R75,permut=permut)
     
     #The estimated D value
     estimated_D <- FR_PhyloD$DEstimate
@@ -421,6 +421,9 @@ save(D_mammalsD25R25,file=file.path(results_dir,"mammals","50km","D_mammalsD25R2
 
 D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
 save(D_mammalsAVG,file=file.path(results_dir,"mammals","50km","D_mammalsAVG.RData"))
+
+D_mammalsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
+save(D_mammalsD75R75 ,file=file.path(results_dir,"mammals","50km","D_mammalsD75R75.RData"))
 
 load(D_mammals)
 D_mammals_plot<-ggplot(D_mammals, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
