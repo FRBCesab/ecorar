@@ -114,14 +114,16 @@ SES_total_mammals <- data.frame(cell=funk_mammals$cell,
 
 save(SES_total_mammals,file = file.path(results_dir,"mammals","50km","SES_total_mammals.RData"))
 
-
-
 # Change the first column to rownames and drop this column 
 load(file = file.path(results_dir,"birds","50km","SES_funk_birds.RData"))
 SES_funk <- lapply(SES_funk_birds, function(df) {df_out <- df[,-1]
 rownames(df_out) <- df[[1]]
 df_out
 })
+
+SES_funk <- data.frame(matrix(unlist(SES_funk), nrow=length(l), byrow=T))
+
+
 Null_mean <-  as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), mean))
 Null_sd <- as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
 
