@@ -413,33 +413,43 @@ D.phylogeny <- function(ids,proc,data_DR,taxa,permut) {
 }
 #Mammals
 #D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000,indice="D25R25"))
+#save(D_mammalsAVG,file=file.path(results_dir,"mammals","50km","D_mammalsAVG.RData"))
 #D_mammals <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="mammals",permut=1000))
 #save(D_mammals,file=file.path(results_dir,"mammals","50km","D_mammals.RData"))
-
-D_mammalsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
-save(D_mammalsD25R25,file=file.path(results_dir,"mammals","50km","D_mammalsD25R25.RData"))
-
-D_mammalsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
-save(D_mammalsAVG,file=file.path(results_dir,"mammals","50km","D_mammalsAVG.RData"))
-
+#D_mammalsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
+#save(D_mammalsD25R25,file=file.path(results_dir,"mammals","50km","D_mammalsD25R25.RData"))
 D_mammalsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="mammals",permut=1000))
 save(D_mammalsD75R75 ,file=file.path(results_dir,"mammals","50km","D_mammalsD75R75.RData"))
 
-load(D_mammals)
-D_mammals_plot<-ggplot(D_mammals, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
-  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))
-D_mammals_plot<-print(D_mammals_plot, vp=viewport(.5, .5, .17, .15))
+load(file=file.path(results_dir,"mammals","50km","D_mammalsD75R75.RData"))
+load(file=file.path(results_dir,"mammals","50km","D_mammalsAVG.RData"))
+load(file=file.path(results_dir,"mammals","50km","D_mammalsD25R25.RData"))
+
+D_all <- data.frame(rbind(D_mammalsD75R75,D_mammalsAVG,D_mammalsD25R25),DR_class=c(rep("D75R75",100),rep("AVG",100),rep("D25R25",100)))
+D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, 1)+theme_bw()+  labs(x = "D")+
+  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered")) +
+  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))+theme_bw()
+ 
+  
+  
+  D_all_mammals_plot<-print(D_all_mammals_plot, vp=viewport(.5, .5, .17, .15))
+  
+
+
+
 
 #birds
-#D_birds <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=3,data_DR=data_DR,taxa="birds",permut=1000))
+save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 #D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 #save(D_birdsAVG,file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
+#D_birdsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
+#save(D_birdsD25R25,file=file.path(results_dir,"birds","50km","D_birdsD25R25.RData"))
 
-D_birdsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
-save(D_birdsD25R25,file=file.path(results_dir,"birds","50km","D_birdsD25R25.RData"))
 
-#save(D_birds,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birds.RData"))
+load(file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
+load(file=file.path(results_dir,"birds","50km","D_birdsD25R25.RData"))
 D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
   theme(axis.title=element_text(size=8))
 D_birds_plot<-print(D_birds_plot, vp=viewport(.5, .5, .17, .15))# vp=viewport(.12, .85, .24, .22))
