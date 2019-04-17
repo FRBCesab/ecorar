@@ -434,7 +434,7 @@ D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class))
 
 
 
-z
+
 #birds
 D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
