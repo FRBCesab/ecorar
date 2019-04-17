@@ -47,7 +47,7 @@ library(caper)
 # Load Phylogeny
   load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-  i <- 3
+  i <- 5
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 
           # Dropping names not in  ID
@@ -204,15 +204,15 @@ library(caper)
           gridExtra::grid.arrange(a,b,c,d,ncol= 2)  
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
-  FR_data<-FR_mammals
-  set_phylo <- set_mammals
-  taxaInfo<- taxaInfo_mammals
-  taxa="mammals"
+  #FR_data<-FR_mammals
+  #set_phylo <- set_mammals
+  #taxaInfo<- taxaInfo_mammals
+  #taxa="mammals"
   
-  #FR_data<-FR_birds
-  #set_phylo <- set_birds
-  #taxaInfo<- taxaInfo_birds
-  #taxa="birds"
+  FR_data<-FR_birds
+  set_phylo <- set_birds
+  taxaInfo<- taxaInfo_birds
+  taxa="birds"
   
   # Create Class DR 
   data_DR<-FR_data$FR
@@ -258,7 +258,8 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   # Change capita in the names of order
   data_DR$order %<>% tolower
   data_DR$order<-firstup(data_DR$order)
-  
+  set_phylo <- ape::drop.tip(set_phylo,set_phylo$tip.label[!is.element(set_phylo$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
+  data_DR <-data_DR[as.character(gsub(" ", "_", rownames(data_DR)))%in%set_phylo$tip.label,]
   # Prepare order labels
   labelsArc <- na.omit(as.character(unique(data_DR$order)))
   
@@ -291,8 +292,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   names(rarety)<-rownames(data_DR)
 
     
-  set_phylo <- ape::drop.tip(set_phylo,set_phylo$tip.label[!is.element(set_phylo$tip.label,as.character(gsub(" ", "_", rownames(data_DR))))])
-  data_DR <-data_DR[as.character(gsub(" ", "_", rownames(data_DR)))%in%set_phylo$tip.label,]
+
   # plotting PHYLOGENY TREE
   color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A63F","orangered"), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
   tiplabels(pch = 16, col = data_DR$colsD75R75, cex = 0.4 ,offset=9)
@@ -301,23 +301,22 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
   
   # plotting family labels/arcs
-  offset <- rep(c(1.15,1.23),length(nodesArc))
-  
+  offset <- rep(c(1.15,1.23,1.31,1.39,1.47),length(nodesArc))
   
   for(i in 1:length(nodesArc)){
     
-    if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.03
-    if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.03
+    if(i %in% c(seq(1,length(nodesArc), by = 2))) laboffset <- 0.04
+    if(i %in% c(seq(2,length(nodesArc), by = 2))) laboffset <- 0.04
     
    if(i %in% c(1,4,7,10,13,16,19,22,25,28,31,34,37)){  #If odd 
       arc.cladelabels(text= paste0(i,""), #paste0(names(nodesArc)[i])
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 1, 
+                      cex = 0.6, 
                       colarc = "gray82",
                       lwd = 1, 
-                      lty = 1, cextext=0.5,
+                      lty = 1, cextext=0.4,
                       orientation = "curved", mark.node = FALSE,
                       col="gray82",coltext="gray82")}
     
@@ -326,10 +325,10 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 1, 
+                      cex = 0.6, 
                       colarc = "gray75",
                       lwd = 1, 
-                      lty = 1, cextext=0.5,
+                      lty = 1, cextext=0.4,
                       orientation = "curved",
                       mark.node = FALSE,col="gray75",coltext="gray75")}
     
@@ -338,17 +337,17 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
                       node=nodesArc[i],
                       ln.offset=offset[i],
                       lab.offset=offset[i]+laboffset, 
-                      cex = 1, 
+                      cex = 0.6, 
                       colarc = "gray68",
                       lwd = 1, 
-                      lty = 1, cextext=0.5,
+                      lty = 1, cextext=0.4,
                       orientation = "curved",
                       mark.node = FALSE,col="gray68",coltext="gray68")}
     
     
     #Add the names of Order
     if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5)
-    if (taxa=="birds")   text(x=170,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.4) 
+    if (taxa=="birds")   text(x=-190,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5) 
   }
 }
 
@@ -358,8 +357,6 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
 data_DR$rarety <- data_DR$colsD75R75
 data_DR$rarety <- as.numeric(as.factor(data_DR$rarety))
 data_DR$rarety[is.na(data_DR$rarety)]<-0
-
-
 
 data_DR$D75R75 <- data_DR$colsD75R75
 data_DR$D75R75 <- as.numeric(as.factor(data_DR$D75R75))
@@ -426,18 +423,18 @@ load(file=file.path(results_dir,"mammals","50km","D_mammalsAVG.RData"))
 load(file=file.path(results_dir,"mammals","50km","D_mammalsD25R25.RData"))
 
 D_all <- data.frame(rbind(D_mammalsD75R75,D_mammalsAVG,D_mammalsD25R25),DR_class=c(rep("D75R75",100),rep("AVG",100),rep("D25R25",100)))
-D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, 1)+theme_bw()+  labs(x = "D")+
+D_all_mammals_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, 1)+theme_bw()+  labs(x = "D",y="")+
   scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered")) +
-  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))+theme_bw()
-  D_all_mammals_plot<-print(D_all_mammals_plot, vp=viewport(.5, .5, .17, .15))
-  
+  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))+theme_minimal()+ theme(legend.position="None")
+D_all_mammals_plot<-print(D_all_mammals_plot, vp=viewport(.5, .5, .2, .2))
+
 
 
 
 
 #birds
-D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
-save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
+#D_birdsD75R75 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
+#save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 #D_birdsAVG <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
 #save(D_birdsAVG,file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
 #D_birdsD25R25 <- do.call(rbind,D.phylogeny(ids=1:100,proc=25,data_DR=data_DR,taxa="birds",permut=1000))
@@ -447,10 +444,9 @@ save(D_birdsD75R75,file=file.path(results_dir,"birds","50km","D_birds.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birds.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birdsAVG.RData"))
 load(file=file.path(results_dir,"birds","50km","D_birdsD25R25.RData"))
-D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_density(adjust = 1.5,alpha = 0.1,fill="red",colour="red") + xlim(0, 1)+theme_bw()+  labs(x = "D")+
-  theme(axis.title=element_text(size=8))
-D_birds_plot<-print(D_birds_plot, vp=viewport(.5, .5, .17, .15))# vp=viewport(.12, .85, .24, .22))
 
-D_birds_plot<-ggplot(D_birds, aes(estimated_D)) + geom_histogram(alpha = 0.1,fill="red",colour="red") + xlim(0.25, 0.75)+theme_bw()+  labs(x = "D")+
-  theme(axis.title=element_text(size=8))
-
+D_all <- data.frame(rbind(D_birdsD75R75,D_birdsAVG,D_birdsD25R25),DR_class=c(rep("D75R75",100),rep("AVG",100),rep("D25R25",100)))
+D_all_birds_plot<-ggplot(D_all, aes(estimated_D,color=DR_class,fill=DR_class)) + geom_density(adjust = 1.5,alpha = 0.1) + xlim(0, 1)+theme_bw()+  labs(x = "D",y="")+
+  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered")) +
+  theme(axis.title=element_text(size=8),axis.text.x = element_text(size=6))+theme_minimal()+ theme(legend.position="None")
+D_all_birds_plot<-print(D_all_birds_plot, vp=viewport(.5, .5, .2, .2))
