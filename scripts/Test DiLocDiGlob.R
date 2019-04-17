@@ -2,6 +2,11 @@ load(file=file.path(results_dir,"birds","50km","Di_locall_birds.RData"))
 mean_loc_Di <- apply(Di_locall,1,function(x) mean(x, na.rm = T)) 
 mean_loc_Di <- data.frame(mean_loc_Di)
 
+mean_loc_Di <- apply(Di_locall,2,function(x) mean(x, na.rm = T)) 
+SP<-funk_birds[funk_birds$cell %in% names(mean_loc_Di),]$TD_sp
+plot(mean_loc_Di~SP)
+
+
 Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
 colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc")
 
