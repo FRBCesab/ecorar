@@ -78,11 +78,11 @@ names(birds_future_scenar_all) <- scenar
 plot_futur <- function(taxa,FR_all,id_scenar,futur_all,ymax)
 {
   
-  taxa="mammals"
-   FR_all=FR_mammals
-   id_scenar=scenar[15]
-   futur_all=mammals_future_scenar_all
-   ymax <- 300
+  #taxa="mammals"
+  # FR_all=FR_mammals
+   #id_scenar=scenar[15]
+   #futur_all=mammals_future_scenar_all
+   #ymax <- 300
   
    taxa="birds"
    FR_all=FR_birds
@@ -226,13 +226,13 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
-  taxa="mammals"
-  FR_all=FR_mammals
-  data_PA=mammals_PA
+ ## taxa="mammals"
+  #FR_all=FR_mammals
+  #data_PA=mammals_PA
   
-  #taxa="birds"
-  #FR_all=FR_birds
-  #data_PA=birds_PA
+  taxa="birds"
+  FR_all=FR_birds
+  data_PA=birds_PA
   data_PA$DR_class="NA"
   
   QD75 <- FR_all$Q$Q75_D
@@ -357,6 +357,7 @@ data_PA=mammals_PA
 #taxa="birds"
 #FR_all=FR_birds
 #data_PA=birds_PA
+
 data_PA$DR_class="NA"
 
 QD75 <- FR_all$Q$Q75_D
@@ -411,10 +412,10 @@ AVG_mammals_threats<-cbind(rbind(cbind(mean(AVG_mammals$meanConflict,na.rm=T),sd
                                mean(na.omit(c(D75R75_mammals$Percentagecover,D25R25_mammals$Percentagecover,AVG_mammals$Percentagecover))),NA))
 
 mammalsPlots<-rbind(D75R75_mammals_threats,D25R25_mammals_threats,AVG_mammals_threats)
-mammalsPlots<-data.frame(mammalsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Future"),3),rep("mammals",12))
+mammalsPlots<-data.frame(mammalsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Climate change"),3),rep("mammals",12))
 colnames(mammalsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
 
-
+futurbirds<-data_plot
 D75R75_birds_futur<-subset(futurbirds,futurbirds$DR_class=="D75R75")
 D25R25_birds_futur<-subset(futurbirds,futurbirds$DR_class=="D25R25")
 AVG_birds_futur<-subset(futurbirds,futurbirds$DR_class=="AVG")
@@ -454,16 +455,16 @@ AVG_birds_threats<-cbind(rbind(cbind(mean(AVG_birds$meanConflict,na.rm=T),sd(AVG
 
 
 birdsPlots<-rbind(D75R75_birds_threats,D25R25_birds_threats,AVG_birds_threats)
-birdsPlots<-data.frame(birdsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Future"),3),rep("birds",12))
+birdsPlots<-data.frame(birdsPlots,c(rep("D75R75",4),rep("D25R25",4),rep("AVG",4)),rep(c("Number of Conflicts","HDI","Protect Area cover","Climate change"),3),rep("birds",12))
 colnames(birdsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
 
 test<-rbind(birdsPlots,mammalsPlots)
 
-ggplot(data=test,aes(x = DR_class, y = mean))+
+ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
   geom_hline(aes(yintercept = allmean), linetype = "dashed") +
   geom_point(aes(color = DR_class), size = 3) +  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
-                width = .1) +
+                width = .1)  +
     coord_flip() +
   facet_grid(taxa~threats, scale = "free") +
  theme(strip.text.y = element_text(angle = 0,size=10,face="bold"),
@@ -523,6 +524,7 @@ mammals_threats2 <- rbind(mammals_threats,data.frame(Value=c(NA,NA,NA),DR_class=
 
 threats <- data.frame(rbind(mammals_threats2,birds_threats2),c(rep("mammals",dim(mammals_threats2)[1]),rep("birds",dim(birds_threats2)[1])))
 colnames(threats)<-c("Value","DR_class","Threats","Taxa")
+save(threats,file=file.path(results_dir,"threats.RData"))
 
 mycomparisons <- list( c("D75R75", "D25R25"), c("AVG", "D25R25"),c("D75R75", "AVG"))
 
