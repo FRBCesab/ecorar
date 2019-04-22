@@ -42,7 +42,7 @@ library(rgdal)
 library(rgeos)
 library(raster)
 library(RColorBrewer)
-# library(rphylopic)
+library(rphylopic)
 
 
 ### PARAMETERS -----------------------------------------------------------------
@@ -82,11 +82,11 @@ border              <- spTransform(border, proj4string(study))
 
 ### IMPORT ANIMALS ICONS -------------------------------------------------------
 
-# icons <- list()
-# icons[["mammals"]] <- image_data("5a5dafa2-6388-43b8-a15a-4fd21cd17594", size = 512)[[1]]
-# icons[["mammals"]] <- icons[["mammals"]][ , dim(icons[["mammals"]])[2]:1, ]
-# icons[["birds"]]   <- image_data("c3c19b65-cb8d-40bd-b1a6-82a3277bcd4f", size = 512)[[1]]
-icons <- readRDS(paste0(path_data, "icons.rds"))
+icons <- list()
+icons[["mammals"]] <- image_data("5a5dafa2-6388-43b8-a15a-4fd21cd17594", size = 512)[[1]]
+icons[["mammals"]] <- icons[["mammals"]][ , dim(icons[["mammals"]])[2]:1, ]
+icons[["birds"]]   <- image_data("c3c19b65-cb8d-40bd-b1a6-82a3277bcd4f", size = 512)[[1]]
+# icons <- readRDS(paste0(path_data, "icons.rds"))
 
 
 ### INIT EXPORT DEVICE ---------------------------------------------------------
