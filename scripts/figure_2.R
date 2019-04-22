@@ -395,16 +395,17 @@ for (k in 1:length(taxas)) {
 
     ### ADD ICON ---------------------------------------------------------------
 
-    addPhylopic(
-      img    = icons[[taxas[k]]],
-      x      = .05,
-      y      = .60,
-      ysize  = .075,
-      alpha  = 1,
-      color  = "#777777",
-      AR     = ifelse(taxas[k] == "mammals", 1.5, 2)
-    )
-
+    if (infos[j] == "TD_sp") {
+      addPhylopic(
+        img    = icons[[taxas[k]]],
+        x      = .05,
+        y      = .60,
+        ysize  = .075,
+        alpha  = 1,
+        color  = "#777777",
+        AR     = ifelse(taxas[k] == "mammals", 1.5, 2)
+      )
+    }
   }
 }
 
