@@ -204,15 +204,15 @@ library(caper)
           gridExtra::grid.arrange(a,b,c,d,ncol= 2)  
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
-  #FR_data<-FR_mammals
-  #set_phylo <- set_mammals
-  #taxaInfo<- taxaInfo_mammals
-  #taxa="mammals"
+  FR_data<-FR_mammals
+  set_phylo <- set_mammals
+  taxaInfo<- taxaInfo_mammals
+  taxa="mammals"
   
-  FR_data<-FR_birds
-  set_phylo <- set_birds
-  taxaInfo<- taxaInfo_birds
-  taxa="birds"
+ #FR_data<-FR_birds
+ #set_phylo <- set_birds
+ # taxaInfo<- taxaInfo_birds
+ # taxa="birds"
   
   # Create Class DR 
   data_DR<-FR_data$FR

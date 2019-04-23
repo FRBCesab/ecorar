@@ -354,9 +354,9 @@ taxa="mammals"
 FR_all=FR_mammals
 data_PA=mammals_PA
 
-#taxa="birds"
-#FR_all=FR_birds
-#data_PA=birds_PA
+taxa="birds"
+FR_all=FR_birds
+data_PA=birds_PA
 
 data_PA$DR_class="NA"
 
@@ -380,6 +380,17 @@ data_plot_sub_mammals <- data_plot_sub
 data_plot_sub_birds <- data_plot_sub
 
 
+ggplot(data_plot_sub_mammals, aes(x=DR_class, y=meanHDI,color=meanHDI)) + 
+  geom_point(color="magenta2",alpha=0.4)+    coord_flip() +
+  stat_summary(fun.y = mean, geom="line",color="magenta2",size=1.3,alpha=0.4)+
+  stat_summary(color="grey40",size=1.4)+theme_classic()+labs(x = "DR_class")+labs(y = "HDI")
+
+ggplot(data_plot_sub_mammals, aes(x=DR_class, y=meanHDI)) +
+  geom_violin(width=1, size=0.2,fill="magenta2") +
+  theme_bw() +
+  theme(legend.position="none") +
+  xlab("Percentage of depletion") +
+  ylab("msd")+coord_flip() 
 
 
 
@@ -484,13 +495,16 @@ ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
 
 
 
-
-
-
-
-
-
-
+ggplot(data_plot_sub_mammals, aes(y = meanHDI, x = as.numeric(as.factor(DR_class)))) + 
+  #geom_point(color="magenta2",alpha=0.4)+ 
+  stat_summary(fun.y = mean,
+               fun.ymin = function(x) mean(x) - sd(x), 
+               fun.ymax = function(x) mean(x) + sd(x), 
+               geom = "pointrange",size=1,color="grey35") +
+  scale_x_continuous(breaks = c(1,2,3),labels=c("AVG","D25R25","D75R75")) +
+  stat_summary(fun.y = mean, geom = "line",color="magenta2",size=1.4,alpha=0.4) +
+  theme_bw()+
+  labs(x = "DR Class")+labs(y = "Number of Conflict")
 
 
 
@@ -528,8 +542,8 @@ save(threats,file=file.path(results_dir,"threats.RData"))
 
 mycomparisons <- list( c("D75R75", "D25R25"), c("AVG", "D25R25"),c("D75R75", "AVG"))
 
-g <- ggplot(threats, aes(x=DR_class, y=Value,group =DR_class)) + geom_boxplot(aes(fill=DR_class)) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered"))
-g <- g + facet_grid(Threats ~ Taxa,   scale="free")
+g <- ggplot(threats, aes(x=DR_class, y=Value,group =DR_class)) + geom_violin(aes(fill=DR_class)) + scale_fill_manual(values = c("#00AFBB", "#E7B800","orangered"))
+g <- g + facet_grid(Threats ~ Taxa,   scale="free")  
 g <- g + xlab("") + ylab("Value")+theme(strip.text.y = element_text(angle = 0,size=10,face="bold"),
                                         strip.background = element_rect(color="black", fill="gray87", size=1.5, linetype="solid"),
                                         strip.text.x = element_text(angle = 0,size=10,face="bold"),
@@ -539,12 +553,42 @@ g <- g + xlab("") + ylab("Value")+theme(strip.text.y = element_text(angle = 0,si
                                         panel.grid.major = element_line(size = 0.25, linetype = 'solid',
                                                                         colour = "gray87"),
                                         panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                                                        colour = "gray87"),legend.position="none") +stat_compare_means(paired = FALSE, method = 'wilcox.test', label = "p.signif",
+                                                                        colour = "gray87"),legend.position="none") +ggpubr::stat_compare_means(paired = FALSE, method = 'wilcox.test', label = "p.signif",
                                                                                                                                        show.legend = FALSE, comparisons = mycomparisons)
 
 
-g
 
+
+
+
+
+
+ggplot( aes(y=text, x=value,  fill=text)) +
+  geom_density_ridges(alpha=0.6, bandwidth=4) +
+  scale_fill_viridis(discrete=TRUE) +
+  scale_color_viridis(discrete=TRUE) +
+  theme_ipsum() +
+  theme(
+    legend.position="none",
+    panel.spacing = unit(0.1, "lines"),
+    strip.text.x = element_text(size = 8)
+  ) +
+  xlab("") +
+  ylab("Assigned Probability (%)")
+
+
+ggplot(threats, aes(y=Value, x=DR_class,  fill =DR_class)) +
+  geom_density_ridges(alpha=0.6, bandwidth=4) +
+  scale_fill_viridis(discrete=TRUE) +
+  scale_color_viridis(discrete=TRUE) +
+  theme_bw() +
+  theme(
+    legend.position="none",
+    panel.spacing = unit(0.1, "lines"),
+    strip.text.x = element_text(size = 8)
+  ) +
+  xlab("") +
+  ylab("Assigned Probability (%)")
 
 <<<<<<< HEAD
 p <- ggplot(mtcars, aes(mpg, wt)) + 
