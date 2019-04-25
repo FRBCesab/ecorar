@@ -346,8 +346,8 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     
     
     #Add the names of Order
-    if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5)
-    if (taxa=="birds")   text(x=-190,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5) 
+    if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0)
+    if (taxa=="birds")   text(x=-190,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
   }
 }
 

@@ -90,3 +90,10 @@ d <- ggplot(Target_birds_sub, aes(TargetMet_Percentagecover,fill=DR_class,color=
 grid.arrange(b,d,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fontsize=20,font=3)))
 
 #PLutot que la moyenne faire la somme de la surface protégé
+
+
+
+
+
+#NEw DATA
+load(file=file.path(results_dir,"mammals","Mammals_Targetachiev_data",Abditomys latidens_AllCat.))
