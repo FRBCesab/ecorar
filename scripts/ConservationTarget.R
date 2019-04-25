@@ -96,4 +96,9 @@ grid.arrange(b,d,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 
 
 #NEw DATA
-load(file=file.path(results_dir,"mammals","Mammals_Targetachiev_data",Abditomys latidens_AllCat.))
+load(file=file.path(data_dir,"mammals","50km","CatIaMammals.RData"))
+load(file=file.path(data_dir,"mammals","50km","CatIbMammals.RData"))
+load(file=file.path(data_dir,"mammals","50km","CatIIMammals.RData"))
+
+
+
