@@ -66,7 +66,7 @@ Target_birds <- na.omit(Target_birds)
 #Species target achievement was then measured at the ratio between the percentage of
 #range actually covered by the PA system and the target.  
 ymax=300
-
+col_br<-rev(heat.colors(5))
 a <- ggplot(Target_mammals, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species’ target achievements")+theme_bw()
