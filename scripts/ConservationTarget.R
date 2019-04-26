@@ -95,10 +95,138 @@ grid.arrange(b,d,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 
 
 
-#NEw DATA
+#NEw DATA # NEED TO DIVISE BY 100 THE AREA
 load(file=file.path(data_dir,"mammals","50km","CatIaMammals.RData"))
 load(file=file.path(data_dir,"mammals","50km","CatIbMammals.RData"))
 load(file=file.path(data_dir,"mammals","50km","CatIIMammals.RData"))
 
+CatIaMammals <- CatIaMammals[CatIaMammals$BINOMIAL %in% mammalsID$Name,]
+CatIaMammals <- merge(CatIaMammals,mammalsID, by.x="BINOMIAL", by.y= "Name")
 
+CatIbMammals <- CatIbMammals[CatIbMammals$BINOMIAL %in% mammalsID$Name,]
+CatIbMammals <- merge(CatIbMammals,mammalsID, by.x="BINOMIAL", by.y= "Name")
+
+CatIIMammals <- CatIIMammals[CatIIMammals$BINOMIAL %in% mammalsID$Name,]
+CatIIMammals <- merge(CatIIMammals,mammalsID, by.x="BINOMIAL", by.y= "Name")
+
+
+CatMammals_all <-  data.frame(BINOMIAL=CatIaMammals$BINOMIAL, TOTAL_AREA=CatIaMammals$TOTAL_AREA, AREA_PRO=apply(data.frame(CatIaMammals$AREA/100,CatIbMammals$AREA/100,CatIIMammals$AREA/100),1,sum))
+CatMammals_all$PERCENTAGE <- (CatMammals_all$AREA_PRO/CatMammals_all$TOTAL_AREA)*100
+CatMammals_all<- merge(CatMammals_all,mammalsID, by.x="BINOMIAL", by.y= "Name")
+
+Target_mammals_all<- data.frame(ID=CatMammals_all$ID, SR=CatMammals_all$TOTAL_AREA,Percentagecover=CatMammals_all$PERCENTAGE)
+Target_mammalsIa <- data.frame(ID=CatIaMammals$ID, SR=CatIaMammals$TOTAL_AREA,Percentagecover=CatIaMammals$PERCENTAGE)
+Target_mammalsIb <- data.frame(ID=CatIbMammals$ID, SR=CatIbMammals$TOTAL_AREA,Percentagecover=CatIbMammals$PERCENTAGE)
+Target_mammalsII <- data.frame(ID=CatIIMammals$ID, SR=CatIIMammals$TOTAL_AREA,Percentagecover=CatIIMammals$PERCENTAGE)
+
+Target_mammals <- cbind(rbind(Target_mammalsIa,Target_mammalsIb,Target_mammalsII), c(rep("Ia",nrow(Target_mammalsIa)),rep("Ib",nrow(Target_mammalsIb)),rep("II",nrow(Target_mammalsII))))
+colnames(Target_mammals)[4] <- "IUCN_CAT"
+Target_mammals$LogSR <- log(Target_mammals$SR) 
+qt=quantile(Target_mammals[,"SR"], probs=c(0.1, 0.9))
+#rownames(Target_mammals) <- Target_mammals$ID
+#Target_mammals<-Target_mammals[,-1]
+Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
+Target_mammals[,"TargetAchiev"] <- 100*(Target_mammals[,"Percentagecover"]/Target_mammals[,"TargetExp"])
+Target_mammals <- merge(Target_mammals,data_DR_mammals,by.x="ID",by.y="row.names")
+Target_mammals <- na.omit(Target_mammals)
+
+Target_mammals_all$LogSR <- log(Target_mammals_all$SR) 
+qt=quantile(Target_mammals_all[,"SR"], probs=c(0.1, 0.9))
+Target_mammals_all[,"TargetExp"] <- target_func(Target_mammals_all[,"SR"], qt, log=T)
+Target_mammals_all[,"TargetAchiev"] <- 100*(Target_mammals_all[,"Percentagecover"]/Target_mammals_all[,"TargetExp"])
+Target_mammals_all <- merge(Target_mammals_all,data_DR_mammals,by.x="ID",by.y="row.names")
+Target_mammals_all <- na.omit(Target_mammals_all)
+
+ymax=100
+col_br<-rev(heat.colors(3))
+Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
+a <- ggplot(Target_mammals_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()+
+facet_wrap("IUCN_CAT")
+
+
+Target_mammals_all_sub <- Target_mammals_all[((Target_mammals_all$DR_class=='D25R25') | (Target_mammals_all$DR_class=='D75R75') | (Target_mammals_all$DR_class=='AVG')),]
+b <- ggplot(Target_mammals_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals_all_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()
+
+
+
+#--------
+load(file=file.path(data_dir,"birds","50km","CatIaBirds.RData"))
+load(file=file.path(data_dir,"birds","50km","CatIbBirds.RData"))
+load(file=file.path(data_dir,"birds","50km","CatIIBirds.RData"))
+
+CatIaBirds <- CatIaBirds[CatIaBirds$SCINAME %in% birdsID$Name,]
+CatIaBirds <- merge(CatIaBirds,birdsID, by.x="SCINAME", by.y= "Name")
+
+CatIbBirds <- CatIbBirds[CatIbBirds$SCINAME %in% birdsID$Name,]
+CatIbBirds <- merge(CatIbBirds,birdsID, by.x="SCINAME", by.y= "Name")
+
+CatIIBirds <- CatIIBirds[CatIIBirds$SCINAME %in% birdsID$Name,]
+CatIIBirds <- merge(CatIIBirds,birdsID, by.x="SCINAME", by.y= "Name")
+
+
+CatBirds_all <-  data.frame(SCINAME=CatIaBirds$SCINAME, TOTAL_AREA=CatIaBirds$TOTAL_AREA, AREA_PRO=apply(data.frame(CatIaBirds$AREA/100,CatIbBirds$AREA/100,CatIIBirds$AREA/100),1,sum))
+CatBirds_all$PERCENTAGE <- (CatBirds_all$AREA_PRO/CatBirds_all$TOTAL_AREA)*100
+CatBirds_all<- merge(CatBirds_all,birdsID, by.x="SCINAME", by.y= "Name")
+
+Target_birds_all<- data.frame(ID=CatBirds_all$ID, SR=CatBirds_all$TOTAL_AREA,Percentagecover=CatBirds_all$PERCENTAGE)
+Target_birdsIa <- data.frame(ID=CatIaBirds$ID, SR=CatIaBirds$TOTAL_AREA,Percentagecover=CatIaBirds$PERCENTAGE)
+Target_birdsIb <- data.frame(ID=CatIbBirds$ID, SR=CatIbBirds$TOTAL_AREA,Percentagecover=CatIbBirds$PERCENTAGE)
+Target_birdsII <- data.frame(ID=CatIIBirds$ID, SR=CatIIBirds$TOTAL_AREA,Percentagecover=CatIIBirds$PERCENTAGE)
+
+Target_birds <- cbind(rbind(Target_birdsIa,Target_birdsIb,Target_birdsII), c(rep("Ia",nrow(Target_birdsIa)),rep("Ib",nrow(Target_birdsIb)),rep("II",nrow(Target_birdsII))))
+colnames(Target_birds)[4] <- "IUCN_CAT"
+Target_birds$LogSR <- log(Target_birds$SR) 
+qt=quantile(Target_birds[,"SR"], probs=c(0.1, 0.9))
+#rownames(Target_birds) <- Target_birds$ID
+#Target_birds<-Target_birds[,-1]
+Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
+Target_birds[,"TargetAchiev"] <- 100*(Target_birds[,"Percentagecover"]/Target_birds[,"TargetExp"])
+Target_birds <- merge(Target_birds,data_DR_birds,by.x="ID",by.y="row.names")
+Target_birds <- na.omit(Target_birds)
+
+
+
+Target_birds_all$LogSR <- log(Target_birds_all$SR) 
+qt=quantile(Target_birds_all[,"SR"], probs=c(0.1, 0.9))
+Target_birds_all[,"TargetExp"] <- target_func(Target_birds_all[,"SR"], qt, log=T)
+Target_birds_all[,"TargetAchiev"] <- 100*(Target_birds_all[,"Percentagecover"]/Target_birds_all[,"TargetExp"])
+Target_birds_all <- merge(Target_birds_all,data_DR_birds,by.x="ID",by.y="row.names")
+Target_birds_all <- na.omit(Target_birds_all)
+
+
+ymax=200
+col_br<-rev(heat.colors(3))
+Target_birds_sub <- Target_birds[((Target_birds$DR_class=='D25R25') | (Target_birds$DR_class=='D75R75') | (Target_birds$DR_class=='AVG')),]
+a <- ggplot(Target_birds_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()+
+  facet_wrap("IUCN_CAT")
+
+
+Target_birds_all_sub <- Target_birds_all[((Target_birds_all$DR_class=='D25R25') | (Target_birds_all$DR_class=='D75R75') | (Target_birds_all$DR_class=='AVG')),]
+b <- ggplot(Target_birds_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_violin() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds_all_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()
+
+
+
+ggplot(Target_birds_all_sub, aes(x = LogSR, y = Percentagecover, color = TargetAchiev, size = TargetAchiev)) + 
+  scale_color_gradient(low="red", high="green")+
+  geom_point(alpha = 0.5) +  facet_wrap("DR_class")+theme_bw()
+
+ggplot(Target_birds_all_sub, aes(x = LogSR, y = TargetAchiev, color =TargetAchiev , size = TargetAchiev)) + 
+  scale_color_gradient(low="red", high="green")+
+  geom_point(alpha = 0.5) +  facet_wrap("DR_class")+theme_bw()
+
+
+ggplot(Target_birds_all_sub, aes(x = LogSR, y = TargetAchiev, color =TargetAchiev , size = TargetAchiev)) + 
+  scale_color_gradient(low="red", high="green")
+
+
+library(colorRamps)     # for matlab.like(...)
+ggp + scale_color_gradientn(colours=matlab.like(10))
 

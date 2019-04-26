@@ -226,7 +226,7 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
- ## taxa="mammals"
+  #taxa="mammals"
   #FR_all=FR_mammals
   #data_PA=mammals_PA
   
