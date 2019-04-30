@@ -28,11 +28,16 @@ load(file=file.path(data_dir,"mammals/mammalsID.RData"))
 redlist_birds <- merge(birdsID,redlist_birds,by.x = "Name", by.y = "Scientific")
 redlist_birds <- redlist_birds[,c(1,2,4)]
 colnames(redlist_birds) <- c("Species","SpecID", "IUCN_status")
+save(redlist_birds,file=file.path(results_dir,"birds","50km","redlist_birds.RData"))
 
 redlist_mammals <- merge(mammalsID,redlist_mammals,by.x = "Name", by.y = "Scientific")
 #redlist_mammals <- redlist_mammals[,c(4,2,7)]
 redlist_mammals <- redlist_mammals[,c(1,2,4)]
 colnames(redlist_mammals) <- c("Species","SpecID", "IUCN_status")
+save(redlist_mammals,file=file.path(results_dir,"mammals","50km","redlist_mammals.RData")) 
+
+
+file=file.path(results_dir,"birds","50km","disTraits_birds.RData")
 
 plot.iucn <- function(taxa,FR_all,redlist){
   
@@ -113,7 +118,7 @@ plot.iucn <- function(taxa,FR_all,redlist){
   DR_IUCN$IUCN<- factor(DR_IUCN$IUCN,levels = c('LC_NT','NE','THR'),ordered = TRUE)
   #pdf(file.path(results_dir,paste0(taxa,"/","50km","/figs/IUCN#2.pdf")),width=6,height=4)
   ggplot(data=DR_IUCN, aes(x=IUCN, y=Freq, fill=DR)) + scale_fill_manual(values=c("#00AFBB", "#E7B800","orangered"))+#    scale_fill_manual(values=c("#5E4FA2",  "#66C2A5",  "#FDAE61", "#D53E4F", "#9E0142")) + 
-  geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status") + theme_bw() + scale_y_continuous(name="Frequence", limits=c(0, 1))
+  geom_bar(stat="identity", position=position_dodge()) + ggtitle("IUCN Status") + theme_bw() + scale_y_continuous(name="Frequence", limits=c(0, 1))+coord_flip() 
   #dev.off() 
 }
 

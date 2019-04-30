@@ -226,7 +226,7 @@ mammals_PA$PercentageSurfaceWithPA <- (mammals_PA$TotalSurfaceProtected/(mammals
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
 plot_PA <- function(taxa,FR_all,data_PA){  
-  #taxa="mammals"
+ ## taxa="mammals"
   #FR_all=FR_mammals
   #data_PA=mammals_PA
   
@@ -471,14 +471,14 @@ colnames(birdsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
 
 test<-rbind(birdsPlots,mammalsPlots)
 
-ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
-  geom_hline(aes(yintercept = allmean), linetype = "dashed") +
+a <- ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
+  #geom_hline(aes(yintercept = allmean), linetype = "dashed") +
   geom_point(aes(color = DR_class), size = 3) +  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
                 width = .1)  +
     coord_flip() +
   facet_grid(taxa~threats, scale = "free") +
- theme(strip.text.y = element_text(angle = 0,size=10,face="bold"),
+ theme(strip.text.y = element_blank(), #element_text(angle = 0,size=10,face="bold"),
          strip.background = element_rect(color="black", fill="gray87", size=1.5, linetype="solid"),
          strip.text.x = element_text(angle = 0,size=10,face="bold"),
          panel.background = element_rect(fill = "white",
@@ -488,9 +488,14 @@ ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
                                          colour = "gray87"),
          panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
                                          colour = "gray87"),legend.position="none")
-  
-  
 
+  
+b<-plot.iucn(taxa="birds",FR_all=FR_birds,redlist=redlist_birds)
+c<-plot.iucn(taxa="mammals",FR_all=FR_mammals,redlist=redlist_mammals)
+
+d <-grid.arrange(b,c,ncol=1)
+
+grid.arrange(a,d,ncol=2)
 
 
 
