@@ -471,6 +471,31 @@ colnames(birdsPlots) <- c("mean","sd","allmean","DR_class","threats","taxa")
 
 test<-rbind(birdsPlots,mammalsPlots)
 
+
+
+redLIST<-data.frame(rbind(redlist_birds,redlist_mammals),taxa=c(rep("birds",nrow(redlist_birds)),rep("mammals",nrow(redlist_mammals))))
+redLIST<-merge(redLIST,rbind(data_DR_birds,data_DR_mammals),by.x="SpecID", by.y="row.names")
+redLIST <- na.omit(redLIST) 
+redLIST<- redLIST[redLIST$DR_class %in% c("D75R75","D25R25","AVG"),]
+
+redlist_birds2<-merge(redlist_birds,data_DR_birds,by.x="SpecID", by.y="row.names")
+redlist_mammals2<-merge(redlist_mammals,data_DR_mammals,by.x="SpecID", by.y="row.names")
+
+tableau_birds<-table(redlist_birds2$IUCN_status,redlist_birds2$DR_class) 
+tableau_mammals<-table(redlist_mammals2$IUCN_status,redlist_mammals2$DR_class) 
+
+
+
+ggplot(data=redLIST, aes(x=DR_class, y=IUCN_status, color=DR_class),position = position_stack(reverse = TRUE)) +
+  geom_bar(aes(fill = IUCN_status)) +  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered"))+
+ theme(legend.position="none")+ coord_flip() 
+
+g <- ggplot(mpg, aes(class))
+g + geom_bar()
+
+
+
+
 a <- ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
   #geom_hline(aes(yintercept = allmean), linetype = "dashed") +
   geom_point(aes(color = DR_class), size = 3) +  scale_color_manual(values = c("#00AFBB", "#E7B800","orangered")) +
@@ -490,15 +515,20 @@ a <- ggplot(data=test,aes(x = DR_class, y = mean,color=DR_class))+
                                          colour = "gray87"),legend.position="none")
 
   
+
+
 b<-plot.iucn(taxa="birds",FR_all=FR_birds,redlist=redlist_birds)
 c<-plot.iucn(taxa="mammals",FR_all=FR_mammals,redlist=redlist_mammals)
 
-d <-grid.arrange(b,c,ncol=1)
+d <-grid.arrange(b,c)
 
 grid.arrange(a,d,ncol=2)
 
 
 
+ggplot(data=test2,aes(x = DR_class, y = NE,color=DR_class))+
+  #geom_hline(aes(yintercept = allmean), linetype = "dashed") +
+  geom_bar(aes(color = DR_class), size = 3)
 
 ggplot(data_plot_sub_mammals, aes(y = meanHDI, x = as.numeric(as.factor(DR_class)))) + 
   #geom_point(color="magenta2",alpha=0.4)+ 
