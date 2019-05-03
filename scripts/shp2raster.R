@@ -45,13 +45,15 @@ library(raster)
 
 ### PATH TO DATA
 path_data <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/data/"       ### !!!
-
+path_data <- data_dir
 
 ### IMPORT STUDY AREA SHAPEFILE (WORLD GRID)
-map_shp <- readOGR(
-  dsn    = paste0(path_data, "ReferenceGrid50km"),                              ### !!!
-  layer  = "gridLand50km"
-)
+map_shp <-readOGR(file.path(data_dir,"ReferenceGrid50Km","gridLand50km.shp"))
+
+#map_shp <- readOGR(
+#  dsn    = paste0(path_data, "ReferenceGrid50km"),                              ### !!!
+#  layer  = "gridLand50km"
+#)
 
 
 ### GET MAP INFOS

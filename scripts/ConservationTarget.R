@@ -1,4 +1,35 @@
 #TODO ANNOTE  SCRIPT
+load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
+data_DR_mammals<-FR_mammals$FR
+QD75 <- FR_mammals$Q$Q75_D
+QD25 <- FR_mammals$Q$Q25_D
+QR75 <- FR_mammals$Q$Q75_R
+QR25 <- FR_mammals$Q$Q25_R
+
+data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin<QR25)]="D25R25"
+data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin>QR75)]="D75R75"
+data_DR_mammals$DR_class[(data_DR_mammals$Din<QD25) & (data_DR_mammals$Rin>QR75)]="D25R75"
+data_DR_mammals$DR_class[(data_DR_mammals$Din>QD75) & (data_DR_mammals$Rin<QR25)]="D75R25"
+data_DR_mammals$DR_class[(((data_DR_mammals$Din>QD25) & (data_DR_mammals$Din<QD75)) & ((data_DR_mammals$Rin>QR25) & (data_DR_mammals$Rin<QR75)))]="AVG"
+
+data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(data_DR_mammals))
+colnames(data_DR_mammals) <- "DR_class"
+
+#Birds
+data_DR_birds<-FR_birds$FR
+QD75 <- FR_birds$Q$Q75_D
+QD25 <- FR_birds$Q$Q25_D
+QR75 <- FR_birds$Q$Q75_R
+QR25 <- FR_birds$Q$Q25_R
+
+data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin<QR25)]="D25R25"
+data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin>QR75)]="D75R75"
+data_DR_birds$DR_class[(data_DR_birds$Din<QD25) & (data_DR_birds$Rin>QR75)]="D25R75"
+data_DR_birds$DR_class[(data_DR_birds$Din>QD75) & (data_DR_birds$Rin<QR25)]="D75R25"
+data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & ((data_DR_birds$Rin>QR25) & (data_DR_birds$Rin<QR75)))]="AVG"
+
+data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
+colnames(data_DR_birds) <- "DR_class"  
 ### Quantiles of SR and gap analyses
 
           # MAMMALS
@@ -45,7 +76,6 @@ Target_mammals <- Target_mammals[,c(2,3,5,6,15)]
 
 
 Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
-Target_mammals[,"TargetMet_CellsWithPA"] <- 100*(Target_mammals[,"PercentageCellsWithPA"]/Target_mammals[,"TargetExp"])
 Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"Percentagecover"]/Target_mammals[,"TargetExp"])
 Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
 Target_mammals <- na.omit(Target_mammals)
@@ -57,7 +87,6 @@ Target_birds <- Target_birds[,c(2,3,5,6,15)]
 
 
 Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
-Target_birds[,"TargetMet_CellsWithPA"] <- 100*(Target_birds[,"PercentageCellsWithPA"]/Target_birds[,"TargetExp"])
 Target_birds[,"TargetMet_Percentagecover"] <- 100*(Target_birds[,"Percentagecover"]/Target_birds[,"TargetExp"])
 Target_birds <- merge(Target_birds,data_DR_birds,by="row.names")
 Target_birds <- na.omit(Target_birds)
@@ -208,7 +237,7 @@ a <- ggplot(Target_birds_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + 
 
 
 Target_birds_all_sub <- Target_birds_all[((Target_birds_all$DR_class=='D25R25') | (Target_birds_all$DR_class=='D75R75') | (Target_birds_all$DR_class=='AVG')),]
-b <- ggplot(Target_birds_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_violin() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+b <- ggplot(Target_birds_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds_all_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species’ target achievements")+theme_bw()
 
