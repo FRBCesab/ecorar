@@ -1,3 +1,4 @@
+library(vioplot)
 library(rphylopic)
 
 path_data <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/data/"           ### !!!
@@ -7,12 +8,14 @@ source(paste0(path_R, "__recolorPhylopic.R"))
 source(paste0(path_R, "__addPhylopic.R"))
 
 
-cols <- c("#00AFBB", "#E7B800", "orangered")
+cols <- c("#00AFBB", "#E7B800", "#FF4500")
 
 
 load(paste0(path_data, "threats.RData"))
 
 datas <- threats
+
+
 
 datas$Threats  <- as.character(datas$Threats)
 datas$Taxa     <- as.character(datas$Taxa)
@@ -79,7 +82,16 @@ comp <- 1
 
 for (j in 1:dim(values_m)[1]) {
 
+  threats <- dimnames(values_m)[[1]]
+
+  tmp0 <- datas[
+    which(
+      datas[ , "Threats"] == threats[j]
+    ), ]
+
   for (i in 1:dim(values_m)[2]) {
+
+    taxas <- dimnames(values_m)[[2]]
 
     if (comp / 2 == round(comp / 2)) {
       par(mar = c(1, 1, 0.5, 0.5))
@@ -87,11 +99,16 @@ for (j in 1:dim(values_m)[1]) {
       par(mar = c(0.5, 1, 1, .5))
     }
 
+    tmp <- tmp0[
+      which(
+        tmp0[ , "Taxa"] == taxas[i]
+      ), ]
+
     plot(
       0,
       xlim = c(
-        min(values_m[j, , ] - values_sd[j, , ], na.rm = TRUE),
-        max(values_m[j, , ] + values_sd[j, , ], na.rm = TRUE)
+        min(tmp0[ , "Value"], na.rm = TRUE),
+        max(tmp0[ , "Value"], na.rm = TRUE)
       ),
       ylim = c(0.5, 3.5),
       axes = FALSE,
@@ -101,37 +118,32 @@ for (j in 1:dim(values_m)[1]) {
 
     grid()
 
-    if (!is.na(values_m[j, i, 1])) {
+      cats <- dimnames(values_m)[[3]]
 
-      for (k in 1:3){
-        lines(
-          x = c(
-            values_m[j, i, k] - values_sd[j, i, k],
-            values_m[j, i, k] + values_sd[j, i, k]
-          ),
-          y = rep(k, 2),
-          col = cols[k],
-          lwd = 2
-        )
-        lines(
-          x = rep(
-            values_m[j, i, k] - values_sd[j, i, k],
-            2
-          ),
-          y = c(k-.1, k + .1),
-          col = cols[k],
-          lwd = 2
-        )
-        lines(
-          x = rep(
-            values_m[j, i, k] + values_sd[j, i, k],
-            2
-          ),
-          y = c(k-.1, k + .1),
-          col = cols[k],
-          lwd = 2
-        )
-        points(x = values_m[j, i, k], y = k, col = cols[k], pch = 19, cex = 2)
+      for (k in 1:length(cats)){
+
+        if (!is.na(values_m[j, i, k])) {
+
+          vioplot(
+            x = tmp[which(tmp[ , "DR_class"] == cats[k]), "Value"],
+          	names = NULL,
+          	horizontal = TRUE,
+          	col = paste0(cols[k], "BB"),
+            border = "#666666",
+          	lty = 1,
+          	lwd = 1,
+          	rectCol = cols[k],
+            lineCol = cols[k],
+          	colMed = cols[k],
+            colMed2 = "white",
+          	at = k,
+          	add = TRUE,
+          	# drawRect  = FALSE,
+          	na.rm = TRUE,
+          	side = "both",
+            plotCentre = "line"
+          )
+
       }
     }
     box()
@@ -228,3 +240,14 @@ for (i in 1:2) {
 }
 
 dev.off()
+
+
+
+
+
+
+pos <- which(
+  datas$DR_class == "D25R25" &
+  datas$Threats  == "meanConflict" &
+  datas$Taxa     == "mammals"
+)
