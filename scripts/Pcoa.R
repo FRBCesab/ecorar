@@ -222,15 +222,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
   ##Chosing between birds and mammals
     
-     pco_data <- pco_birds
-     traits <- birdstrait
-     FR_data <- FR_birds
-     taxa <- "birds"
+     # pco_data <- pco_birds
+     # traits <- birdstrait
+     # FR_data <- FR_birds
+     # taxa <- "birds"
     
-    #pco_data <- pco_mammals
-    #traits <- mammalstrait
-    #FR_data <- FR_mammals
-    #taxa <- "mammals"
+    pco_data <- pco_mammals
+    traits <- mammalstrait
+    FR_data <- FR_mammals
+    taxa <- "mammals"
     
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
