@@ -227,10 +227,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
      FR_data <- FR_birds
      taxa <- "birds"
     
-    #pco_data <- pco_mammals
-    #traits <- mammalstrait
-    #FR_data <- FR_mammals
-    #taxa <- "mammals"
+    # pco_data <- pco_mammals
+    # traits <- mammalstrait
+    # FR_data <- FR_mammals
+    # taxa <- "mammals"
     
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
@@ -344,6 +344,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
     }
     
+<<<<<<< HEAD
     a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
                       plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
@@ -351,6 +352,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,
                       plotpdf=FALSE, axis.x=1, axis.y=4, jitval=500,
+=======
+    a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    
+    b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+>>>>>>> cb8ba85f486ea18580d27e9963a6cd058353b060
                       var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
                       DR="D25R25",Funk="Din")
     b
