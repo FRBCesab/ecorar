@@ -182,15 +182,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     subspecies<-function(data,pco,axis.x,axis.y,var1,var2,Q1,Q2,DR){
       
-      data=FR_data
-      pco=pco_data
-      axis.x=1
-      axis.y=2
-      var1="Din"
-      var2="Rin"
-      Q1="Q75_D"
-      Q2="Q75_R"
-      DR="DR75"
+      #data=FR_data
+      #pco=pco_data
+      #axis.x=1
+      #axis.y=2
+      #var1="Din"
+      #var2="Rin"
+      #Q1="Q75_D"
+      #Q2="Q75_R"
+      #DR="DR75"
       
       df <- data.frame(x = pco$vectors[,axis.x],
                        y = pco$vectors[,axis.y],
@@ -344,15 +344,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
     }
     
-<<<<<<< HEAD
+####HEAD
     a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
                       plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     
     b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=1, axis.y=4, jitval=500,
-=======
+                      plotpdf=FALSE, axis.x=1, axis.y=4, jitval=500)
+#
     a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
                       plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
@@ -360,7 +360,6 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
                       plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
->>>>>>> cb8ba85f486ea18580d27e9963a6cd058353b060
                       var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
                       DR="D25R25",Funk="Din")
     b
@@ -372,12 +371,16 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
     load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))    
-   #pco<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
-   pco<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+   
+ pco<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
+ data_DR_birds <- data_DR_birds[rownames(data_DR_birds)%in%rownames(pco_birds$vectors),]
+
+ # pco<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
     jitval <- 500
-    df <- data.frame(x = jitter(pco[,1],jitval),
-                     y = jitter(pco[,2],jitval),
-                     z1 = data_DR_mammals)
+    df <- data.frame(x = jitter(pco[,2],jitval),
+                     y = jitter(pco[,4],jitval))
+
+   df<-merge(df,data_DR_birds,by="row.names")
    
     
     #names(df)[6]<-"w"
@@ -397,21 +400,32 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     hulls_D25R25 <- find_hull(df25)
   
     ggplot(df, aes(x, y)) +
-      geom_point(shape=1,color="grey80",fill="grey80")
+      geom_point(colour = "grey80",shape=21,fill="#4D4D4D1E")+ 
+      geom_point(data=df75, colour="orangered",shape=21,fill="#FF45001E")+
+      geom_point(data=df25, colour="#E7B800",shape=21,fill="#E7B8001E")+
+      geom_point(data=dfAVG, colour="#00AFBB",shape=21,fill="#00AFBB1E")+
+      geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered")+
+      geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB")+
+      geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800")+
+      labs(x = "PC2",y = "PC4")+ theme_minimal()
+      
     
-    
-    
+
+      
+      
     scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
       labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(DR) +
       geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
+      geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
+      geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
       geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray") 
     
 
-    orangered"
+  
   
   data_DR$colsD25R25 <- NA
-  data_DR$colsD25R25[data_DR$DR_class=="D25R25"] <- "#E7B800"
+  data_DR$colsD25R25[data_DR$DR_class=="D25R25"] <- 
     
     data_DR$colsAVG <- NA
-    data_DR$colsAVG[data_DR$DR_class=="AVG"] <- "#00AFBB"
+    data_DR$colsAVG[data_DR$DR_class=="AVG"] <- 
     
