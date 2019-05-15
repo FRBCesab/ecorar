@@ -369,20 +369,18 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
   # Other version NOT FINISH
     
     load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
-    load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))    
-   
- pco<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
- data_DR_birds <- data_DR_birds[rownames(data_DR_birds)%in%rownames(pco_birds$vectors),]
+      pco<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
+ 
 
- # pco<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))  
+  pco<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+  
     jitval <- 500
     df <- data.frame(x = jitter(pco[,2],jitval),
                      y = jitter(pco[,4],jitval))
-
-   df<-merge(df,data_DR_birds,by="row.names")
-   
-    
-    #names(df)[6]<-"w"
+    #df<-merge(df,data_DR_mammals,by="row.names")
+     df<-merge(df,data_DR_birds,by="row.names")
+ 
     find_hull <- function(df) df[chull(df$x, df$y), ]
     
     df75 <-subset(df,df$DR_class=="D75R75")
@@ -403,9 +401,9 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       geom_point(data=df75, colour="orangered",shape=21,fill="#FF45001E")+
       geom_point(data=df25, colour="#E7B800",shape=21,fill="#E7B8001E")+
       geom_point(data=dfAVG, colour="#00AFBB",shape=21,fill="#00AFBB1E")+
-      geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered")+
-      geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB")+
-      geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800")+
+      geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered",fill="white")+
+      geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB",fill="white")+
+      geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800",fill="white")+
       labs(x = "PC2",y = "PC4")+ theme_minimal()
       
     

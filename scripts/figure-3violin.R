@@ -1,5 +1,5 @@
-library(vioplot)
 library(rphylopic)
+library(vioplot)
 
 path_data <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/data/"           ### !!!
 path_R    <- "~/OneDrive/OneDrive - Fondation Biodiversité/MySpace/RALLL/scripts/"  ### !!!
@@ -8,14 +8,18 @@ source(paste0(path_R, "__recolorPhylopic.R"))
 source(paste0(path_R, "__addPhylopic.R"))
 
 
-cols <- c("#00AFBB", "#E7B800", "#FF4500")
-
-
 load(paste0(path_data, "threats.RData"))
+load(paste0(path_data, "threat_hfp.RData"))
 
-datas <- threats
+threats$Threats  <- as.character(threats$Threats)
+threats$Taxa     <- as.character(threats$Taxa)
+threats$DR_class <- as.character(threats$DR_class)
 
+hfps$Threats  <- as.character(hfps$Threats)
+hfps$Taxa     <- as.character(hfps$Taxa)
+hfps$DR_class <- as.character(hfps$DR_class)
 
+datas <- rbind(threats, hfps)
 
 datas$Threats  <- as.character(datas$Threats)
 datas$Taxa     <- as.character(datas$Taxa)
@@ -40,7 +44,9 @@ names(iucn)[2] <- "mammals"
 for (i in 1:2)
   iucn[[i]] <- apply(iucn[[i]], 2, function(x) x / sum(x) * 100)
 
-labels <- c("Climate change", "Mean conflict", "Mean HDI", "Target achievement (%)")
+threats  <- c("Protection Target", "Mean HFP", "Climate change")
+labels   <- c("Target achievement (%)", "Human Footprint", "Climate change")
+taxa     <- c("birds", "mammals")
 
 icons <- list()
 icons[["mammals"]] <- image_data("5a5dafa2-6388-43b8-a15a-4fd21cd17594", size = 512)[[1]]
@@ -51,7 +57,7 @@ icons[["birds"]]   <- image_data("c3c19b65-cb8d-40bd-b1a6-82a3277bcd4f", size = 
 
 png(
   file       = paste0("~/Desktop/figure-3.png"),
-  width      = 12.00,
+  width      = 9.60,
   height     =  7.00,
   units      = "in",
   res        = 600,
@@ -74,123 +80,8 @@ par(
   cex.axis  = 0.75,
   fg        = "#666666"
 )
-par(mfcol = c(2, 5))
+par(mfcol = c(2, 4))
 
-
-comp <- 1
-
-
-for (j in 1:dim(values_m)[1]) {
-
-  threats <- dimnames(values_m)[[1]]
-
-  tmp0 <- datas[
-    which(
-      datas[ , "Threats"] == threats[j]
-    ), ]
-
-  for (i in 1:dim(values_m)[2]) {
-
-    taxas <- dimnames(values_m)[[2]]
-
-    if (comp / 2 == round(comp / 2)) {
-      par(mar = c(1, 1, 0.5, 0.5))
-    } else {
-      par(mar = c(0.5, 1, 1, .5))
-    }
-
-    tmp <- tmp0[
-      which(
-        tmp0[ , "Taxa"] == taxas[i]
-      ), ]
-
-    plot(
-      0,
-      xlim = c(
-        min(tmp0[ , "Value"], na.rm = TRUE),
-        max(tmp0[ , "Value"], na.rm = TRUE)
-      ),
-      ylim = c(0.5, 3.5),
-      axes = FALSE,
-      type = "n",
-      ann = FALSE
-    )
-
-    grid()
-
-      cats <- dimnames(values_m)[[3]]
-
-      for (k in 1:length(cats)){
-
-        if (!is.na(values_m[j, i, k])) {
-
-          vioplot(
-            x = tmp[which(tmp[ , "DR_class"] == cats[k]), "Value"],
-          	names = NULL,
-          	horizontal = TRUE,
-          	col = paste0(cols[k], "BB"),
-            border = "#666666",
-          	lty = 1,
-          	lwd = 1,
-          	rectCol = cols[k],
-            lineCol = cols[k],
-          	colMed = cols[k],
-            colMed2 = "white",
-          	at = k,
-          	add = TRUE,
-          	# drawRect  = FALSE,
-          	na.rm = TRUE,
-          	side = "both",
-            plotCentre = "line"
-          )
-
-      }
-    }
-    box()
-
-    if (comp < 3) {
-      par(mgp = c(.5, 0, 0))
-      axis(2, at = 1:3, labels = dimnames(values_m)[3][[1]], lwd = 0, font = 2)
-    }
-
-    if (comp / 2 == round(comp / 2)) {
-      par(mgp = c(.5, -.05, 0))
-      axis(1, lwd = 0, font = 2)
-    }
-
-    if (comp / 2 != round(comp / 2)) {
-      mtext(text = labels[j], side = 3, font = 2, cex = .85)
-    }
-
-    if (comp == 1) {
-
-      addPhylopic(
-        img    = icons[[2]],
-        x      = .80,
-        y      = .90,
-        ysize  = .20,
-        alpha  = 1,
-        color  = "#777777",
-        AR     = .5
-      )
-    }
-
-    if (comp == 2) {
-
-      addPhylopic(
-        img    = icons[[1]],
-        x      = .80,
-        y      = .90,
-        ysize  = .20,
-        alpha  = 1,
-        color  = "#777777",
-        AR     = .5
-      )
-    }
-
-    comp <- comp + 1
-  }
-}
 
 cols <- c("#026666", "#aaaaaa", "#c53131")
 sloc <- c("#f7f7f7", "#333333", "#F6c8c8")
@@ -237,17 +128,127 @@ for (i in 1:2) {
   } else {
     mtext(text = "IUCN status (%)", side = 3, font = 2, cex = .85)
   }
+
+  par(mgp = c(.5, 0, 0))
+  axis(2, at = 1:3, labels = dimnames(values_m)[3][[1]], lwd = 0, font = 2)
+
+}
+
+cols <- c("#00AFBB", "#E7B800", "#FF4500")
+
+comp <- 3
+
+for (j in 1:length(threats)) {
+
+  pos <- which(dimnames(values_m)[1][[1]] == threats[j])
+
+  tmp0 <- datas[
+    which(
+      datas[ , "Threats"] == threats[j]
+    ), ]
+
+  for (i in 1:length(taxa)) {
+
+    if (comp / 2 == round(comp / 2)) {
+      par(mar = c(1, 1, 0.5, 0.5))
+    } else {
+      par(mar = c(0.5, 1, 1, .5))
+    }
+
+    tmp <- tmp0[
+      which(
+        tmp0[ , "Taxa"] == taxa[i]
+      ), ]
+
+    plot(
+      0,
+      xlim = c(
+        min(tmp0[ , "Value"], na.rm = TRUE),
+        max(tmp0[ , "Value"], na.rm = TRUE)
+      ),
+      ylim = c(0.5, 3.5),
+      axes = FALSE,
+      type = "n",
+      ann = FALSE
+    )
+
+    grid()
+
+    cats <- dimnames(values_m)[[3]]
+
+    if (comp > 6) {
+      abline(v = 0, lwd = 1, lty = 2)
+    }
+
+    for (k in 1:length(cats)){
+
+      if (comp != 8) {
+
+        vioplot(
+          x = tmp[which(tmp[ , "DR_class"] == cats[k]), "Value"],
+        	names = NULL,
+        	horizontal = TRUE,
+        	col = paste0(cols[k], "BB"),
+          border = "#666666",
+        	lty = 1,
+        	lwd = 1,
+        	rectCol = cols[k],
+          lineCol = cols[k],
+        	colMed = cols[k],
+          colMed2 = "white",
+        	at = k,
+        	add = TRUE,
+        	# drawRect  = FALSE,
+        	na.rm = TRUE,
+        	side = "both",
+          plotCentre = "line"
+        )
+      }
+    }
+    box()
+
+    if (comp < 3) {
+      par(mgp = c(.5, 0, 0))
+      axis(2, at = 1:3, labels = dimnames(values_m)[3][[1]], lwd = 0, font = 2)
+    }
+
+    if (comp / 2 == round(comp / 2)) {
+      par(mgp = c(.5, -.05, 0))
+      axis(1, lwd = 0, font = 2)
+    }
+
+    if (comp / 2 != round(comp / 2)) {
+      mtext(text = labels[j], side = 3, font = 2, cex = .85)
+    }
+
+    if (comp == 7) {
+
+      addPhylopic(
+        img    = icons[[2]],
+        x      = .80,
+        y      = .90,
+        ysize  = .20,
+        alpha  = 1,
+        color  = "#777777",
+        AR     = .5
+      )
+    }
+
+    if (comp == 8) {
+
+      addPhylopic(
+        img    = icons[[1]],
+        x      = .80,
+        y      = .90,
+        ysize  = .20,
+        alpha  = 1,
+        color  = "#777777",
+        AR     = .5
+      )
+    }
+
+    comp <- comp + 1
+  }
 }
 
 dev.off()
-
-
-
-
-
-
-pos <- which(
-  datas$DR_class == "D25R25" &
-  datas$Threats  == "meanConflict" &
-  datas$Taxa     == "mammals"
-)
