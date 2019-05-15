@@ -30,6 +30,10 @@ data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & 
 
 data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
 colnames(data_DR_birds) <- "DR_class"  
+
+
+save(data_DR_birds, file=file.path(results_dir,"birds/data_DR_birds.RData"))
+save(data_DR_mammals, file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
 ### Quantiles of SR and gap analyses
 
           # MAMMALS
@@ -180,8 +184,10 @@ b <- ggplot(Target_mammals_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_clas
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals_all_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species’ target achievements")+theme_bw()
 
-
-
+Target_mammals_all_sub$diff <- Target_mammals_all_sub$TargetAchiev - Target_mammals_all_sub$TargetExp
+c <- ggplot(Target_mammals_all_sub, aes(x=DR_class, y=diff, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(-100, 100)) + geom_hline(yintercept=mean(Target_mammals_all_sub$diff,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()
 #--------
 load(file=file.path(data_dir,"birds","50km","CatIaBirds.RData"))
 load(file=file.path(data_dir,"birds","50km","CatIbBirds.RData"))
@@ -237,10 +243,14 @@ a <- ggplot(Target_birds_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + 
 
 
 Target_birds_all_sub <- Target_birds_all[((Target_birds_all$DR_class=='D25R25') | (Target_birds_all$DR_class=='D75R75') | (Target_birds_all$DR_class=='AVG')),]
+
 b <- ggplot(Target_birds_all_sub, aes(x=DR_class, y=TargetAchiev, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds_all_sub$TargetAchiev,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species’ target achievements")+theme_bw()
-
+Target_birds_all_sub$diff <- Target_birds_all_sub$TargetAchiev - Target_birds_all_sub$TargetExp
+c <- ggplot(Target_birds_all_sub, aes(x=DR_class, y=diff, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(-100, 100)) + geom_hline(yintercept=mean(Target_birds_all_sub$diff,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species’ target achievements")+theme_bw()
 
 
 ggplot(Target_birds_all_sub, aes(x = LogSR, y = Percentagecover, color = TargetAchiev, size = TargetAchiev)) + 

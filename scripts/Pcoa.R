@@ -10,7 +10,7 @@ library(gridExtra)
 library(plyr)
 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=FALSE,who="NL")
 
 
 #LOAD DATA ---- 
@@ -182,15 +182,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     subspecies<-function(data,pco,axis.x,axis.y,var1,var2,Q1,Q2,DR){
       
-      data=FR_data
-      pco=pco_data
-      axis.x=1
-      axis.y=2
-      var1="Din"
-      var2="Rin"
-      Q1="Q75_D"
-      Q2="Q75_R"
-      DR="DR75"
+      #data=FR_data
+      #pco=pco_data
+      #axis.x=1
+      #axis.y=2
+      #var1="Din"
+      #var2="Rin"
+      #Q1="Q75_D"
+      #Q2="Q75_R"
+      #DR="DR75"
       
       df <- data.frame(x = pco$vectors[,axis.x],
                        y = pco$vectors[,axis.y],
@@ -227,10 +227,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
      FR_data <- FR_birds
      taxa <- "birds"
     
-    #pco_data <- pco_mammals
-    #traits <- mammalstrait
-    #FR_data <- FR_mammals
-    #taxa <- "mammals"
+    # pco_data <- pco_mammals
+    # traits <- mammalstrait
+    # FR_data <- FR_mammals
+    # taxa <- "mammals"
     
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles  
@@ -344,17 +344,86 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
     }
     
-    a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+####HEAD
+    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
                       plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     
+    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=1, axis.y=4, jitval=500)
+#
+    a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    
     b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
                       var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
                       DR="D25R25",Funk="Din")
-    
+    b
     grid.arrange(a,b,ncol=2)
 #----    
+    FR_mammals
+    
+  # Other version NOT FINISH
+    
+    load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
+      pco<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
+ 
 
+ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))  
+  pco<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+  
+    jitval <- 500
+    df <- data.frame(x = jitter(pco[,2],jitval),
+                     y = jitter(pco[,4],jitval))
+    #df<-merge(df,data_DR_mammals,by="row.names")
+     df<-merge(df,data_DR_birds,by="row.names")
+ 
+    find_hull <- function(df) df[chull(df$x, df$y), ]
+    
+    df75 <-subset(df,df$DR_class=="D75R75")
+    dfAVG<-subset(df,df$DR_class=="AVG")
+    df25<-subset(df,df$DR_class=="D25R25")
+    
+    df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
+    hulls_D75R75 <- find_hull(df75)
+    
+    dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
+    hulls_AVG <- find_hull(dfAVG)
+    
+    df25 <- df25[complete.cases(df25), ] # needed because there is one NA in the birds dataframe
+    hulls_D25R25 <- find_hull(df25)
+  
+    ggplot(df, aes(x, y)) +
+      geom_point(colour = "grey80",shape=21,fill="#4D4D4D1E")+ 
+      geom_point(data=df75, colour="orangered",shape=21,fill="#FF45001E")+
+      geom_point(data=df25, colour="#E7B800",shape=21,fill="#E7B8001E")+
+      geom_point(data=dfAVG, colour="#00AFBB",shape=21,fill="#00AFBB1E")+
+      geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered",fill="white")+
+      geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB",fill="white")+
+      geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800",fill="white")+
+      labs(x = "PC2",y = "PC4")+ theme_minimal()
+      
+    
+
+      
+      
+    scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+      labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(DR) +
+      geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
+      geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
+      geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
+      geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray") 
+    
+
+  
+  
+  data_DR$colsD25R25 <- NA
+  data_DR$colsD25R25[data_DR$DR_class=="D25R25"] <- 
+    
+    data_DR$colsAVG <- NA
+    data_DR$colsAVG[data_DR$DR_class=="AVG"] <- 
     
