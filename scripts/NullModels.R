@@ -5,6 +5,8 @@ who.remote(remote=FALSE,who="NL")
 
 library(parallel)
 library(plyr)
+library(vegan)
+
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -41,6 +43,49 @@ data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & 
 
 data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
 colnames(data_DR_birds) <- "DR_class"
+
+##SECOND VERSION OF NULL MODEL (SUGGESTED BY ANNETTE)
+#Random distribution but keep the DR_class for each species
+# Transform in matrix
+library("qdapTools")
+
+occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
+occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+
+for (i in 1:ncol(occ_mammals_mat)){
+  occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
+}
+
+test <- nullmodel(occ_mammals_mat,method="curveball")
+sm <- simulate(test, nsim=10)
+
+
+x <- as.matrix(mite)[1:12, 21:30]
+
+smfun <- function(x, burnin, nsim, thin) {
+  nm <- nullmodel(x, "curveball")
+  nm <- update(nm, nsim=burnin)
+  simulate(nm, nsim=nsim, thin=thin)
+}
+
+smlist <- replicate(3, smfun(x, burnin=1, nsim=10, thin=1), simplify=FALSE)
+smlist <- smbind(smlist, MARGIN=3) # Number of permuted matrices = 30
+
+
+
+smlist <- mclapply(1:3, function(i) simulate(occ_mammals_mat, nsim=10,thin=1),core=3)
+
+smbind(smlist, MARGIN=3)
+}
+
+
+
+#THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
+#Random the functional trait but keep the rarity to know if FR is link to 
+
+
+###FIRST VERSION OF NULL MODEL
+#RANDOM DISTRIBUTION OF THE DR CLASS
 
 ##Generate number of species per DR_class
 Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
