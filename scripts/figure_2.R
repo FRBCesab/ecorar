@@ -204,7 +204,7 @@ for (k in 1:length(taxas)) {
 
     ### ADD MAP INSETS  --------------------------------------------------------
 
-    if (infos[j] == "D75R75") {
+    if (infos[j] %in% c("D75R75", "D25R25")) {
 
       if (taxas[k] == "mammals") {
 

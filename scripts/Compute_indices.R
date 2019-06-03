@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=TRUE,who="NM")
+who.remote(remote=FALSE,who="NM")
 
 library(funrar)
 library(moments)
