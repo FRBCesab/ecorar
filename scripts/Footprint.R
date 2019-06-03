@@ -2,7 +2,20 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 
+ras
+library(raster)
+library(tiff)
 
+footprint=raster(file.path(data_dir,"GlobalHumanFootprintIndex.tiff"))
+ras
+
+footprint <- raster(footprint)
+new.rasterA = projectRaster(footprint, ras) #define the projection and extent
+
+r.stack = stack(new.rasterA, rasterB)
+
+new_2013 <- crop(extend(footprint, ras), ras)
+all.equal(extent(raster_2015), extent(new_2013))
 pco2<- vegan::wcmdscale(disTraits_birds) 
 
 
