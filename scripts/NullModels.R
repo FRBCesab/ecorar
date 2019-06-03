@@ -45,43 +45,52 @@ data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_D
 colnames(data_DR_birds) <- "DR_class"
 
 ##SECOND VERSION OF NULL MODEL (SUGGESTED BY ANNETTE)
+
 #Random distribution but keep the DR_class for each species
+
+
 # Transform in matrix
 library("qdapTools")
+load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+load(file=file.path(results_dir,"mammals","data_DR_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+
 
 occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
-occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+#occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
 
 for (i in 1:ncol(occ_mammals_mat)){
   occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
 }
 
 test <- nullmodel(occ_mammals_mat,method="curveball")
-sm <- simulate(test, nsim=10)
+sm <- simulate(test, nsim=5,seed=22)
+colnames(sm) <-  colnames(occ_mammals_mat)
+#sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
 
 
-x <- as.matrix(mite)[1:12, 21:30]
+nullres<-NULL
+for (i in 1:5){
+  nullres<-cbind(nullres,apply(sm[,,i],1,sum)) 
+  }
 
-smfun <- function(x, burnin, nsim, thin) {
-  nm <- nullmodel(x, "curveball")
-  nm <- update(nm, nsim=burnin)
-  simulate(nm, nsim=nsim, thin=thin)
-}
-
-smlist <- replicate(3, smfun(x, burnin=1, nsim=10, thin=1), simplify=FALSE)
-smlist <- smbind(smlist, MARGIN=3) # Number of permuted matrices = 30
-
+Null_mean <- apply(nullres,1,mean)
+Null_sd <- apply(nullres,1,sd)
+summary(Null_sd)
+summary(Null_mean)
 
 
-smlist <- mclapply(1:3, function(i) simulate(occ_mammals_mat, nsim=10,thin=1),core=3)
+Null_mean <- mean(nullres)
+Null_sd <- sd(nullres)
 
-smbind(smlist, MARGIN=3)
-}
+SES_total_birds <- data.frame(cell=funk_birds$cell, D75R75 = (funk_birds$D75R75 - Null_mean)/0.05)
+boxplot(SES_total_birds$D75R75)
+
 
 
 
 #THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
-#Random the functional trait but keep the rarity to know if FR is link to 
+#Random the functional trait but keep the rarity to know if FR is link to R only
 
 
 ###FIRST VERSION OF NULL MODEL
