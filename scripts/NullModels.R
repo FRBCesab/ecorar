@@ -57,21 +57,30 @@ load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 
 
 occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
+occ_mammals_mat<-occ_mammals_mat[apply(occ_mammals_mat,1,sum)>0,]
+#TEst petit jeux de données
+#funk_mammals[funk_mammals$D75R75==12,]
+#occ_mammals_mat <- occ_mammals_mat[rownames(occ_mammals_mat)%in% as.character(158899:158910),]
 #occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
 
 for (i in 1:ncol(occ_mammals_mat)){
   occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
 }
 
-test <- nullmodel(occ_mammals_mat,method="curveball")
-sm <- simulate(test, nsim=5,seed=22)
+test <- nullmodel(occ_mammals_mat,method="r00")
+sm <- simulate(test, nsim=5)
 colnames(sm) <-  colnames(occ_mammals_mat)
-#sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
+sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
+
+a<-matrix(rbinom(60, 1, prob = 0.5), nrow = 5)
+nm <- nullmodel(a, "curveball")
+sm <- simulate(nm, nsim=10)
+sm[,,1]
 
 
 nullres<-NULL
 for (i in 1:5){
-  nullres<-cbind(nullres,apply(sm[,,i],1,sum)) 
+  nullres<-cbind(nullres,apply(sm2[,,i],1,sum)) 
   }
 
 Null_mean <- apply(nullres,1,mean)
@@ -79,12 +88,8 @@ Null_sd <- apply(nullres,1,sd)
 summary(Null_sd)
 summary(Null_mean)
 
-
-Null_mean <- mean(nullres)
-Null_sd <- sd(nullres)
-
-SES_total_birds <- data.frame(cell=funk_birds$cell, D75R75 = (funk_birds$D75R75 - Null_mean)/0.05)
-boxplot(SES_total_birds$D75R75)
+SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+boxplot(SES_total_mammals$D75R75)
 
 
 
