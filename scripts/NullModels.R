@@ -5,6 +5,8 @@ who.remote(remote=FALSE,who="NL")
 
 library(parallel)
 library(plyr)
+library(vegan)
+
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -41,6 +43,63 @@ data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & 
 
 data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
 colnames(data_DR_birds) <- "DR_class"
+
+##SECOND VERSION OF NULL MODEL (SUGGESTED BY ANNETTE)
+
+#Random distribution but keep the DR_class for each species
+
+
+# Transform in matrix
+library("qdapTools")
+load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+load(file=file.path(results_dir,"mammals","data_DR_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+
+
+occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
+occ_mammals_mat<-occ_mammals_mat[apply(occ_mammals_mat,1,sum)>0,]
+#TEst petit jeux de données
+#funk_mammals[funk_mammals$D75R75==12,]
+#occ_mammals_mat <- occ_mammals_mat[rownames(occ_mammals_mat)%in% as.character(158899:158910),]
+#occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+
+for (i in 1:ncol(occ_mammals_mat)){
+  occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
+}
+
+test <- nullmodel(occ_mammals_mat,method="r00")
+sm <- simulate(test, nsim=5)
+colnames(sm) <-  colnames(occ_mammals_mat)
+sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
+
+a<-matrix(rbinom(60, 1, prob = 0.5), nrow = 5)
+nm <- nullmodel(a, "curveball")
+sm <- simulate(nm, nsim=10)
+sm[,,1]
+
+
+nullres<-NULL
+for (i in 1:5){
+  nullres<-cbind(nullres,apply(sm2[,,i],1,sum)) 
+  }
+
+Null_mean <- apply(nullres,1,mean)
+Null_sd <- apply(nullres,1,sd)
+summary(Null_sd)
+summary(Null_mean)
+
+SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+boxplot(SES_total_mammals$D75R75)
+
+
+
+
+#THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
+#Random the functional trait but keep the rarity to know if FR is link to R only
+
+
+###FIRST VERSION OF NULL MODEL
+#RANDOM DISTRIBUTION OF THE DR CLASS
 
 ##Generate number of species per DR_class
 Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
