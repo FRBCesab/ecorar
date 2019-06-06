@@ -78,6 +78,11 @@ res[[i]] <-sm2
 
 }
 
+rep
+simu <- lapply(1:length(res),function(i){
+
+
+
 Null_res <-lapply(1:length(res),function(i){
   Null_mean <- data.frame(mean=apply(res[[i]],1,mean),sd=apply(res[[i]],1,sd))
   })
