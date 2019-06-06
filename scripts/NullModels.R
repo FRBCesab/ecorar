@@ -67,28 +67,22 @@ for (i in 1:ncol(occ_mammals_mat)){
   occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
 }
 
-res<-NULL
-for (i in 1:2) {
-sm <- simulate(test, nsim=i)
+res<-list() 
+for (i in 1:3) {
+sm <- simulate(test, nsim=1)
 test <- nullmodel(occ_mammals_mat,method="r00")
 colnames(sm) <-  colnames(occ_mammals_mat)
 sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
 
-res[,,i] <-sm2
+res[[i]] <-sm2
+
 }
 
+Null_res <-lapply(1:length(res),function(i){
+  Null_mean <- data.frame(mean=apply(res[[i]],1,mean),sd=apply(res[[i]],1,sd))
+  })
+  
 
-
-
-
-nullres<-NULL
-for (i in 1:10){
-  nullres<-cbind(nullres,apply(sm2[,,i],1,sum)) 
-  }
-
-Null_mean <- apply(nullres,1,mean)
-Null_sd <- apply(nullres,1,sd)
-summary(Null_sd)
 
 summary(Null_mean)
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
