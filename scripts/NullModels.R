@@ -69,8 +69,8 @@ for (i in 1:ncol(occ_mammals_mat)){
 
 res<-list() 
 for (i in 1:3) {
-sm <- simulate(test, nsim=1)
 test <- nullmodel(occ_mammals_mat,method="r00")
+sm <- simulate(test, nsim=1)
 colnames(sm) <-  colnames(occ_mammals_mat)
 sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
 
@@ -78,20 +78,28 @@ res[[i]] <-sm2
 
 }
 
-rep
-simu <- lapply(1:length(res),function(i){
+rep<-1000
+
+simu <- mclapply(1:rep,function(i){
+  nullmod <- nullmodel(occ_mammals_mat,method="curveball")
+  sim_matrix <- simulate(nullmod, nsim=1)
+  colnames(sim_matrix) <-  colnames(occ_mammals_mat)
+  sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
+  return(sim_matrix)
+},mc.cores=4)
 
 
-
-Null_res <-lapply(1:length(res),function(i){
-  Null_mean <- data.frame(mean=apply(res[[i]],1,mean),sd=apply(res[[i]],1,sd))
-  })
+Null_res <-mclapply(1:length(simu),function(i){
+  Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
+  },mc.cores=2)
   
+Null_mean <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
+Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
 
-
-summary(Null_mean)
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
 SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+
+SES_total_mammalsSES_total_mammals[$D75R75==]
 boxplot(SES_total_mammals$D75R75)
 
 
