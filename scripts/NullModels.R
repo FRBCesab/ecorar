@@ -69,7 +69,7 @@ for (i in 1:ncol(occ_mammals_mat)){
 }
 
 
-rep<-200
+rep<-1000
 
 simu <- mclapply(1:rep,function(i){
   nullmod <- nullmodel(occ_mammals_mat,method="curveball")
@@ -77,12 +77,11 @@ simu <- mclapply(1:rep,function(i){
   colnames(sim_matrix) <-  colnames(occ_mammals_mat)
   sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
   return(sim_matrix)
-},mc.cores=15)
-
+},mc.cores=10)
 
 Null_res <-mclapply(1:length(simu),function(i){
   Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
-  },mc.cores=15)
+  },mc.cores=30)
   
 Null_mean <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
 Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
