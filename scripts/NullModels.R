@@ -8,9 +8,6 @@ library(plyr)
 library(vegan)
 library(qdapTools)
 
-install.packages("bitops")
-install.packages("RCurl")
-install.packages("qdapTools")
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -72,7 +69,7 @@ for (i in 1:ncol(occ_mammals_mat)){
 }
 
 
-rep<-1000
+rep<-200
 
 simu <- mclapply(1:rep,function(i){
   nullmod <- nullmodel(occ_mammals_mat,method="curveball")
@@ -92,7 +89,7 @@ Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
 
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
 SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
-save(SES_total_mammals,file="SES_total_mammals_0606.RData")
+save(SES_total_mammals,file=file.path(results_dir,"mammals","50km","SES_total_mammals_Swap.RData"))
 boxplot(SES_total_mammals$D75R75)
 
 
