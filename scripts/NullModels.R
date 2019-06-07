@@ -1,11 +1,12 @@
 #Null model
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=TRUE,who="NM")
 
 library(parallel)
 library(plyr)
 library(vegan)
+library(qdapTools)
 
 
 #Prepare data: DR class for each species
@@ -50,7 +51,7 @@ colnames(data_DR_birds) <- "DR_class"
 
 
 # Transform in matrix
-library("qdapTools")
+
 load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
 load(file=file.path(results_dir,"mammals","data_DR_mammals.RData"))
 load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
@@ -67,16 +68,6 @@ for (i in 1:ncol(occ_mammals_mat)){
   occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
 }
 
-res<-list() 
-for (i in 1:3) {
-test <- nullmodel(occ_mammals_mat,method="r00")
-sm <- simulate(test, nsim=1)
-colnames(sm) <-  colnames(occ_mammals_mat)
-sm2 <- sm[,colnames(sm) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
-
-res[[i]] <-sm2
-
-}
 
 rep<-1000
 
@@ -86,12 +77,11 @@ simu <- mclapply(1:rep,function(i){
   colnames(sim_matrix) <-  colnames(occ_mammals_mat)
   sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
   return(sim_matrix)
-},mc.cores=4)
-
+},mc.cores=10)
 
 Null_res <-mclapply(1:length(simu),function(i){
   Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
-  },mc.cores=2)
+  },mc.cores=30)
   
 
 Null_mean <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
@@ -99,8 +89,7 @@ Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
 
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
 SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
-
-SES_total_mammalsSES_total_mammals[$D75R75==]
+save(SES_total_mammals,file=file.path(results_dir,"mammals","50km","SES_total_mammals_Swap.RData"))
 boxplot(SES_total_mammals$D75R75)
 
 
