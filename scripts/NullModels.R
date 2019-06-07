@@ -71,6 +71,7 @@ for (i in 1:ncol(occ_mammals_mat)){
 
 rep<-1000
 
+
 simu <- mclapply(1:rep,function(i){
   nullmod <- nullmodel(occ_mammals_mat,method="curveball")
   sim_matrix <- simulate(nullmod, nsim=1)
