@@ -93,6 +93,7 @@ Null_res <-mclapply(1:length(simu),function(i){
   Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
   },mc.cores=2)
   
+
 Null_mean <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
 Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
 
