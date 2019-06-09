@@ -69,8 +69,11 @@ for (i in 1:ncol(occ_mammals_mat)){
 }
 
 
-rep<-1000
 
+rep<-10
+#Null_mean_mammals<-list()
+#Null_sd_mammals<-list()
+for (i in 5538:10000) {
 
 simu <- mclapply(1:rep,function(i){
   nullmod <- nullmodel(occ_mammals_mat,method="curveball")
@@ -82,14 +85,22 @@ simu <- mclapply(1:rep,function(i){
 
 Null_res <-mclapply(1:length(simu),function(i){
   Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
-  },mc.cores=30)
+  },mc.cores=10)
   
-Null_mean <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
-Null_sd <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
+Null_mean_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
+Null_sd_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
 
+}
+save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+
+test1<-data.frame(matrix(unlist(Null_mean_mammals), nrow=61077, byrow=T))
+test2<-data.frame(matrix(unlist(Null_sd_mammals), nrow=61077, byrow=T))
+Null_mean<-apply(test1,1,mean)
+Null_sd<-apply(test2,1,mean)
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
 SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
-save(SES_total_mammals,file=file.path(results_dir,"mammals","50km","SES_total_mammals_Swap.RData"))
+
 boxplot(SES_total_mammals$D75R75)
 
 
