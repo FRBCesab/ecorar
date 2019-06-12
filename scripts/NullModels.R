@@ -73,7 +73,7 @@ for (i in 1:ncol(occ_mammals_mat)){
 #!!!!!!!!!!!!!!!!!!!!!!!!!!
 #!!!!!!!!!!!!!!!!!!!!!!!!!!
 #!!!!!!!!!!!!!!!!!!!!!!!!!!
-#ATTENTION CE N EST PAS LE MM ORDRE DANS LES ROWNAMES A CHERCHER
+#TO CHECK
 
 names <- do.call(rbind,lapply(occ_mammals_list,length))
 rownames(names) <- names(occ_mammals_list)
