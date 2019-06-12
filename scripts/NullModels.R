@@ -69,6 +69,15 @@ for (i in 1:ncol(occ_mammals_mat)){
 }
 
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ATTENTION CE N EST PAS LE MM ORDRE DANS LES ROWNAMES A CHERCHER
+
+names <- do.call(rbind,lapply(occ_mammals_list,length))
+rownames(names) <- names(occ_mammals_list)
+names<-subset(names,names[,1]>0)
 
 rep<-10
 #Null_mean_mammals<-list()
@@ -102,6 +111,16 @@ funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
 SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
 
 boxplot(SES_total_mammals$D75R75)
+
+    
+alpha <-do.call(rbind, mclapply(1:61077, function(x) { 
+      
+      sup<- sum(test1[i,]>funk_mammals$D75R75[i])/100000
+      inf <- sum(test1[i,]<funk_mammals$D75R75[i])/100000
+      res<-c(sup,inf)
+
+        return(res)
+},mc.cores=40))
 
 
 
