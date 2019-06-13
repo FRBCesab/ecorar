@@ -141,7 +141,7 @@ names <- do.call(rbind,lapply(occ_birds_list,length))
 rownames(names) <- names(occ_birds_list)
 names<-subset(names,names[,1]>0)
 
-rep<-10
+rep<-6
 Null_mean_birds<-list()
 Null_sd_birds<-list()
 for (i in 1:100) {
