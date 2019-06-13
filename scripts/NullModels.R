@@ -56,7 +56,6 @@ load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
 load(file=file.path(results_dir,"mammals","data_DR_mammals.RData"))
 load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 
-
 occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
 occ_mammals_mat<-occ_mammals_mat[apply(occ_mammals_mat,1,sum)>0,]
 #TEst petit jeux de données
@@ -68,13 +67,6 @@ for (i in 1:ncol(occ_mammals_mat)){
   occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
 }
 
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!
-#!!!!!!!!!!!!!!!!!!!!!!!!!!
-#!!!!!!!!!!!!!!!!!!!!!!!!!!
-#!!!!!!!!!!!!!!!!!!!!!!!!!!
-#TO CHECK
-
 names <- do.call(rbind,lapply(occ_mammals_list,length))
 rownames(names) <- names(occ_mammals_list)
 names<-subset(names,names[,1]>0)
@@ -82,7 +74,7 @@ names<-subset(names,names[,1]>0)
 rep<-10
 #Null_mean_mammals<-list()
 #Null_sd_mammals<-list()
-for (i in 5538:10000) {
+for (i in 1:10000) {
 
 simu <- mclapply(1:rep,function(i){
   nullmod <- nullmodel(occ_mammals_mat,method="curveball")
@@ -124,6 +116,66 @@ alpha <-do.call(rbind, mclapply(1:61077, function(x) {
 
 
 
+
+
+
+
+
+
+load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+load(file=file.path(results_dir,"birds","data_DR_birds.RData"))
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+
+occ_birds_mat<-mtabulate(occ_birds_list)!=0
+occ_birds_mat<-occ_birds_mat[apply(occ_birds_mat,1,sum)>0,]
+#TEst petit jeux de données
+#funk_birds[funk_birds$D75R75==12,]
+#occ_birds_mat <- occ_birds_mat[rownames(occ_birds_mat)%in% as.character(158899:158910),]
+#occ_birds_mat<- occ_birds_mat[,colnames(occ_birds_mat) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75"))]
+
+for (i in 1:ncol(occ_birds_mat)){
+  occ_birds_mat[,i] <- as.numeric(occ_birds_mat[,i])
+}
+
+names <- do.call(rbind,lapply(occ_birds_list,length))
+rownames(names) <- names(occ_birds_list)
+names<-subset(names,names[,1]>0)
+
+rep<-10
+Null_mean_birds<-list()
+Null_sd_birds<-list()
+for (i in 1:100) {
+  
+  simu <- mclapply(1:rep,function(i){
+    nullmod <- nullmodel(occ_birds_mat,method="curveball")
+    sim_matrix <- simulate(nullmod, nsim=1)
+    colnames(sim_matrix) <-  colnames(occ_birds_mat)
+    sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75")),]
+    return(sim_matrix)
+  },mc.cores=12)
+#Remove null element 
+  simu[sapply(simu, is.null)] <- NULL
+  
+  Null_res <-mclapply(1:length(simu),function(i){
+    Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
+  },mc.cores=12)
+  
+  Null_mean_birds[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
+  Null_sd_birds[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
+  
+}
+
+save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
+save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
+
+test1<-data.frame(matrix(unlist(Null_mean_birds), nrow=61618, byrow=T))
+test2<-data.frame(matrix(unlist(Null_sd_birds), nrow=61618, byrow=T))
+Null_mean<-apply(test1,1,mean)
+Null_sd<-apply(test2,1,mean)
+funk_birds<-funk_birds[funk_birds$TD_sp>0,]
+SES_total_birds <- data.frame(cell=funk_birds$cell, D75R75 = (funk_birds$D75R75 - Null_mean)/Null_sd)
+
+boxplot(SES_total_birds$D75R75)
 
 #THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
 #Random the functional trait but keep the rarity to know if FR is link to R only
