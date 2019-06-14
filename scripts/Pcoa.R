@@ -377,9 +377,9 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
   
     jitval <- 500
     df <- data.frame(x = jitter(pco[,2],jitval),
-                     y = jitter(pco[,4],jitval))
+                     y = jitter(pco[,3],jitval))
     #df<-merge(df,data_DR_mammals,by="row.names")
-     df<-merge(df,data_DR_birds,by="row.names")
+     df<-merge(df,data_DR_mammals,by="row.names")
  
     find_hull <- function(df) df[chull(df$x, df$y), ]
     
@@ -406,11 +406,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800",fill="white")+
       labs(x = "PC2",y = "PC4")+ theme_minimal()
       
-    
-
-      
-      
-    scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+   scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
       labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(DR) +
       geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
       geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
