@@ -346,7 +346,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
 ####HEAD
     a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
-                      plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     
@@ -421,4 +421,72 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     
     data_DR$colsAVG <- NA
     data_DR$colsAVG[data_DR$DR_class=="AVG"] <- 
+    
+      
+      
+      
+      
+      
+      load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
+    
+    
+    pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
+      
+      # data=FR_mammals
+      # pco=pco_mammals
+      # resultdir="birds"
+      # plotpdf=FALSE
+      # axis.x=2
+      # axis.y=3
+      # jitval=500
+      # var1="Din"
+      # var2="Rin"
+      # Q1="Q75_D"
+      # Q2="Q75_R"
+      # DR="D75R75"
+      # Funk="Din"
+      #data_DR =data_DR_mammals
+      
+      df <- data.frame(x = jitter(pco$vectors[,axis.x],jitval),
+                       y = jitter(pco$vectors[,axis.y],jitval),
+                       z = data$FR[rownames(pco$vectors),var])
+      
+      df<-merge(df,data_DR,by="row.names")
+      
+      find_hull <- function(df) df[chull(df$x, df$y), ]
+      
+      df75 <-subset(df,df$DR_class=="D75R75")
+      dfAVG<-subset(df,df$DR_class=="AVG")
+      df25<-subset(df,df$DR_class=="D25R25")
+      
+      df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
+      hulls_D75R75 <- find_hull(df75)
+      
+      dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
+      hulls_AVG <- find_hull(dfAVG)
+      
+      df25 <- df25[complete.cases(df25), ] # needed because there is one NA in the birds dataframe
+      hulls_D25R25 <- find_hull(df25)
+      
+      p <- ggplot(df, aes(x, y)) +
+        geom_point(aes(colour = df$z))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+        labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(taxa) +
+        geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
+        geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered", fill="grey",lwd=1.2) +
+        geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800", fill="grey", lwd=1.2)+
+        geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB", fill="grey", lwd=1.2)
+      
+      if (plotpdf==TRUE) ggsave(filename = file.path(results_dir,resultdir,paste0("figs"),paste0("pcoa",DR,".pdf")),plot=p) else p 
+      
+    }
+    
+    ####HEAD
+    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,data_DR=data_DR_mammals,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,data_DR=data_DR_birds,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
     
