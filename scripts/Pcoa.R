@@ -434,7 +434,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       # data=FR_mammals
       # pco=pco_mammals
-      # resultdir="birds"
+      # resultdir="mammals"
       # plotpdf=FALSE
       # axis.x=2
       # axis.y=3
@@ -470,7 +470,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       p <- ggplot(df, aes(x, y)) +
         geom_point(aes(colour = df$z))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
-        labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(taxa) +
+        labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(resultdir) +
         geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
         geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered", fill="grey",lwd=1.2) +
         geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800", fill="grey", lwd=1.2)+
@@ -481,12 +481,13 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     }
     
     ####HEAD
-    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,data_DR=data_DR_mammals,
+    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir="mammals",data_DR=data_DR_mammals,
                       plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
-    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,data_DR=data_DR_birds,
+    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir="birds",data_DR=data_DR_birds,
                       plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
+    grid.arrange(a,b,ncol=2)
     
