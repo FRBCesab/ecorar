@@ -371,8 +371,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
                       DR="D25R25",Funk="Din")
     grid.arrange(a,b,ncol=2)
 #----    
-    FR_mammals
-    
+
   # Other version NOT FINISH
     
     load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
@@ -438,14 +437,11 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
       load(file=file.path(results_dir,"birds/pco_birds.RData"))
       load(file=file.path(results_dir,"mammals/pco_mammals.RData"))
-      pco_birds$vectors<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
     
+      pco_birds$vectors<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
       pco_mammals$vectors<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
     
-    #Remove 2 species that are weird on the PCO.
-      test <- subset(pco_mammals$vectors,pco_mammals$vectors[,3]<= (-0.25) | pco_mammals$vectors[,2]>0.2)
-      test2<- subset(FR_mammals$FR,FR_mammals$FR$Din<0.1)
-      test[rownames(test) %in% rownames(test2), ]
+    
     
     pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
       
@@ -472,26 +468,26 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       find_hull <- function(df) df[chull(df$x, df$y), ]
       
-      df75 <-subset(df,df$DR_class=="D75R75")[,c(1:3)]
-      dfAVG<-subset(df,df$DR_class=="AVG")[,c(1:3)]
-      df25<-subset(df,df$DR_class=="D25R25")[,c(1:3)]
+      df75 <-subset(df,df$DR_class=="D75R75")
+      dfAVG<-subset(df,df$DR_class=="AVG")
+      df25<-subset(df,df$DR_class=="D25R25")
       
-      df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
+      #df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
       hulls_D75R75 <- find_hull(df75)
-      
-      dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
+      convHull(df75[,c(2:3)])
+      #dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
       hulls_AVG <- find_hull(dfAVG)
       
-      df25 <- df25[complete.cases(df25), ] # needed because there is one NA in the birds dataframe
+      #df25 <- df25[complete.cases(df25), ] # needed because there is one NA in the birds dataframe
       hulls_D25R25 <- find_hull(df25)
       
       p <- ggplot(df, aes(x, y)) +
-        geom_point(aes(colour = df$z))+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+        geom_point(aes(colour = df$z), alpha = 1)+ scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
         labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(resultdir) +
         geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
-        geom_polygon(data = hulls_D75R75, alpha = 0.1,colour= "orangered", fill="grey",lwd=1.2) +
-        geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800", fill="grey", lwd=1.2)+
-        geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB", fill="grey", lwd=1.2)
+        geom_polygon(data = hulls_D75R75, alpha = 0.001,colour= "orangered", fill="grey",lwd=1.4,lty=3) +
+        geom_polygon(data = hulls_D25R25, alpha = 0.001,colour= "#E7B800", fill="grey", lwd=1.4,lty=3)+
+        geom_polygon(data = hulls_AVG, alpha = 0.001,colour= "#00AFBB", fill="grey", lwd=1.4,lty=3)
       
       if (plotpdf==TRUE) ggsave(filename = file.path(results_dir,resultdir,paste0("figs"),paste0("pcoa",DR,".pdf")),plot=p) else p 
       
