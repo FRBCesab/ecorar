@@ -428,6 +428,12 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       
       load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
+      load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
+    
+      pco_birds$vectors<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
+    
+      pco_mammals$vectors<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+    
     
     
     pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
