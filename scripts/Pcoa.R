@@ -114,6 +114,8 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
         ax1 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.1, method="spearman")
         ax2 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.2, method="spearman")
         ax3 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.3, method="spearman")
+        ax4 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.4, method="spearman")
+        
         test <- "spearman"
       } else {
         
@@ -132,9 +134,14 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
         ax3 <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
         test <- "Kruskal"
         
+        ktest <- kruskal.test(traits_pcoa$Axis.4 ~ traits_pcoa[,vname])
+        Fval <- as.numeric(ktest$statistic)/nfree
+        ax4 <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
+        test <- "Kruskal"
+        
       }
       
-      cbind.data.frame(var=vname,test=test ,ax1=ax1 ,ax2=ax2,ax3=ax3)
+      cbind.data.frame(var=vname,test=test ,ax1=ax1 ,ax2=ax2,ax3=ax3,ax4=ax4)
       
     }))
    
@@ -163,9 +170,9 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       grid.arrange(a,b,c,d,ncol=2)
     }
     
-    cor_pcoa(data=FR_data,pco=pco_data,var="Din")
+    cor_pcoa(data=FR_mammals,pco=pco_mammals,var="Din")
     
-    cor_pcoa(data=FR_data,pco=pco_data,var="Rin")
+    cor_pcoa(data=FR_birds,pco=pco_birds,var="Din")
   
   
   ###Exemple of species #TODO A reprendre .... 
@@ -429,12 +436,16 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
       load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
-    
+      load(file=file.path(results_dir,"birds/pco_birds.RData"))
+      load(file=file.path(results_dir,"mammals/pco_mammals.RData"))
       pco_birds$vectors<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
     
       pco_mammals$vectors<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
     
-    
+    #Remove 2 species that are weird on the PCO.
+      test <- subset(pco_mammals$vectors,pco_mammals$vectors[,3]<= (-0.25) | pco_mammals$vectors[,2]>0.2)
+      test2<- subset(FR_mammals$FR,FR_mammals$FR$Din<0.1)
+      test[rownames(test) %in% rownames(test2), ]
     
     pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
       
@@ -455,15 +466,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       df <- data.frame(x = jitter(pco$vectors[,axis.x],jitval),
                        y = jitter(pco$vectors[,axis.y],jitval),
-                       z = data$FR[rownames(pco$vectors),var])
+                       z = data$FR[rownames(pco$vectors),var1])
       
       df<-merge(df,data_DR,by="row.names")
       
       find_hull <- function(df) df[chull(df$x, df$y), ]
       
-      df75 <-subset(df,df$DR_class=="D75R75")
-      dfAVG<-subset(df,df$DR_class=="AVG")
-      df25<-subset(df,df$DR_class=="D25R25")
+      df75 <-subset(df,df$DR_class=="D75R75")[,c(1:3)]
+      dfAVG<-subset(df,df$DR_class=="AVG")[,c(1:3)]
+      df25<-subset(df,df$DR_class=="D25R25")[,c(1:3)]
       
       df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
       hulls_D75R75 <- find_hull(df75)
@@ -496,4 +507,6 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
                       DR="D75R75",Funk="Din")
     grid.arrange(a,b,ncol=2)
+    
+  
     
