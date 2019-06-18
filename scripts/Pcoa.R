@@ -442,7 +442,8 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       pco_mammals$vectors<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
     
     
-    
+      sil_mammals<- readPNG(file.path(results_dir,"sil_mammals.png")) 
+     
     pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
       
       # data=FR_mammals
@@ -474,7 +475,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       
       #df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
       hulls_D75R75 <- find_hull(df75)
-      convHull(df75[,c(2:3)])
+
       #dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
       hulls_AVG <- find_hull(dfAVG)
       
@@ -488,6 +489,9 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
         geom_polygon(data = hulls_D75R75, alpha = 0.001,colour= "orangered", fill="grey",lwd=1.4,lty=3) +
         geom_polygon(data = hulls_D25R25, alpha = 0.001,colour= "#E7B800", fill="grey", lwd=1.4,lty=3)+
         geom_polygon(data = hulls_AVG, alpha = 0.001,colour= "#00AFBB", fill="grey", lwd=1.4,lty=3)
+      p+annotation_custom(sil_mammals, xmin=-0.4, xmax=-0.25, ymin=0.35, ymax=0.5)
+      
+      sil_mammals <- rasterGrob(sil_mammals, interpolate=TRUE)
       
       if (plotpdf==TRUE) ggsave(filename = file.path(results_dir,resultdir,paste0("figs"),paste0("pcoa",DR,".pdf")),plot=p) else p 
       
@@ -504,5 +508,6 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
                       DR="D75R75",Funk="Din")
     grid.arrange(a,b,ncol=2)
     
+
   
     

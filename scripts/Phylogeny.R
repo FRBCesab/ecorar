@@ -208,7 +208,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   set_phylo <- set_mammals
   taxaInfo<- taxaInfo_mammals
   taxa="mammals"
-  
+  data_DR = data_DR_mammals
  #FR_data<-FR_birds
  #set_phylo <- set_birds
  # taxaInfo<- taxaInfo_birds
