@@ -47,7 +47,7 @@ library(caper)
 # Load Phylogeny
   load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-  i <- 5
+  i <- 60
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 
           # Dropping names not in  ID
@@ -205,14 +205,16 @@ library(caper)
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
   FR_data<-FR_mammals
-  set_phylo <- set_mammals
+set_phylo <- set_mammals
   taxaInfo<- taxaInfo_mammals
   taxa="mammals"
   data_DR = data_DR_mammals
- #FR_data<-FR_birds
- #set_phylo <- set_birds
- # taxaInfo<- taxaInfo_birds
- # taxa="birds"
+  
+  
+FR_data<-FR_birds
+set_phylo <- set_birds
+taxaInfo<- taxaInfo_birds
+taxa="birds"
   
   # Create Class DR 
   data_DR<-FR_data$FR
@@ -247,6 +249,11 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   data_DR$colsAVG <- NA
   data_DR$colsAVG[data_DR$DR_class=="AVG"] <- "#00AFBB"
   
+  data_DR$colsAll <- NA
+  data_DR$colsAll[data_DR$DR_class=="D75R75"] <- "orangered"
+  data_DR$colsAll[data_DR$DR_class=="D25R25"] <- "#E7B800"
+  data_DR$colsAll[data_DR$DR_class=="AVG"] <- "#00AFBB"
+  data_DR$colsAll[is.na(data_DR$colsAll)] <- "white"
   
   #The species  Coracina_melas  will cause problems - searching for this species in all the species present will return multiple species, consider renaming! 
   data_DR <- data_DR[which(rownames(data_DR) != "Coracina_melas"),]  
@@ -282,7 +289,6 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     names(node) <- x
     node}))
  
-
   nodesArc <- nodesArc[order(nodesArc, decreasing = FALSE)]
 
   # Add column binary for Functional Rarity: Yes/no
@@ -295,10 +301,33 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
 
   # plotting PHYLOGENY TREE
   color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A63F","orangered"), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
+  tiplabels(pch = 16, col = data_DR$colsAll, cex = 0.4 ,offset=9)
+  tiplabels(pch = 16, col = data_DR$colsD25R25, cex = 0.4 ,offset=6)
+  tiplabels(pch = 16, col = data_DR$colsAVG, cex = 0.4 ,offset=2)
+  
+  
+  trait_test<-data_DR$Din
+  names(trait_test) <- rownames(data_DR)
+  obj<-contMap(set_phylo,trait_test,plot=FALSE, sig = 2, res = 100)
+  obj<-setMap(obj,invert=TRUE) ## invert color map
+  
+  ## change to viridis scale
+  obj$cols[1:n]<-viridis(length(obj$cols))
+  
+  
+  # Plot the tree
+  
+  plot(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.5, offset = 5), xlim = c(-350,350), ylim = c(-350,350))
+    
+  
+  plotTree.wBars(obj$tree,rarety,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.5, offset = 5)#, xlim = c(-350,350), ylim = c(-350,350))
+  
+     #
   tiplabels(pch = 16, col = data_DR$colsD75R75, cex = 0.4 ,offset=9)
   tiplabels(pch = 16, col = data_DR$colsD25R25, cex = 0.4 ,offset=6)
   tiplabels(pch = 16, col = data_DR$colsAVG, cex = 0.4 ,offset=2)
   
+  #color.terminal.branches(set_phylo, data_DR$Din, breaks=4, cols=viridis(), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
   
   # plotting family labels/arcs
   offset <- rep(c(1.15,1.23,1.31,1.39,1.47),length(nodesArc))
@@ -346,7 +375,7 @@ draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
     
     
     #Add the names of Order
-    if (taxa=="mammals") text(x=270,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0)
+    if (taxa=="mammals") text(x=315,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0)
     if (taxa=="birds")   text(x=-190,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
   }
 }
