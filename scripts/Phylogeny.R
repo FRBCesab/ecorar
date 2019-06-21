@@ -47,7 +47,7 @@ library(caper)
 # Load Phylogeny
   load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-  i <- 60
+  i <- 80
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 
           # Dropping names not in  ID
@@ -215,6 +215,7 @@ FR_data<-FR_birds
 set_phylo <- set_birds
 taxaInfo<- taxaInfo_birds
 taxa="birds"
+data_DR = data_DR_birds
   
   # Create Class DR 
   data_DR<-FR_data$FR
@@ -262,6 +263,10 @@ taxa="birds"
   data_DR <- data_DR[which(rownames(data_DR) != "Buteo_augur"),]
   data_DR <- data_DR[which(rownames(data_DR) != "Haliaeetus_vocifer"),]
   
+  data_DR <- data_DR[which(data_DR$family == "Aegothelidae "),]
+  data_DR[which(data_DR$phylum== "Cypselomorphae"),]
+  
+  
   # Change capita in the names of order
   data_DR$order %<>% tolower
   data_DR$order<-firstup(data_DR$order)
@@ -297,7 +302,12 @@ taxa="birds"
   rarety[is.na(rarety)]<-0
   names(rarety)<-rownames(data_DR)
 
-    
+  apodiforme <-subset(data_DR,data_DR$order=="Apodiformes")
+  caprimulgiformes<-subset(data_DR,data_DR$order=="Caprimulgiformes")
+  
+  Atthis_heloisa
+  
+  Aegothelidae 
 
   # plotting PHYLOGENY TREE
   color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A63F","orangered"), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
@@ -310,22 +320,26 @@ taxa="birds"
   names(trait_test) <- rownames(data_DR)
   obj<-contMap(set_phylo,trait_test,plot=FALSE, sig = 2, res = 100)
   obj<-setMap(obj,invert=TRUE) ## invert color map
+    ## change to viridis scale
+  obj$cols[1:length(obj$cols)]<-viridis(length(obj$cols))
   
-  ## change to viridis scale
-  obj$cols[1:n]<-viridis(length(obj$cols))
   
+        # Plot the tree
+  if(taxa== "mammals") plot.contMap(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 5, xlim = c(-350,350), ylim = c(-350,350))
+  if(taxa== "birds") plot.contMap(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 1, mar = c(2,4,3,2))
+                                 
   
-  # Plot the tree
-  
-  plot(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.5, offset = 5), xlim = c(-350,350), ylim = c(-350,350))
-    
-  
-  plotTree.wBars(obj$tree,rarety,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.5, offset = 5)#, xlim = c(-350,350), ylim = c(-350,350))
-  
-     #
-  tiplabels(pch = 16, col = data_DR$colsD75R75, cex = 0.4 ,offset=9)
-  tiplabels(pch = 16, col = data_DR$colsD25R25, cex = 0.4 ,offset=6)
-  tiplabels(pch = 16, col = data_DR$colsAVG, cex = 0.4 ,offset=2)
+plot(obj,ftype="off",show.tip.label=TRUE, fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 1, mar = c(2,4,3,2))
+
+
+plot.contMap(obj,ftype="off",type="fan",outline=FALSE, lwd = 0.4, offset = 1,  xlim = c(-150,150), ylim = c(-150,150))
+  tiplabels(pch = 18,col = c(data_DR$colsD75R75), cex = 0.4)
+  tiplabels(pch = 18, col = c(data_DR$colsD25R25), cex = 0.4)
+  tiplabels(pch = 18, col = c(data_DR$colsAVG), cex = 0.4)          
+       # Add type for rarity categories
+  tiplabels(pch = 16, col = c(data_DR$colsD75R75), cex = 0.4 ,offset=0.2)
+  tiplabels(pch = 16, col = c(data_DR$colsD25R25), cex = 0.4 ,offset=6)
+  tiplabels(pch = 16, col = c(data_DR$colsAVG), cex = 0.4 ,offset=2)
   
   #color.terminal.branches(set_phylo, data_DR$Din, breaks=4, cols=viridis(), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
   
@@ -376,7 +390,7 @@ taxa="birds"
     
     #Add the names of Order
     if (taxa=="mammals") text(x=315,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0)
-    if (taxa=="birds")   text(x=-190,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
+    if (taxa=="birds")   text(x=-150,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
   }
 }
 
