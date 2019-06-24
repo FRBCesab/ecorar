@@ -20,6 +20,7 @@ library(picante)
 library(viridis)
 library(caper)
 library(phytools)
+library(png)
 #LOAD TRAITS MAPS AND DISTRIB----
 
     # Load traits and distrib 
