@@ -34,6 +34,12 @@ colnames(data_DR_birds) <- "DR_class"
 
 save(data_DR_birds, file=file.path(results_dir,"birds/data_DR_birds.RData"))
 save(data_DR_mammals, file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
+
+
+load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
+load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
+
+
 ### Quantiles of SR and gap analyses
 
           # MAMMALS
@@ -74,6 +80,11 @@ target_func <- function(SR, qt, log=TRUE){
 
 
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
+
+MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
+MamAllCat<-merge(MamAllCat,mammalsID,by.x="X...SPECIES", by.y="Name")
+rownames(MamAllCat)<-MamAllCat$ID
+
 Target_mammals <- merge (Target_mammals,mammals_PA, by = "row.names" )
 rownames(Target_mammals) <- Target_mammals[,1]
 Target_mammals <- Target_mammals[,c(2,3,5,6,15)]
