@@ -52,10 +52,10 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
   
   ###Chosing between birds and mammals
     
-    # pco_data <- pco_birds
-    # traits <- birdstrait
-    # FR_data <- FR_birds
-    # taxa <- "birds"
+    pco_data <- pco_birds
+    traits <- birdstrait
+    FR_data <- FR_birds
+    taxa <- "birds"
     
     pco_data <- pco_mammals
     traits <- mammalstrait
@@ -437,7 +437,8 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       sil_mammals<- readPNG(file.path(results_dir,"sil_mammals.png")) 
       sil_mammals <- rasterGrob(sil_mammals, interpolate=TRUE)
       sil_birds <- rasterGrob(sil_birds, interpolate=TRUE)
-    pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
+   
+      pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
       
       # data=FR_mammals
       # pco=pco_mammals
