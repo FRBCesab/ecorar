@@ -312,7 +312,7 @@ data_DR = data_DR_birds
                                     
   if(taxa== "birds") plot.contMap(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 1, mar = c(2,4,3,2))
   
-  tiplabels(pch = 16,col = c(data_DR$colsD75R75), cex = 0.6, offset = 1)
+  tiplabels(pch = 16,col = c(data_DR$colsD75R75), cex = 0.6)#, offset = 1)
   #tiplabels(pch = 16, col = c(data_DR$colsD25R25), cex = 0.4)
   #tiplabels(pch = 16, col = c(data_DR$colsAVG), cex = 0.4)          
        # Add type for rarity categories
