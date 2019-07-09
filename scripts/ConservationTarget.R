@@ -150,16 +150,34 @@ grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 
 
 
+###Country
+HDI <- unique(data.frame(HDI=dataGrid50km$HDI2017, country=dataGrid50km$Country))
+country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
+country_rarety <- cbind(country,funk_birds$D75R75,funk_mammals$D75R75)
+colnames(country_rarety) <- c("ID","country","birds","mammals")
+country_rarety$birds0_1 <- funk_birds$D75R75
+country_rarety$mammas0_1 <- funk_mammals$D75R75
 
+country_rarety$birds0_1[country_rarety$birds0_1>0] <-1
+country_rarety$mammals0_1[country_rarety$mammas0_1>0] <-1
 
+country_important_birds <- data.frame(xtabs(birds0_1~country,data=country_rarety))
+country_important_birds <- subset(country_important_birds,country_important_birds$Freq>0)
+boxplot(test$HDI,test2$HDI)
 
+country_important_mammals <- data.frame(xtabs(mammals0_1~country,data=country_rarety))
+country_important_mammals <- subset(country_important_mammals,country_important_mammals$Freq>0)
 
+test <- merge(country_important_mammals,HDI,by="country")
+test2 <- HDI[!HDI$country %in% country_important_mammals$country,]
 
+boxplot(test$HDI,test2$HDI)
+t.test(test$HDI,test2$HDI)
+test <- merge(country_important_birds,HDI,by="country")
+test2 <- HDI[!HDI$country %in% country_important_birds$country,]
+
+t.test(test$HDI,test2$HDI)
 #####################OLD STUFF
-
-
-
-
 
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
 
@@ -358,4 +376,78 @@ ggplot(Target_birds_all_sub, aes(x = LogSR, y = TargetAchiev, color =TargetAchie
 
 library(colorRamps)     # for matlab.like(...)
 ggp + scale_color_gradientn(colours=matlab.like(10))
+
+# MAMMALS
+Target_mammals<-data.frame(table(unlist(occ_mammals_list)))
+colnames(Target_mammals) <- c("ID","SR")
+
+Target_mammals$LogSR <- log(Target_mammals$SR) 
+qt=quantile(Target_mammals[,"SR"], probs=c(0.1, 0.9))
+rownames(Target_mammals) <- Target_mammals$ID
+Target_mammals<-Target_mammals[,-1]
+
+MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
+MamAllCat<-merge(MamAllCat,mammalsID,by.x="X...SPECIES", by.y="Name")
+rownames(MamAllCat)<-MamAllCat$ID
+MamAllCat$PERCENTAGE<-as.numeric(as.character(MamAllCat$PERCENTAGE))
+
+Target_mammals <- merge (Target_mammals,MamAllCat, by = "row.names" )
+rownames(Target_mammals) <- Target_mammals[,1]
+Target_mammals <- Target_mammals[,c(2,3,5)]
+
+
+Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
+Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"PERCENTAGE"]/Target_mammals[,"TargetExp"])
+Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
+Target_mammals <- na.omit(Target_mammals)
+
+Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
+ymax=300
+col_br<-c("#00AFBB","#E7B800","orangered")
+a <- ggplot(Target_mammals_sub, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species target achievements")+theme_bw()
+
+
+
+# BIRDS
+Target_birds<-data.frame(table(unlist(occ_birds_list)))
+colnames(Target_birds) <- c("ID","SR")
+
+Target_birds$LogSR <- log(Target_birds$SR) 
+qt=quantile(Target_birds[,"SR"], probs=c(0.1, 0.9))
+rownames(Target_birds) <- Target_birds$ID
+Target_birds<-Target_birds[,-1]
+
+BirdsAllCat<-read.csv2(file=file.path(results_dir,"birds","50km","BirdsAllCat.csv"))
+BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="X...SPECIES", by.y="Name")
+rownames(BirdsAllCat)<-BirdsAllCat$ID
+BirdsAllCat$PERCENTAGE<-as.numeric(as.character(BirdsAllCat$PERCENTAGE))
+
+Target_birds <- merge (Target_birds,BirdsAllCat, by = "row.names" )
+rownames(Target_birds) <- Target_birds[,1]
+Target_birds <- Target_birds[,c(2,3,5)]
+
+
+Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
+Target_birds[,"TargetMet_Percentagecover"] <- 100*(Target_birds[,"PERCENTAGE"]/Target_birds[,"TargetExp"])
+Target_birds <- merge(Target_birds,data_DR_birds,by="row.names")
+Target_birds <- na.omit(Target_birds)
+
+
+ymax=300
+col_br<-c("#00AFBB","#E7B800","orangered")
+Target_birds_sub <- Target_birds[((Target_birds$DR_class=='D25R25') | (Target_birds$DR_class=='D75R75') | (Target_birds$DR_class=='AVG')),]
+b <- ggplot(Target_birds_sub, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_birds$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
+  labs(x = "DR class",y="Species target achievements")+theme_bw()
+
+
+median(subset(Target_birds_sub,Target_birds_sub$DR_class=="D75R75")$TargetMet_Percentagecover)
+median(subset(Target_birds_sub,Target_birds_sub$DR_class=="D25R25")$TargetMet_Percentagecover)
+
+median(subset(Target_mammals_sub,Target_mammals_sub$DR_class=="D75R75")$TargetMet_Percentagecover)
+median(subset(Target_mammals_sub,Target_mammals_sub$DR_class=="D25R25")$TargetMet_Percentagecover)
+
+grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fontsize=20,font=3)))
 
