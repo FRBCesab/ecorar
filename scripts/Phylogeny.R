@@ -54,7 +54,7 @@ library(png)
 # Load Phylogeny
   load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-  i <- 80
+  i <- 100
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 
           # Dropping names not in  ID
@@ -209,13 +209,16 @@ library(png)
           #Normal que le EDin fonctionne car m??me construction donc ?? ne pas utilis??  
 
           gridExtra::grid.arrange(a,b,c,d,ncol= 2)  
+          
+          #caprimuli 16 + 1 + 7 + 98 esp
+          #apodiforme 113 + 4 esp
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
-  FR_data<-FR_mammals
-set_phylo <- set_mammals
-  taxaInfo<- taxaInfo_mammals
-  taxa="mammals"
-  data_DR = data_DR_mammals
+ # FR_data<-FR_mammals
+ # set_phylo <- set_mammals
+ # taxaInfo<- taxaInfo_mammals
+ # taxa="mammals"
+ # data_DR = data_DR_mammals
   
   
 FR_data<-FR_birds
@@ -316,8 +319,6 @@ data_DR = data_DR_birds
   #tiplabels(pch = 16, col = c(data_DR$colsD25R25), cex = 0.4)
   #tiplabels(pch = 16, col = c(data_DR$colsAVG), cex = 0.4)          
        # Add type for rarity categories
-
-  
   #color.terminal.branches(set_phylo, data_DR$Din, breaks=4, cols=viridis(), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
   
   # plotting family labels/arcs
