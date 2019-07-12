@@ -54,7 +54,7 @@ library(png)
 # Load Phylogeny
   load(file=file.path(data_dir,"mammals","mammalsPhy.rdata")) # Both corresponding to Tree1 of the phylogeny
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","birdsPhy.tre")) 
-  i <- 100
+  i <- 1
   birdsPhy<-read.tree(file=file.path(data_dir,"birds","alltrees", paste0("BirdzillaHackett1_",i,".tre")))
 
           # Dropping names not in  ID
@@ -214,11 +214,11 @@ library(png)
           #apodiforme 113 + 4 esp
 draw.phylo <- function(FR_data,taxaInfo,set_phylo,taxa) {
   
- # FR_data<-FR_mammals
- # set_phylo <- set_mammals
- # taxaInfo<- taxaInfo_mammals
- # taxa="mammals"
- # data_DR = data_DR_mammals
+  FR_data<-FR_mammals
+  set_phylo <- set_mammals
+  taxaInfo<- taxaInfo_mammals
+  taxa="mammals"
+  data_DR = data_DR_mammals
   
   
 FR_data<-FR_birds
@@ -313,7 +313,10 @@ data_DR = data_DR_birds
                 lims=obj$lims,digits=3,prompt=FALSE,x=0,
                 y=1-0.08*(Ntip(obj$tree)-1),lwd=4,fsize=1,subtitle="")
                                     
-  if(taxa== "birds") plot.contMap(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 1, mar = c(2,4,3,2))
+  if(taxa== "birds") plot.contMap(obj,ftype="off", fsize=c(0.2,1),type="fan",outline=FALSE, lwd = 0.4, offset = 0, xlim = c(-300,300), ylim = c(-300,300),legend=FALSE) #SAVE 12 by 10
+  add.color.bar(40,obj$cols,title="Distinctiveness",
+                lims=obj$lims,digits=3,prompt=FALSE,x=0,
+                y=1-0.08*(Ntip(obj$tree)-1),lwd=4,fsize=1,subtitle="")
   
   tiplabels(pch = 16,col = c(data_DR$colsD75R75), cex = 0.6)#, offset = 1)
   #tiplabels(pch = 16, col = c(data_DR$colsD25R25), cex = 0.4)
@@ -368,7 +371,7 @@ data_DR = data_DR_birds
     
     #Add the names of Order
     if (taxa=="mammals") text(x=315,y=130-(i*10),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0)
-    if (taxa=="birds")   text(x=-150,y=130-(i*5),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
+    if (taxa=="birds")   text(x=-205,y=130-(i*6),labels=paste0(i,": ",names(nodesArc)[i]),cex=0.5,hjust = 0) 
     df <- data.frame()
     p <-   ggplot(df) + geom_point() + xlim(0, 10) + ylim(0, 10)+ theme_void()
     if (taxa=="mammals")  p <- p + annotation_custom(sil_mammals, xmin=2, xmax=7, ymin=2, ymax=7)
