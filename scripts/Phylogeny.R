@@ -493,6 +493,10 @@ names(rarety)<-rownames(data_DR)
 
 
 # plotting PHYLOGENY TREE
+png(file=file.path(results_dir,"test.png"))
 color.terminal.branches(set_phylo, rarety, breaks=4, cols=c("#A6A6A63F","orangered"), edge.width=0.4, show.tip.label=TRUE,non.terminal.col= "#A6A6A63F")
+dev.off()
+
 tiplabels(pch = 16, col = data_DR$colsAll, cex = 0.4 ,offset=9)
 tiplabels(pch = 16, col = data_DR$colsD25R25, cex = 0.4 ,offset=6)
+

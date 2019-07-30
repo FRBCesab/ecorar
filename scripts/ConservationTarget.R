@@ -1,3 +1,7 @@
+rm(list=ls(all=TRUE)) 
+source("./scripts/Functions.R")
+who.remote(remote=FALSE,who="NL")
+
 #TODO ANNOTE  SCRIPT
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
 data_DR_mammals<-FR_mammals$FR
@@ -16,6 +20,7 @@ data_DR_mammals<-data.frame(data_DR_mammals[,"DR_class"],row.names = rownames(da
 colnames(data_DR_mammals) <- "DR_class"
 
 #Birds
+load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
 data_DR_birds<-FR_birds$FR
 QD75 <- FR_birds$Q$Q75_D
 QD25 <- FR_birds$Q$Q25_D
@@ -88,7 +93,7 @@ rownames(Target_mammals) <- Target_mammals$ID
 Target_mammals<-Target_mammals[,-1]
 
 MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
-MamAllCat<-merge(MamAllCat,mammalsID,by.x="X...SPECIES", by.y="Name")
+MamAllCat<-merge(MamAllCat,mammalsID,by.x="SPECIES", by.y="Name")
 rownames(MamAllCat)<-MamAllCat$ID
 MamAllCat$PERCENTAGE<-as.numeric(as.character(MamAllCat$PERCENTAGE))
 
@@ -105,6 +110,8 @@ Target_mammals <- na.omit(Target_mammals)
 
 ymax=300
 col_br<-c("#00AFBB","#E7B800","orangered")
+Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
+
 a <- ggplot(Target_mammals_sub, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
   geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
   labs(x = "DR class",y="Species target achievements")+theme_bw()
@@ -121,7 +128,7 @@ rownames(Target_birds) <- Target_birds$ID
 Target_birds<-Target_birds[,-1]
 
 BirdsAllCat<-read.csv2(file=file.path(results_dir,"birds","50km","BirdsAllCat.csv"))
-BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="X...SPECIES", by.y="Name")
+BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="SPECIES", by.y="Name")
 rownames(BirdsAllCat)<-BirdsAllCat$ID
 BirdsAllCat$PERCENTAGE<-as.numeric(as.character(BirdsAllCat$PERCENTAGE))
 
