@@ -56,6 +56,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     traits <- birdstrait
     FR_data <- FR_birds
     taxa <- "birds"
+<<<<<<< HEAD
 
     #pco_data <- pco_mammals
     #traits <- mammalstrait
@@ -64,6 +65,16 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
   ###histo of first eigenvalues
 
+=======
+    
+    pco_data <- pco_mammals
+    traits <- mammalstrait
+    FR_data <- FR_mammals
+    taxa <- "mammals"
+  
+  ###histo of first eigenvalues 
+  
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
     df <- data.frame(Eigenvalues = paste0('E',seq(1:8)),
                      Value = pco_data$values$Relative_eig[1:8])
 
@@ -114,6 +125,8 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
         ax1 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.1, method="spearman")
         ax2 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.2, method="spearman")
         ax3 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.3, method="spearman")
+        ax4 <- cor(scale(traits_pcoa[,vname],center=TRUE, scale=TRUE),traits_pcoa$Axis.4, method="spearman")
+        
         test <- "spearman"
       } else {
 
@@ -131,11 +144,24 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
         Fval <- as.numeric(ktest$statistic)/nfree
         ax3 <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
         test <- "Kruskal"
+<<<<<<< HEAD
 
       }
 
       cbind.data.frame(var=vname,test=test ,ax1=ax1 ,ax2=ax2,ax3=ax3)
 
+=======
+        
+        ktest <- kruskal.test(traits_pcoa$Axis.4 ~ traits_pcoa[,vname])
+        Fval <- as.numeric(ktest$statistic)/nfree
+        ax4 <- (Fval*nfree)/(Fval*nfree+dim(traits)[1]-nfree)
+        test <- "Kruskal"
+        
+      }
+      
+      cbind.data.frame(var=vname,test=test ,ax1=ax1 ,ax2=ax2,ax3=ax3,ax4=ax4)
+      
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
     }))
 
     dev.off()
@@ -162,6 +188,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
       grid.arrange(a,b,c,d,ncol=2)
     }
+<<<<<<< HEAD
 
     cor_pcoa(data=FR_data,pco=pco_data,var="Din")
 
@@ -170,6 +197,16 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
   ###Exemple of species #TODO A reprendre ....
 
+=======
+    
+    cor_pcoa(data=FR_mammals,pco=pco_mammals,var="Din")
+    
+    cor_pcoa(data=FR_birds,pco=pco_birds,var="Din")
+  
+  
+  ###Exemple of species #TODO A reprendre .... 
+    
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
     sub <- subset(traits_pcoa,(traits_pcoa$Axis.2 < -0.15 & traits_pcoa$Axis.3 < -0.15))
 
     #sub <- subset(traits_pcoa,((traits_pcoa$Axis.2 < -0.26) & ((traits_pcoa$Axis.3 > -0.02) & (traits_pcoa$Axis.3 < 0.02))))
@@ -221,6 +258,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 #VISU----
 
   ##Chosing between birds and mammals
+<<<<<<< HEAD
 
      pco_data <- pco_birds
      traits <- birdstrait
@@ -231,6 +269,19 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     # traits <- mammalstrait
     # FR_data <- FR_mammals
     # taxa <- "mammals"
+=======
+    
+     # pco_data <- pco_birds
+     # traits <- birdstrait
+     # FR_data <- FR_birds
+     # taxa <- "birds"
+    
+    pco_data <- pco_mammals
+    traits <- mammalstrait
+    FR_data <- FR_mammals
+    taxa <- "mammals"
+    
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
 
 
   ##Plot pcoa for Din & Rin; the function can only be called for var with quantiles
@@ -345,6 +396,7 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
     }
 
 ####HEAD
+<<<<<<< HEAD
 #     a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
 #                       plotpdf=FALSE, axis.x=1, axis.y=2, jitval=500,
 #                       var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R",
@@ -366,6 +418,27 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 #     grid.arrange(a,b,ncol=2)
 #----
     FR_mammals
+=======
+    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    
+    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=1, axis.y=4, jitval=500)
+#
+    a <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    
+    b <- pcoa.funk.dr(data=FR_data, pco=pco_data, resultdir=taxa,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q25_D", Q2="Q25_R", 
+                      DR="D25R25",Funk="Din")
+    grid.arrange(a,b,ncol=2)
+#----    
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
 
   # Other version NOT FINISH
 
@@ -378,10 +451,15 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
     jitval <- 500
     df <- data.frame(x = jitter(pco[,2],jitval),
-                     y = jitter(pco[,4],jitval))
+                     y = jitter(pco[,3],jitval))
     #df<-merge(df,data_DR_mammals,by="row.names")
+<<<<<<< HEAD
      df<-merge(df,data_DR_birds,by="row.names")
 
+=======
+     df<-merge(df,data_DR_mammals,by="row.names")
+ 
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
     find_hull <- function(df) df[chull(df$x, df$y), ]
 
     df75 <-subset(df,df$DR_class=="D75R75")
@@ -406,12 +484,17 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
       geom_polygon(data = hulls_AVG, alpha = 0.1,colour= "#00AFBB",fill="white")+
       geom_polygon(data = hulls_D25R25, alpha = 0.1,colour= "#E7B800",fill="white")+
       labs(x = "PC2",y = "PC4")+ theme_minimal()
+<<<<<<< HEAD
 
 
 
 
 
     scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+=======
+      
+   scale_colour_gradientn(colours=c("blue","green", "red"),name=Funk) +
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc
       labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(DR) +
       geom_point(data=df[df$w==TRUE, ], aes(x, y), shape=21,colour='black') +
       geom_polygon(data = hulls, alpha = 0.1,colour= "black",fill="gray")+
@@ -421,8 +504,95 @@ load(file=file.path(results_dir,"mammals/50km/FR_mammals.RData"))
 
 
 
+<<<<<<< HEAD
   data_DR$colsD25R25 <- NA
   data_DR$colsD25R25[data_DR$DR_class=="D25R25"] <-
 
     data_DR$colsAVG <- NA
     data_DR$colsAVG[data_DR$DR_class=="AVG"] <-
+=======
+  
+
+      
+      
+      load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
+      load(file=file.path(results_dir,"birds/data_DR_birds.RData"))
+      load(file=file.path(results_dir,"birds/pco_birds.RData"))
+      load(file=file.path(results_dir,"mammals/pco_mammals.RData"))
+    
+      pco_birds$vectors<- pco_birds$vectors[rownames(pco_birds$vectors)%in%rownames(data_DR_birds),]
+      pco_mammals$vectors<- pco_mammals$vectors[rownames(pco_mammals$vectors)%in%rownames(data_DR_mammals),]
+    
+    
+      sil_birds<- readPNG(file.path(results_dir,"sil_birds.png")) 
+      sil_mammals<- readPNG(file.path(results_dir,"sil_mammals.png")) 
+      sil_mammals <- rasterGrob(sil_mammals, interpolate=TRUE)
+      sil_birds <- rasterGrob(sil_birds, interpolate=TRUE)
+   
+      pcoa.funk.dr<-function(data,pco,plotpdf,data_DR,resultdir,axis.x,axis.y,jitval,var1,var2,Q1,Q2,DR,Funk){
+      
+      # data=FR_mammals
+      # pco=pco_mammals
+      # resultdir="mammals"
+      # plotpdf=FALSE
+      # axis.x=2
+      # axis.y=3
+      # jitval=500
+      # var1="Din"
+      # var2="Rin"
+      # Q1="Q75_D"
+      # Q2="Q75_R"
+      # DR="D75R75"
+      # Funk="Din"
+      #data_DR =data_DR_mammals
+      
+      df <- data.frame(x = jitter(pco$vectors[,axis.x],jitval),
+                       y = jitter(pco$vectors[,axis.y],jitval),
+                       z = data$FR[rownames(pco$vectors),var1])
+      
+      df<-merge(df,data_DR,by="row.names")
+      
+      find_hull <- function(df) df[chull(df$x, df$y), ]
+      
+      df75 <-subset(df,df$DR_class=="D75R75")
+      dfAVG<-subset(df,df$DR_class=="AVG")
+      df25<-subset(df,df$DR_class=="D25R25")
+      
+      #df75 <- df75[complete.cases(df75), ] # needed because there is one NA in the birds dataframe
+      hulls_D75R75 <- find_hull(df75)
+
+      #dfAVG <- dfAVG[complete.cases(dfAVG), ] # needed because there is one NA in the birds dataframe
+      hulls_AVG <- find_hull(dfAVG)
+      
+      #df25 <- df25[complete.cases(df25), ] # needed because there is one NA in the birds dataframe
+      hulls_D25R25 <- find_hull(df25)
+      
+      Din <- df[,"z"]
+      p <- ggplot(df, aes(x, y)) +
+        geom_point(aes(colour = Din), alpha = 0.4)+ scale_colour_viridis() +
+        labs(x = paste0("PC",axis.x),y = paste0("PC",axis.y))+ theme_minimal() + ggtitle(resultdir) +
+        geom_point(data=df[df[,"DR_class"]=="D75R75", ], aes(x, y), shape=21,colour='grey35') +
+        geom_polygon(data = hulls_D75R75, alpha = 0.001,colour= "orangered", fill="grey",lwd=1.2,lty=1) +
+        geom_polygon(data = hulls_D25R25, alpha = 0.001,colour= "#E7B800", fill="grey", lwd=1.2,lty=1)+
+        geom_polygon(data = hulls_AVG, alpha = 0.001,colour= "#00AFBB", fill="grey", lwd=1.2,lty=1)
+      
+      if (resultdir=="mammals") p <- p+annotation_custom(sil_mammals, xmin=-0.55, xmax=-0.36, ymin=0.35, ymax=0.54)
+      if (resultdir=="birds") p <- p+annotation_custom(sil_birds, xmin=-0.3, xmax=-0.17, ymin=0.45, ymax=0.65)
+     
+            if (plotpdf==TRUE) ggsave(filename = file.path(results_dir,resultdir,paste0("figs"),paste0("pcoa",DR,".pdf")),plot=p) else p 
+      
+    }
+    
+    ####HEAD
+    a <- pcoa.funk.dr(data=FR_mammals, pco=pco_mammals, resultdir="mammals",data_DR=data_DR_mammals,
+                      plotpdf=FALSE, axis.x=2, axis.y=3, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    b <- pcoa.funk.dr(data=FR_birds, pco=pco_birds, resultdir="birds",data_DR=data_DR_birds,
+                      plotpdf=FALSE, axis.x=2, axis.y=4, jitval=500,
+                      var1="Din", var2="Rin", Q1="Q75_D", Q2="Q75_R", 
+                      DR="D75R75",Funk="Din")
+    ggarrange(a,b,ncol=2,common.legend=TRUE,legend="right")
+  
+    
+>>>>>>> cff0ab97256e3e0d5ef52dee33187ca5b82215cc

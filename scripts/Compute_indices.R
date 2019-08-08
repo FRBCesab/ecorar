@@ -2,7 +2,7 @@
 
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NM")
+who.remote(remote=TRUE,who="NM")
 
 library(funrar)
 library(moments)
@@ -14,6 +14,7 @@ library(gridExtra)
 library(cluster)
 library(rgdal)
 library(plyr)
+library(sjstats)
 
 
 #COMPUTE FR ----
@@ -66,7 +67,7 @@ library(plyr)
           
           spnames <- unique(unlist(occ_mammals_list))
           
-          proc=8
+          proc=45
           Di_locall <- mclapply(1:length(occ_mammals_list),function(i){
             id <- occ_mammals_list[[i]]
             if(!is.na(id[2])==TRUE) {  #compute Di only for communities with 2 species or more 
@@ -89,16 +90,65 @@ library(plyr)
           load(file=file.path(results_dir,"mammals","50km","Di_locall_mammals.RData"))
           mean_loc_Di <- apply(Di_locall,1,function(x) mean(x, na.rm = T)) 
           mean_loc_Di <- data.frame(mean_loc_Di)
+          
+          sd_loc_Di <- apply(Di_locall,1,function(x) var(x, na.rm = T)) #using sjstats
+          sd_loc_Di <- data.frame(sd_loc_Di)
 
           Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
-          colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc")
+          rownames(Di_loc_glob) <- Di_loc_glob[,1]
+          Di_loc_glob <- Di_loc_glob[,-1]
+          Di_loc_glob <- merge(Di_loc_glob,sd_loc_Di,by="row.names",all.x=FALSE)
+          colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc_mean","Di_loc_sd")
           
-          ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc)) + 
+          Di_loc_glob$Di_loc_cv=Di_loc_glob$Di_loc_sd/Di_loc_glob$Di_loc_mean
+          
+          
+          ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc_mean)) + 
             geom_point(size=1) + 
             stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
             ggtitle("Mamals") + 
             geom_abline(intercept = 0, slope = 1, color="red", 
                           linetype="dashed", size=1)
+          
+          ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc_var)) + 
+            geom_point(size=1) + 
+            stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
+            ggtitle("Mamals") + 
+            geom_abline(intercept = 0, slope = 1, color="red", 
+                        linetype="dashed", size=1)
+          
+          ggplot(Di_loc_glob, aes(x=Di_glob, y=log(Di_loc_cv))) + 
+            geom_point(size=1) + 
+            stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
+            ggtitle("Mamals") + 
+            geom_abline(intercept = 0, slope = 1, color="red", 
+                        linetype="dashed", size=1)
+          
+          
+          a <- ggplot(Di_loc_glob_mean, aes(x=Di_glob, y=Di_loc)) + 
+            stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + ylim(0, 1) +
+            ggtitle("Mamals") + 
+            geom_abline(intercept = 0, slope = 1, color="red", 
+                        linetype="dashed", size=1)
+          
+          
+          
+          Di_loc_glob_all <- merge(Di,Di_locall,by="row.names",all.x=FALSE)
+          
+          proc=45
+          Di_loc_glob_mamals <- do.call(rbind,mclapply(1:dim(Di_loc_glob_all)[1],function(i) {
+            one_sp <- Di_loc_glob_all[i,]
+            one_sp <- one_sp[,!is.na(one_sp)]
+            dim <- length(one_sp[-c(1,2)])
+            loc_glog <- data.frame(rep(as.numeric(one_sp[2]),dim),as.numeric(one_sp[-c(1,2)]))
+            colnames(loc_glog) <- c("Di_glob","Di_loc")
+            loc_glog
+          },mc.cores = proc))
+          
+          save(Di_loc_glob_mamals, file=file.path(results_dir,"mammals","50km","Di_loc_glob_mamals.RData"))
+
+          plot(Di_loc_glob_mamals$Di_glob,Di_loc_glob_mamals$Di_loc)
+          
           
         #####matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
           Ri<-data.frame(table(unlist(occ_mammals_list))/length(occ_mammals_list))

@@ -1,10 +1,13 @@
 #Null model
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
-who.remote(remote=FALSE,who="NL")
+who.remote(remote=TRUE,who="NM")
 
 library(parallel)
 library(plyr)
+library(vegan)
+library(qdapTools)
+
 
 #Prepare data: DR class for each species
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -41,6 +44,145 @@ data_DR_birds$DR_class[(((data_DR_birds$Din>QD25) & (data_DR_birds$Din<QD75)) & 
 
 data_DR_birds<-data.frame(data_DR_birds[,"DR_class"],row.names = rownames(data_DR_birds))
 colnames(data_DR_birds) <- "DR_class"
+
+##SECOND VERSION OF NULL MODEL (SUGGESTED BY ANNETTE)
+
+#Random distribution but keep the DR_class for each species
+
+
+# Transform in matrix
+
+load(file=file.path(results_dir,"mammals","50km","occ_mammals_list.RData"))
+load(file=file.path(results_dir,"mammals","data_DR_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+
+occ_mammals_mat<-mtabulate(occ_mammals_list)!=0
+occ_mammals_mat<-occ_mammals_mat[apply(occ_mammals_mat,1,sum)>0,]
+#TEst petit jeux de données
+#funk_mammals[funk_mammals$D75R75==12,]
+#occ_mammals_mat <- occ_mammals_mat[rownames(occ_mammals_mat)%in% as.character(158899:158910),]
+#occ_mammals_mat<- occ_mammals_mat[,colnames(occ_mammals_mat) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+
+for (i in 1:ncol(occ_mammals_mat)){
+  occ_mammals_mat[,i] <- as.numeric(occ_mammals_mat[,i])
+}
+
+names <- do.call(rbind,lapply(occ_mammals_list,length))
+rownames(names) <- names(occ_mammals_list)
+names<-subset(names,names[,1]>0)
+
+rep<-10
+#Null_mean_mammals<-list()
+#Null_sd_mammals<-list()
+for (i in 1:10000) {
+  
+  simu <- mclapply(1:rep,function(i){
+    nullmod <- nullmodel(occ_mammals_mat,method="curveball")
+    sim_matrix <- simulate(nullmod, nsim=1)
+    colnames(sim_matrix) <-  colnames(occ_mammals_mat)
+    sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75")),]
+    return(sim_matrix)
+  },mc.cores=10)
+  
+  Null_res <-mclapply(1:length(simu),function(i){
+    Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
+  },mc.cores=10)
+  
+  Null_mean_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
+  Null_sd_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
+  
+}
+save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+
+test1<-data.frame(matrix(unlist(Null_mean_mammals), nrow=61077, byrow=T))
+test2<-data.frame(matrix(unlist(Null_sd_mammals), nrow=61077, byrow=T))
+Null_mean<-apply(test1,1,mean)
+Null_sd<-apply(test2,1,mean)
+funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
+SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+
+boxplot(SES_total_mammals$D75R75)
+
+
+alpha <-do.call(rbind, mclapply(1:61077, function(x) { 
+  
+  sup<- sum(test1[i,]>funk_mammals$D75R75[i])/100000
+  inf <- sum(test1[i,]<funk_mammals$D75R75[i])/100000
+  res<-c(sup,inf)
+  
+  return(res)
+},mc.cores=40))
+
+
+
+
+
+
+
+
+
+load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
+load(file=file.path(results_dir,"birds","data_DR_birds.RData"))
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+
+occ_birds_mat<-mtabulate(occ_birds_list)!=0
+occ_birds_mat<-occ_birds_mat[apply(occ_birds_mat,1,sum)>0,]
+#TEst petit jeux de données
+#funk_birds[funk_birds$D75R75==12,]
+#occ_birds_mat <- occ_birds_mat[rownames(occ_birds_mat)%in% as.character(158899:158910),]
+#occ_birds_mat<- occ_birds_mat[,colnames(occ_birds_mat) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75"))]
+
+for (i in 1:ncol(occ_birds_mat)){
+  occ_birds_mat[,i] <- as.numeric(occ_birds_mat[,i])
+}
+
+names <- do.call(rbind,lapply(occ_birds_list,length))
+rownames(names) <- names(occ_birds_list)
+names<-subset(names,names[,1]>0)
+
+rep<-6
+Null_mean_birds<-list()
+Null_sd_birds<-list()
+for (i in 1:100) {
+  
+  simu <- mclapply(1:rep,function(i){
+    nullmod <- nullmodel(occ_birds_mat,method="curveball")
+    sim_matrix <- simulate(nullmod, nsim=1)
+    colnames(sim_matrix) <-  colnames(occ_birds_mat)
+    sim_matrix <- sim_matrix[,colnames(sim_matrix) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75")),]
+    return(sim_matrix)
+  },mc.cores=12)
+  #Remove null element 
+  simu[sapply(simu, is.null)] <- NULL
+  
+  Null_res <-mclapply(1:length(simu),function(i){
+    Null_mean <- data.frame(mean=apply(simu[[i]],1,mean),sd=apply(simu[[i]],1,sd))
+  },mc.cores=12)
+  
+  Null_mean_birds[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,1])),1,mean)
+  Null_sd_birds[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
+  
+}
+
+save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
+save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
+
+test1<-data.frame(matrix(unlist(Null_mean_birds), nrow=61618, byrow=T))
+test2<-data.frame(matrix(unlist(Null_sd_birds), nrow=61618, byrow=T))
+Null_mean<-apply(test1,1,mean)
+Null_sd<-apply(test2,1,mean)
+funk_birds<-funk_birds[funk_birds$TD_sp>0,]
+SES_total_birds <- data.frame(cell=funk_birds$cell, D75R75 = (funk_birds$D75R75 - Null_mean)/Null_sd)
+
+boxplot(SES_total_birds$D75R75)
+
+#THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
+#Random the functional trait but keep the rarity to know if FR is link to R only
+
+
+###FIRST VERSION OF NULL MODEL
+#RANDOM DISTRIBUTION OF THE DR CLASS
 
 ##Generate number of species per DR_class
 Nb.DR_class<- function(ids,proc,occ_mat_list,data_DR_null){
@@ -129,10 +271,10 @@ Null_sd <- as.data.frame(aaply(laply(SES_funk, as.matrix), c(2, 3), sd))
 
 # Compute 
 SES_total_birds <- data.frame(cell=funk_birds$cell, 
-                                D75R75 = (funk_birds$D75R75 - Null_mean$D75R75)/Null_sd$D75R75,
-                                AVG = (funk_birds$AVG - Null_mean$AVG)/Null_sd$AVG,
-                                D25R25 = (funk_birds$D25R25 - Null_mean$D25R25)/Null_sd$D25R25,
-                                D75R25 = (funk_birds$D75R25 - Null_mean$D75R25)/Null_sd$D75R25,
-                                D25R75 = (funk_birds$D25R75 - Null_mean$D25R75)/Null_sd$D25R75)
+                              D75R75 = (funk_birds$D75R75 - Null_mean$D75R75)/Null_sd$D75R75,
+                              AVG = (funk_birds$AVG - Null_mean$AVG)/Null_sd$AVG,
+                              D25R25 = (funk_birds$D25R25 - Null_mean$D25R25)/Null_sd$D25R25,
+                              D75R25 = (funk_birds$D75R25 - Null_mean$D75R25)/Null_sd$D75R25,
+                              D25R75 = (funk_birds$D25R75 - Null_mean$D25R75)/Null_sd$D25R75)
 
 save(SES_total_birds,file = file.path(results_dir,"birds","50km","SES_total_birds.RData"))
