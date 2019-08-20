@@ -179,6 +179,7 @@ HDI <- unique(data.frame(HDI=dataGrid50km$HDI2017, country=dataGrid50km$Country)
 country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
 country_rarety <- cbind(country,funk_birds$D75R75,funk_mammals$D75R75)
 colnames(country_rarety) <- c("ID","country","birds","mammals")
+
 country_rarety$birds0_1 <- funk_birds$D75R75
 country_rarety$mammas0_1 <- funk_mammals$D75R75
 
