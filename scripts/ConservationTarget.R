@@ -158,6 +158,23 @@ grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 
 
 ###Country
+#Analysis of country
+####################
+
+cells_species <-mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
+
+cells_species2 <-lapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 2)
+
+
+
+#Human foot print
+####################
+
+
+#HDI
+####################
+
+
 HDI <- unique(data.frame(HDI=dataGrid50km$HDI2017, country=dataGrid50km$Country))
 country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
 country_rarety <- cbind(country,funk_birds$D75R75,funk_mammals$D75R75)
@@ -184,6 +201,26 @@ test <- merge(country_important_birds,HDI,by="country")
 test2 <- HDI[!HDI$country %in% country_important_birds$country,]
 
 t.test(test$HDI,test2$HDI)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #####################OLD STUFF
 
 load(file=file.path(results_dir,"mammals","50km","mammals_PA.RData"))
