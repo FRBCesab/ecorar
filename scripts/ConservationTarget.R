@@ -47,16 +47,43 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
 
 ### Quantiles of SR and gap analyses
 
-          # MAMMALS
-          Target_mammals<-data.frame(table(unlist(occ_mammals_list)))
-          colnames(Target_mammals) <- c("ID","SR")
           
-          Target_mammals$LogSR <- log(Target_mammals$SR) 
-          qt=quantile(Target_mammals[,"SR"], probs=c(0.1, 0.9))
-          rownames(Target_mammals) <- Target_mammals$ID
-          Target_mammals<-Target_mammals[,-1]
-          
-          # BIRDS
+       # Mammals -----
+        Target_mammals<-data.frame(table(unlist(occ_mammals_list)))
+        colnames(Target_mammals) <- c("ID","SR")
+        
+        Target_mammals$LogSR <- log(Target_mammals$SR) 
+        qt=quantile(Target_mammals[,"SR"], probs=c(0.1, 0.9))
+        rownames(Target_mammals) <- Target_mammals$ID
+        Target_mammals<-Target_mammals[,-1]
+        
+        MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
+        MamAllCat<-merge(MamAllCat,mammalsID,by.x="SPECIES", by.y="Name")
+        rownames(MamAllCat)<-MamAllCat$ID
+        MamAllCat$PERCENTAGE<-as.numeric(as.character(MamAllCat$PERCENTAGE))
+        
+        Target_mammals <- merge (Target_mammals,MamAllCat, by = "row.names" )
+        rownames(Target_mammals) <- Target_mammals[,1]
+        Target_mammals <- Target_mammals[,c(2,3,5)]
+        
+        
+        Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
+        Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"PERCENTAGE"]/Target_mammals[,"TargetExp"])
+        Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
+        Target_mammals <- na.omit(Target_mammals)
+
+
+        ymax=300
+        col_br<-c("#00AFBB","#E7B800","orangered")
+        Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
+        
+        a <- ggplot(Target_mammals_sub, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
+          geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
+          labs(x = "DR class",y="Species target achievements")+theme_bw()
+
+
+
+        # Birds -----
           Target_birds<-data.frame(table(unlist(occ_birds_list)))
           colnames(Target_birds) <- c("ID","SR")
           
@@ -65,82 +92,20 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
           rownames(Target_birds) <- Target_birds$ID
           Target_birds<-Target_birds[,-1]
           
-
-## Target definition
-target_func <- function(SR, qt, log=TRUE){
-  SR_i <- SR
-  qt_i <- qt
-  
-  if(log) {
-    SR <- log(SR)
-    qt <- log(qt)
-  }	
-  dat <- data.frame(matrix(c(100,10,qt), ncol=2, dimnames=list(NULL, c("Target", "SR"))))
-  lm_target <- lm(Target~SR, data=dat)
-  Tar <- predict(lm_target,newdata=as.data.frame(SR))
-  Tar[SR_i<=qt_i[1]] <- 100
-  Tar[SR_i>=qt_i[2]] <- 10
-  return(Tar)
-}
-
-# MAMMALS
-Target_mammals<-data.frame(table(unlist(occ_mammals_list)))
-colnames(Target_mammals) <- c("ID","SR")
-
-Target_mammals$LogSR <- log(Target_mammals$SR) 
-qt=quantile(Target_mammals[,"SR"], probs=c(0.1, 0.9))
-rownames(Target_mammals) <- Target_mammals$ID
-Target_mammals<-Target_mammals[,-1]
-
-MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
-MamAllCat<-merge(MamAllCat,mammalsID,by.x="SPECIES", by.y="Name")
-rownames(MamAllCat)<-MamAllCat$ID
-MamAllCat$PERCENTAGE<-as.numeric(as.character(MamAllCat$PERCENTAGE))
-
-Target_mammals <- merge (Target_mammals,MamAllCat, by = "row.names" )
-rownames(Target_mammals) <- Target_mammals[,1]
-Target_mammals <- Target_mammals[,c(2,3,5)]
-
-
-Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
-Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"PERCENTAGE"]/Target_mammals[,"TargetExp"])
-Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
-Target_mammals <- na.omit(Target_mammals)
-
-
-ymax=300
-col_br<-c("#00AFBB","#E7B800","orangered")
-Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
-
-a <- ggplot(Target_mammals_sub, aes(x=DR_class, y=TargetMet_Percentagecover, fill=DR_class)) + geom_boxplot() + guides(fill=FALSE) + scale_fill_manual(values=col_br)+
-  geom_jitter(width = 0.1,size=0.5,color="darkgrey") + scale_y_continuous(limits = c(0, ymax)) + geom_hline(yintercept=mean(Target_mammals$TargetMet_Percentagecover,na.rm=T),col="red",linetype="dashed") + 
-  labs(x = "DR class",y="Species target achievements")+theme_bw()
-
-
-
-# BIRDS
-Target_birds<-data.frame(table(unlist(occ_birds_list)))
-colnames(Target_birds) <- c("ID","SR")
-
-Target_birds$LogSR <- log(Target_birds$SR) 
-qt=quantile(Target_birds[,"SR"], probs=c(0.1, 0.9))
-rownames(Target_birds) <- Target_birds$ID
-Target_birds<-Target_birds[,-1]
-
-BirdsAllCat<-read.csv2(file=file.path(results_dir,"birds","50km","BirdsAllCat.csv"))
-BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="SPECIES", by.y="Name")
-rownames(BirdsAllCat)<-BirdsAllCat$ID
-BirdsAllCat$PERCENTAGE<-as.numeric(as.character(BirdsAllCat$PERCENTAGE))
-
-Target_birds <- merge (Target_birds,BirdsAllCat, by = "row.names" )
-rownames(Target_birds) <- Target_birds[,1]
-Target_birds <- Target_birds[,c(2,3,5)]
-
-
-Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
-Target_birds[,"TargetMet_Percentagecover"] <- 100*(Target_birds[,"PERCENTAGE"]/Target_birds[,"TargetExp"])
-Target_birds <- merge(Target_birds,data_DR_birds,by="row.names")
-Target_birds <- na.omit(Target_birds)
+          BirdsAllCat<-read.csv2(file=file.path(results_dir,"birds","50km","BirdsAllCat.csv"))
+          BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="SPECIES", by.y="Name")
+          rownames(BirdsAllCat)<-BirdsAllCat$ID
+          BirdsAllCat$PERCENTAGE<-as.numeric(as.character(BirdsAllCat$PERCENTAGE))
+          
+          Target_birds <- merge (Target_birds,BirdsAllCat, by = "row.names" )
+          rownames(Target_birds) <- Target_birds[,1]
+          Target_birds <- Target_birds[,c(2,3,5)]
+          
+          
+          Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
+          Target_birds[,"TargetMet_Percentagecover"] <- 100*(Target_birds[,"PERCENTAGE"]/Target_birds[,"TargetExp"])
+          Target_birds <- merge(Target_birds,data_DR_birds,by="row.names")
+          Target_birds <- na.omit(Target_birds)
 
 
 ymax=300
@@ -161,14 +126,36 @@ grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 #Analysis of country
 ####################
 
-cells_species <-mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
+cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
 
-cells_species2 <-lapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 2)
+cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
+
+country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
+country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
+names(country_species) <-  mammalsID[,1]
+
+country_species_D75R75_mammals <- country_species[names(country_species) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+country_species_D75R75_mammals<- data.frame(table(unlist(country_species_D75R75_mammals)))
+save(country_species_D75R75_mammals,file=file.path(results_dir,"mammals","50km","country_species_D75R75_mammals.RData"))
 
 
+
+cells_species <- mclapply(1:nrow(birdsID),function(i) {grep(birdsID[i,1], occ_birds_list)},mc.cores = 3)
+
+cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_birds_list[cells_species[[i]]])},mc.cores = 3)
+
+country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
+country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
+names(country_species) <-  birdsID[,1]
+
+country_species_D75R75_birds <- country_species[names(country_species) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75"))]
+country_species_D75R75_birds<- data.frame(table(unlist(country_species_D75R75_birds)))
+save(country_species_D75R75_birds,file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 
 #Human foot print
 ####################
+
+
 
 
 #HDI
