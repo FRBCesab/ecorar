@@ -144,8 +144,8 @@ cells_species <- mclapply(1:nrow(birdsID),function(i) {grep(birdsID[i,1], occ_bi
 
 cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_birds_list[cells_species[[i]]])},mc.cores = 3)
 
-country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
-country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
+country <- data.frame(ID=dataGrid50km$ID, country=dataGrid50km$Country)
+country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$country)},mc.cores = 3)
 names(country_species) <-  birdsID[,1]
 
 country_species_D75R75_birds <- country_species[names(country_species) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75"))]
@@ -154,8 +154,18 @@ save(country_species_D75R75_birds,file=file.path(results_dir,"birds","50km","cou
 
 #Human foot print
 ####################
+load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
+load( file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+load( file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
+
+Humanfoot_rarety <- merge(dataHF,funk_mammals,by.x="ID",by.y="cell")
+par(mfrow=c(1,2))
+t.test(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D75R75==0)$ResHF,main="mammals")
 
 
+Humanfoot_rarety <- merge(dataHF,funk_birds,by.x="ID",by.y="cell")
+boxplot(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D25R25>0)$ResHF,main="birds")   
 
 
 #HDI
