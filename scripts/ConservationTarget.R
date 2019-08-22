@@ -136,7 +136,7 @@ names(country_species) <-  mammalsID[,1]
 
 country_species_D75R75_mammals <- country_species[names(country_species) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
 country_species_D75R75_mammals<- data.frame(table(unlist(country_species_D75R75_mammals)))
-save(country_species_D75R75_mammals,file=file.path(results_dir,"mammals","50km","country_species_D75R75_mammals.RData"))
+#save(country_species_D75R75_mammals,file=file.path(results_dir,"mammals","50km","country_species_D75R75_mammals.RData"))
 
 
 
@@ -150,16 +150,50 @@ names(country_species) <-  birdsID[,1]
 
 country_species_D75R75_birds <- country_species[names(country_species) %in% rownames(subset(data_DR_birds,data_DR_birds$DR_class=="D75R75"))]
 country_species_D75R75_birds<- data.frame(table(unlist(country_species_D75R75_birds)))
-save(country_species_D75R75_birds,file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
+#save(country_species_D75R75_birds,file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 
+load(file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","country_species_D75R75_mammals.RData"))
 #Human foot print
 ####################
+
+
 load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
-load( file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
-load( file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+
 dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
 
-Humanfoot_rarety <- merge(dataHF,funk_mammals,by.x="ID",by.y="cell")
+Humanfoot_rarety_mammals <- merge(dataHF,funk_mammals,by.x="ID",by.y="cell")
+Humanfoot_rarety_birds <- merge(dataHF,funk_birds,by.x="ID",by.y="cell")
+
+
+Humanfoot_rarety_mammals_AVG <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$AVG>0)
+Humanfoot_rarety_mammals_D75R75 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D75R75>0)
+Humanfoot_rarety_mammals_D25R25 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D25R25>0)
+
+
+HF_mammals <- rbind(data.frame(Value = Humanfoot_rarety_mammals_AVG$ResHF, DR_class = rep("AVG",nrow(Humanfoot_rarety_mammals_AVG)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_mammals_AVG)), Taxa =rep("mammals",nrow(Humanfoot_rarety_mammals_AVG))),
+                    data.frame(Value = Humanfoot_rarety_mammals_D75R75$ResHF, DR_class = rep("D75R75",nrow(Humanfoot_rarety_mammals_D75R75)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_mammals_D75R75)), Taxa =rep("mammals",nrow(Humanfoot_rarety_mammals_D75R75))),
+                    data.frame(Value = Humanfoot_rarety_mammals_D25R25$ResHF, DR_class = rep("D25R25",nrow(Humanfoot_rarety_mammals_D25R25)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_mammals_D25R25)), Taxa =rep("mammals",nrow(Humanfoot_rarety_mammals_D25R25))))
+
+Humanfoot_rarety_birds_AVG <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$AVG>0)
+Humanfoot_rarety_birds_D75R75 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D75R75>0)
+Humanfoot_rarety_birds_D25R25 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D25R25>0)
+
+HF_birds <- rbind(data.frame(Value = Humanfoot_rarety_birds_AVG$ResHF, DR_class = rep("AVG",nrow(Humanfoot_rarety_birds_AVG)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_AVG)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_AVG))),
+                    data.frame(Value = Humanfoot_rarety_birds_D75R75$ResHF, DR_class = rep("D75R75",nrow(Humanfoot_rarety_birds_D75R75)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_D75R75)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_D75R75))),
+                    data.frame(Value = Humanfoot_rarety_birds_D25R25$ResHF, DR_class = rep("D25R25",nrow(Humanfoot_rarety_birds_D25R25)),
+                               Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_D25R25)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_D25R25))))
+
+threats <- rbind(threats,HF_mammals,HF_birds)
+
 par(mfrow=c(1,2))
 t.test(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D75R75==0)$ResHF,main="mammals")
 
