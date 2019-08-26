@@ -126,6 +126,7 @@ grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 #Analysis of country
 ####################
 
+load(file=file.path(data_dir,"CountryGrid50km.RData"))
 cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
 
 cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
@@ -172,6 +173,10 @@ Humanfoot_rarety_birds <- merge(dataHF,funk_birds,by.x="ID",by.y="cell")
 Humanfoot_rarety_mammals_AVG <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$AVG>0)
 Humanfoot_rarety_mammals_D75R75 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D75R75>0)
 Humanfoot_rarety_mammals_D25R25 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D25R25>0)
+Humanfoot_rarety_mammals_NO_D75R75 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D75R75==0)
+
+mean(Humanfoot_rarety_mammals_D25R25$ResHF,na.rm=T)
+sd(Humanfoot_rarety_mammals_D25R25$ResHF,na.rm=T)
 
 
 HF_mammals <- rbind(data.frame(Value = Humanfoot_rarety_mammals_AVG$ResHF, DR_class = rep("AVG",nrow(Humanfoot_rarety_mammals_AVG)),
@@ -184,6 +189,10 @@ HF_mammals <- rbind(data.frame(Value = Humanfoot_rarety_mammals_AVG$ResHF, DR_cl
 Humanfoot_rarety_birds_AVG <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$AVG>0)
 Humanfoot_rarety_birds_D75R75 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D75R75>0)
 Humanfoot_rarety_birds_D25R25 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D25R25>0)
+Humanfoot_rarety_birds_NO_D75R75 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D75R75==0)
+
+mean(Humanfoot_rarety_birds_NO_D75R75$ResHF,na.rm=T)
+sd(Humanfoot_rarety_birds_NO_D75R75$ResHF,na.rm=T)
 
 HF_birds <- rbind(data.frame(Value = Humanfoot_rarety_birds_AVG$ResHF, DR_class = rep("AVG",nrow(Humanfoot_rarety_birds_AVG)),
                                Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_AVG)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_AVG))),
