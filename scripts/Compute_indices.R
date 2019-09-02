@@ -499,6 +499,15 @@ grid.arrange(a,b,ncol=2)
 sub_FR <- FR_birds$FR[,c('Rin','Din')]
 sub_FR$inv_Rin <- 1-sub_FR$Rin
 
+sub_FR <- merge (sub_FR, data_DR_birds, by="row.names")
+levels(sub_FR$DR_class) <- c(levels(sub_FR$DR_class), "Average","Rare","Common","Other")
+sub_FR$DR_class[sub_FR$DR_class=="AVG"]<-"Average"
+sub_FR$DR_class[sub_FR$DR_class=="D75R25"]<-"Other"
+sub_FR$DR_class[sub_FR$DR_class=="D75R75"]<-"Rare"
+sub_FR$DR_class[sub_FR$DR_class=="D25R75"]<-"Other"
+sub_FR$DR_class[sub_FR$DR_class=="D25R25"]<-"Common"
+sub_FR$DR_class[is.na(sub_FR$DR_class)]<-"Other"
+
 
 Q75R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[2])
 Q25R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[4])
@@ -508,19 +517,28 @@ Q25D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[2])
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   labs(x = "1-Rin",y="Din") +ggtitle('Birds')
 
-ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
+ggplot(sub_FR, aes(x=inv_Rin,y=Din,col=DR_class))+geom_point() + 
   scale_x_continuous(trans='log10') + 
+  scale_color_manual(values=c("#00AFBB", "#FF4500", "#E7B800", "grey"))+
   geom_vline(aes(xintercept = Q75R), colour="red") + 
   geom_hline(aes(yintercept = Q75D), colour="red") + 
   geom_vline(aes(xintercept = Q25R), colour="red") + 
   geom_hline(aes(yintercept = Q25D), colour="red") + 
-  labs(x = "1-Rin",y="Din")
+  labs(x = "1-Rin",y="Din")+theme_bw()
 
 
 ##Di vs vs Ri MAMMALS 
 sub_FR <- FR_mammals$FR[,c('Rin','Din')]
 sub_FR$inv_Rin <- 1-sub_FR$Rin
 
+sub_FR <- merge (sub_FR, data_DR_mammals, by="row.names")
+levels(sub_FR$DR_class) <- c(levels(sub_FR$DR_class), "Average","Rare","Common","Other")
+sub_FR$DR_class[sub_FR$DR_class=="AVG"]<-"Average"
+sub_FR$DR_class[sub_FR$DR_class=="D75R25"]<-"Other"
+sub_FR$DR_class[sub_FR$DR_class=="D75R75"]<-"Rare"
+sub_FR$DR_class[sub_FR$DR_class=="D25R75"]<-"Other"
+sub_FR$DR_class[sub_FR$DR_class=="D25R25"]<-"Common"
+sub_FR$DR_class[is.na(sub_FR$DR_class)]<-"Other"
 Q75R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[2])
 Q25R <- as.numeric(quantile(sub_FR$inv_Rin,probs = seq(0, 1, 0.25))[4])
 Q75D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[4])
@@ -529,13 +547,14 @@ Q25D <- as.numeric(quantile(sub_FR$Din,probs = seq(0, 1, 0.25))[2])
 ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
   labs(x = "1-Rin",y="Din") +ggtitle('Mammals')
 
-ggplot(sub_FR, aes(x=inv_Rin,y=Din))+geom_point() + 
+ggplot(sub_FR, aes(x=inv_Rin,y=Din,col=DR_class))+geom_point() + 
   scale_x_continuous(trans='log10') + 
+  scale_color_manual(values=c("#00AFBB", "#FF4500", "#E7B800", "grey"))+
   geom_vline(aes(xintercept = Q75R), colour="red") + 
   geom_hline(aes(yintercept = Q75D), colour="red") + 
   geom_vline(aes(xintercept = Q25R), colour="red") + 
   geom_hline(aes(yintercept = Q25D), colour="red") + 
-  labs(x = "1-Rin",y="Din")
+  labs(x = "1-Rin",y="Din")+theme_bw()
 
 ##Di Local vs regional 
 #Compute Di at the local scale

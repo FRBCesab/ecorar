@@ -41,6 +41,12 @@ library(png)
               load(file=file.path(results_dir,"birds","50km","occ_birds_list.RData"))
               load(file=file.path(results_dir,"birds","50km","FR_birds.RData"))
               load(file=file.path(data_dir,"birds","taxaInfo_birds.RData"))
+              
+              # Apodiforme and Caprimulgiformes are in a paraphyletic groups strisores
+              levels(taxaInfo_birds$order) <- c(levels(taxaInfo_birds$order), "Strisores")
+              taxaInfo_birds$order[taxaInfo_birds$order=="Apodiformes"]<-"Strisores"
+              taxaInfo_birds$order[taxaInfo_birds$order=="Caprimulgiformes"]<-"Strisores"
+              save(taxaInfo_birds,file=file.path(data_dir,"birds","taxaInfo_birds.RData"))
               birdsID<-birdsID[birdsID$ID %in% rownames(birdstrait),]
               taxaInfo_birds<-taxaInfo_birds[taxaInfo_birds$ID %in% birdsID$ID,]   
               
