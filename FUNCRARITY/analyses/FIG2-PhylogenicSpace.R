@@ -36,7 +36,7 @@ rm(list = ls())
 #'  -------------------------------------------------------------------------   @Parameters
 
 
-root      <- "~/Desktop/FUNCRARITY/"
+root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
 source(file.path(root, "graphsParameters.R"))
 
 filename <- "Figure_2"
