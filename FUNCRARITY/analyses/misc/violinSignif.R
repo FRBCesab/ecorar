@@ -5,12 +5,10 @@ rm(list = ls())
 #'  -------------------------------------------------------------------------   @Parameters
 
 
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/FUNCRARITY/"
+root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
 source(file.path(root, "graphsParameters.R"))
 
-filename <- "Figure_4"
-
-horizon  <- "2061-2080"
+horizon  <- "2041-2060"
 
 
 
@@ -167,4 +165,4 @@ for (taxa in taxas) {
 }
 
 
-save(mat, file = paste0(path_data, "/violin_pvalues.RData"))
+save(mat, file = paste0(path_data, "/violin_pvalues_", horizon, ".RData"))
