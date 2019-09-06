@@ -18,8 +18,8 @@ classes        <- c("D25R25", "AVG", "D75R75")
 classes_labs   <- c("Common", "Average", "Rare")
 vars_richness  <- c("TD_sp", "D75R75", "D25R25")
 
-threats_vars    <- c("Protection Target", "meanHDI", "Climate change")
-threats_labels <- c("Target achievement (%)", "Mean HDI", "Climate change (%)")
+threats_vars    <- c("Protection Target", "meanHDI", "Human FootPrint", "Climate change")
+threats_labels <- c("Target achievement (%)", "Mean HDI", "Human Footprint", "Climate change (%)")
 iucn_status    <- c("NE", "LC", "TH")
 
 
