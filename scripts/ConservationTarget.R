@@ -191,15 +191,14 @@ Humanfoot_rarety_birds_D75R75 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_
 Humanfoot_rarety_birds_D25R25 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D25R25>0)
 Humanfoot_rarety_birds_NO_D75R75 <- subset(Humanfoot_rarety_birds,Humanfoot_rarety_birds$D75R75==0)
 
-mean(Humanfoot_rarety_birds_NO_D75R75$ResHF,na.rm=T)
-sd(Humanfoot_rarety_birds_NO_D75R75$ResHF,na.rm=T)
-
 HF_birds <- rbind(data.frame(Value = Humanfoot_rarety_birds_AVG$ResHF, DR_class = rep("AVG",nrow(Humanfoot_rarety_birds_AVG)),
                                Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_AVG)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_AVG))),
                     data.frame(Value = Humanfoot_rarety_birds_D75R75$ResHF, DR_class = rep("D75R75",nrow(Humanfoot_rarety_birds_D75R75)),
                                Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_D75R75)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_D75R75))),
                     data.frame(Value = Humanfoot_rarety_birds_D25R25$ResHF, DR_class = rep("D25R25",nrow(Humanfoot_rarety_birds_D25R25)),
                                Threats = rep("Human FootPrint",nrow(Humanfoot_rarety_birds_D25R25)), Taxa =rep("birds",nrow(Humanfoot_rarety_birds_D25R25))))
+HF_mammals_birds <- rbind(HF_mammals,HF_birds)
+save(HF_mammals_birds, file=file.path(results_dir,"HF_mammals_birds.RData"))
 
 threats <- rbind(threats,HF_mammals,HF_birds)
 
