@@ -36,7 +36,7 @@ rm(list = ls())
 #'  -------------------------------------------------------------------------   @Parameters
 
 
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/FUNCRARITY/"
+root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
 source(file.path(root, "graphsParameters.R"))
 
 filename <- "Figure_4"
@@ -136,7 +136,7 @@ iucn <- lapply(
 
 png(
   file       = file.path(path_figs, paste0(filename, "_", horizon, ".png")),
-  width      = 9.60,
+  width      = 12.00,
   height     =  7.00,
   units      = "in",
   res        = 600,
@@ -163,7 +163,7 @@ par(
   fg        = "#666666"
 )
 
-par(mfcol = c(2, 4))
+par(mfcol = c(2, 5))
 
 
 
@@ -328,7 +328,7 @@ for (threat in threats_vars) {
     grid()
     box()
 
-    if (comp > 6) { abline(v = 0, lwd = 1, lty = 2) }
+    if (comp > 8) { abline(v = 0, lwd = 1, lty = 2) }
 
 
 

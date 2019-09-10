@@ -153,8 +153,58 @@ country_species_D75R75_birds <- country_species[names(country_species) %in% rown
 country_species_D75R75_birds<- data.frame(table(unlist(country_species_D75R75_birds)))
 #save(country_species_D75R75_birds,file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 
+
+
+
+
+# load the library
+library(forcats)
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+#Plot
 load(file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 load(file=file.path(results_dir,"mammals","50km","country_species_D75R75_mammals.RData"))
+country_species_D75R75_birds <- subset(country_species_D75R75_birds,country_species_D75R75_birds$Freq >0)
+colnames(country_species_D75R75_birds) <- c("country","Nb_SP")
+country_species_D75R75_birds <- merge(country_species_D75R75_birds,HDI,by="country")
+
+
+
+country_species_D75R75_birds <- country_species_D75R75_birds %>%
+  mutate(color = ifelse(country_species_D75R75_birds$Nb_SP >= 10, "red", "black"))
+
+ggplot(country_species_D75R75_birds,aes(x=HDI, y=reorder(country,HDI),  fill=Nb_SP,colour=Nb_SP,size=Nb_SP)) +
+  geom_point(alpha=0.5, shape=21) +
+  scale_size(range = c(.1, 10), name="Number of rare species",breaks =50) +
+  scale_fill_viridis(discrete=FALSE, guide="legend", option="C",name="Number of rare species" ) +
+  scale_colour_viridis(discrete=FALSE, guide=FALSE, option="C") +
+  theme_bw()+theme(legend.position="none",panel.grid.minor = element_blank(), axis.text.y = element_text(size=5,color = country_species_D75R75_birds$color))+ 
+  ylab("Country") +
+  xlab("HDI") 
+
+
+
+
+country_species_D75R75_mammals <- subset(country_species_D75R75_mammals,country_species_D75R75_mammals$Freq >0)
+colnames(country_species_D75R75_mammals) <- c("country","Nb_SP")
+country_species_D75R75_mammals <- merge(country_species_D75R75_mammals,HDI,by="country")
+
+country_species_D75R75_mammals %>%
+  mutate(country = fct_reorder(country, HDI))%>%
+  ggplot(aes(x=HDI, y=country,  fill=Nb_SP,colour=Nb_SP,size=Nb_SP)) +
+  geom_point(alpha=0.5, shape=21) +
+  scale_size(range = c(.1, 10), name="Number of rare species",breaks =50) +
+  scale_fill_viridis(discrete=FALSE, guide="legend", option="C",name="Number of rare species" ) +
+  scale_colour_viridis(discrete=FALSE, guide=FALSE, option="C") +
+  theme_bw()+theme(legend.position="none",panel.grid.minor = element_blank(), axis.text.y = element_text(size=5))+ 
+    ylab("Country") +
+  xlab("HDI") 
+
+
+
+
 #Human foot print
 ####################
 
