@@ -41,7 +41,7 @@ source(file.path(root, "graphsParameters.R"))
 
 filename <- "Figure_4"
 
-horizon  <- "2041-2060"
+horizon  <- "2061-2080"
 
 
 
@@ -328,9 +328,6 @@ for (threat in threats_vars) {
     grid()
     box()
 
-    if (comp > 8) { abline(v = 0, lwd = 1, lty = 2) }
-
-
     factors <- c(15, 7, 5)
     names(factors) = classes
 
@@ -363,6 +360,8 @@ for (threat in threats_vars) {
         axes        = FALSE,
         width = 1.8
       )
+
+      if (comp > 8) { abline(v = 0, lwd = 1, lty = 2) }
 
 
 
