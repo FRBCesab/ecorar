@@ -10,7 +10,8 @@ plotRVB <- function(
   axes    = FALSE,
   xlab    = "",
   ylab    = "",
-  add     = FALSE
+  add     = FALSE,
+  zmax    = NULL
 ) {
 
 
@@ -91,11 +92,23 @@ plotRVB <- function(
     colors <- colorRampPalette(brewer.pal(name = "YlOrRd", n = 9))(255)
   }
 
-  hexa <- leaflet::colorNumeric(
-    palette  = colors,
-    domain   = values(x),
-    na.color = NA
-  )
+  if (is.null(zmax)) {
+
+    hexa <- leaflet::colorNumeric(
+      palette  = colors,
+      domain   = values(x),
+      na.color = NA
+    )
+
+  } else {
+
+    hexa <- leaflet::colorNumeric(
+      palette  = colors,
+      domain   = seq(0, zmax, by = 1),
+      na.color = NA
+    )
+  }
+
   hexas <- hexa(values(x))
 
 
