@@ -1,31 +1,65 @@
 library(raster)
-root      <- "~/Dropbox/RALL/RALLL_R/FUNCRARITY/"
-src_mammals <- subset(src, src$taxa.x=="mammals")
-src_mammals_D75R75 <- subset(src_mammals,src_mammals$DR_class=="D75R75")
-
-species = "sp41026"
-
-spname = subset(taxaInfo_mammals,taxaInfo_mammals$ID == species)
 
 
-par(mfrow=c(1,2))
-cur = get(load(paste0("/Volumes/ROBERTO/ahasverus/outputs/projs/proj_", species, "_1979-2013_bins")))
-fut = get(load(paste0("/Volumes/ROBERTO/ahasverus/outputs/projs/proj_", species, "_2061-2080_bins")))
-plot(cur)
-title(spname$Name)
-plot(fut)
+root        <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
+path_data   <- paste0(root, "data")
+path_biomod <- "/Volumes/ROBERTO/free-sdm/"
 
-fls = list.files("/Volumes/ROBERTO/", recursive = TRUE, pattern = "_1979-2013_bins$", full.names = TRUE)
-fls = list.files("/Volumes/ROBERTO/", recursive = TRUE, pattern = "^proj.+_2061-2080_bins$", full.names = TRUE)
+taxas       <- c("mammals", "birds")
+horizons    <- c("1979-2013", "2041-2060", "2061-2080")
 
-for (i in 1:length(fls)) {
-  cat(i, "\r")
-  tmp = get(load(fls[i]))
-  if (i == 1) {
-    rich = tmp
-  }else{
-    rich[] = rich[] + tmp[]
+
+for (taxa in taxas) {
+
+  species_taxo   <- get(
+    load(
+      file = file.path(path_data, taxa, paste0(taxa, "_taxoinfos.RData"))
+    )
+  )
+
+  for (horizon in horizons) {
+
+    cat(">>>", taxa, "-", horizon, "\n")
+
+    projs <- list.files(
+      path        = path_biomod,
+      recursive   = TRUE,
+      pattern     = paste0("^proj.+_", horizon, "_bins$"),
+      full.names  = TRUE
+    )
+
+    species <- strsplit(projs, "_")
+    species <- unlist(
+      lapply(
+        species,
+        function(x) {
+          x[length(x)-2]
+        }
+      )
+    )
+
+    pos <- which(species %in% species_taxo[ , "ID"])
+    projs <- projs[pos]
+
+
+
+    for (i in 1:length(projs)) {
+
+      cat("    Species:", i, "\r")
+
+      tmp <- get(load(projs[i]))
+
+      if (i == 1) {
+
+        rich <- tmp
+
+      } else {
+
+        rich[] <- rich[] + tmp[]
+      }
+    }
+    cat("\n")
+
+    save(rich, file = paste0(path_data, "/", taxa, "/biomod-richness_", taxa, "_", horizon, ".RData"))
   }
 }
-
-plot(rich)
