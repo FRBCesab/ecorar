@@ -92,17 +92,41 @@ for (i in 1:10000) {
   Null_sd_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
   
 }
-save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
-save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+#save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+#save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+
+
+load(file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
 
 test1<-data.frame(matrix(unlist(Null_mean_mammals), nrow=61077, byrow=T))
+rownames(test1)<-rownames(occ_mammals_mat)
 test2<-data.frame(matrix(unlist(Null_sd_mammals), nrow=61077, byrow=T))
-Null_mean<-apply(test1,1,mean)
-Null_sd<-apply(test2,1,mean)
-funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
-SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+rownames(test2)<-rownames(occ_mammals_mat)
+Null_mean<-data.frame(cell=rownames(occ_mammals_mat),null_mean=apply(test1,1,mean))
+Null_sd<-data.frame(cell=rownames(occ_mammals_mat),null_sd=apply(test2,1,mean))
 
-boxplot(SES_total_mammals$D75R75)
+
+
+funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
+SES_total_mammals <- merge(funk_mammals,Null_mean,by="cell")
+SES_total_mammals <- merge(SES_total_mammals,Null_sd,by="cell")
+SES_total_mammals$SES <- (SES_total_mammals$D75R75 - SES_total_mammals$null_mean)/SES_total_mammals$null_sd
+SES_total_mammals$SES_std <- SES_total_mammals$SES/max(SES_total_mammals$SES)
+
+test <- SES_total_mammals[c(1000:5000),]
+
+#ggsave(filename = "foo.png",
+       ggplot(test, aes(x=cell, y=SES_std,color=D75R75)) + scale_color_viridis_c()+
+geom_point()+theme(panel.grid.minor = element_blank(),panel.grid.major = element_blank(), axis.text.x = element_text(size=5,angle=90))+ 
+geom_hline(yintercept=0,  color = "red") + geom_hline(yintercept=1.96/max(test$SES),linetype="dashed", color = "red")+geom_hline(yintercept=-1.96/max(test$SES), linetype="dashed", color = "red")
+  #,width = 20, height = 20, units = "cm")
+       
+
+boxplot(SES_total_mammals$SES)
+hist((SES_total_mammals$SES)/max(SES_total_mammals$SES))
+sqrt(-1.96)
+
 
 
 alpha <-do.call(rbind, mclapply(1:61077, function(x) { 
@@ -165,8 +189,8 @@ for (i in 1:100) {
   
 }
 
-save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
-save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
+#save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
+#save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
 
 test1<-data.frame(matrix(unlist(Null_mean_birds), nrow=61618, byrow=T))
 test2<-data.frame(matrix(unlist(Null_sd_birds), nrow=61618, byrow=T))

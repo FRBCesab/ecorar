@@ -106,21 +106,22 @@ library(sjstats)
           ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc_mean)) + 
             geom_point(size=1) + 
             stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
-            ggtitle("Mamals") + 
+            ggtitle("Mammals") + 
             geom_abline(intercept = 0, slope = 1, color="red", 
-                          linetype="dashed", size=1)
+                          linetype="dashed", size=1)+theme_bw()+
+            xlab("Global distinctiveness")+ ylab("Local distinctiveness")
           
           ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc_var)) + 
             geom_point(size=1) + 
             stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
-            ggtitle("Mamals") + 
+            ggtitle("Mammals") + 
             geom_abline(intercept = 0, slope = 1, color="red", 
                         linetype="dashed", size=1)
           
           ggplot(Di_loc_glob, aes(x=Di_glob, y=log(Di_loc_cv))) + 
             geom_point(size=1) + 
             stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
-            ggtitle("Mamals") + 
+            ggtitle("Mammals") + 
             geom_abline(intercept = 0, slope = 1, color="red", 
                         linetype="dashed", size=1)
           
@@ -262,17 +263,28 @@ library(sjstats)
       mean_loc_Di <- apply(Di_locall,1,function(x) mean(x, na.rm = T)) 
       mean_loc_Di <- data.frame(mean_loc_Di)
       
-      Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
-      colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc")
+      sd_loc_Di <- apply(Di_locall,1,function(x) var(x, na.rm = T)) #using sjstats
+      sd_loc_Di <- data.frame(sd_loc_Di)
       
-      ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc)) + 
+      Di_loc_glob <- merge(Di,mean_loc_Di,by="row.names",all.x=FALSE)
+      rownames(Di_loc_glob) <- Di_loc_glob[,1]
+      Di_loc_glob <- Di_loc_glob[,-1]
+      Di_loc_glob <- merge(Di_loc_glob,sd_loc_Di,by="row.names",all.x=FALSE)
+      colnames(Di_loc_glob) <- c("ID","Di_glob","Di_loc_mean","Di_loc_sd")
+      
+      Di_loc_glob$Di_loc_cv=Di_loc_glob$Di_loc_sd/Di_loc_glob$Di_loc_mean
+      
+      
+      
+      ggplot(Di_loc_glob, aes(x=Di_glob, y=Di_loc_mean)) + 
         geom_point(size=1) + 
         stat_smooth(method = "lm", formula = y ~ x, size = 1,se=TRUE) + 
         ggtitle("Birds") + 
         geom_abline(intercept = 0, slope = 1, color="red", 
-                    linetype="dashed", size=1)
-      
-      #Extract outliers species 
+                    linetype="dashed", size=1)+theme_bw()+
+        xlab("Global distinctiveness")+ ylab("Local distinctiveness")
+    
+        #Extract outliers species 
       Di_loc_glob <- Di_loc_glob[Di_loc_glob$ID %in% birdsID$ID,]
       
       
@@ -297,8 +309,6 @@ library(sjstats)
         spe_down <-  names(unlist(lapply(occ_birds_list, function(x) x[x==id])))
       },mc.cores = 4)
       names(subdown) <- ids
-      
-      
       
       #matrix is to big to compute Ri + restrictedness function need at least 2 species to be compute.
       Ri<-data.frame(table(unlist(occ_birds_list))/length(occ_birds_list))
@@ -572,8 +582,6 @@ DiLocal <- function (ids, occ_list, )
   site_sp <- c(names(unlist(site_sp)))
 
  # test <- lapply(site,function(id) {cooccsp<-  occ_mammals_list[[id]]})
-
-
 
   Sim_commu <- matrix(1,1,ncol=(length(occ_mammals_list[[site_sp[1]]])))
   colnames(Sim_commu) <- occ_mammals_list[[site_sp[1]]]
