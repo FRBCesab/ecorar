@@ -284,9 +284,6 @@ HF_mammals_birds <- rbind(HF_mammals,HF_birds)
 save(HF_mammals_birds, file=file.path(results_dir,"HF_mammals_birds.RData"))
 
 threats <- rbind(threats,HF_mammals,HF_birds)
-
-
-
 par(mfrow=c(1,2))
 t.test(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D75R75==0)$ResHF,main="mammals")
 
