@@ -56,3 +56,14 @@ library(png)
 
 addings <- list.files(path = path_R, pattern = "\\.R$", full.names = TRUE)
 for (i in 1:length(addings)) { source(addings[i]) }
+
+
+
+#'  -------------------------------------------------------------------------   @Extract looser of each threats
+load("~/Documents/Postdoc MARBEC/FREE/RALLL_R/FUNCRARITY/data/threats_nocc.RData")
+load("~/Documents/Postdoc MARBEC/FREE/RALLL_R/FUNCRARITY/data/threats_cc.RData")
+
+rare <- subset(threats,threats$DR_class=="D75R75")
+rare_protec <- subset(rare,rare$Threats=="Protection Target")
+rare_lessprotec <- rare_lessprotec
+

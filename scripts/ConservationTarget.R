@@ -182,8 +182,6 @@ a <- ggplot(country_species_D75R75_birds,aes(x=HDI, y=reorder(country,HDI),  fil
   ylab("Country") +
   xlab("HDI") 
 
-
-
 load(file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 country_species_D75R75_birds <- subset(country_species_D75R75_birds,country_species_D75R75_birds$Freq >0)
 colnames(country_species_D75R75_birds) <- c("country","Nb_SP")
@@ -246,18 +244,15 @@ d<- ggplot(country_species_D75R75_mammals,aes(x=conflict, y=reorder(country,conf
 #Human foot print
 ####################
 
-
+#PER CELLS-----
 load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
 load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
-
 load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
 
 dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
 
 Humanfoot_rarety_mammals <- merge(dataHF,funk_mammals,by.x="ID",by.y="cell")
 Humanfoot_rarety_birds <- merge(dataHF,funk_birds,by.x="ID",by.y="cell")
-
-
 Humanfoot_rarety_mammals_AVG <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$AVG>0)
 Humanfoot_rarety_mammals_D75R75 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D75R75>0)
 Humanfoot_rarety_mammals_D25R25 <- subset(Humanfoot_rarety_mammals,Humanfoot_rarety_mammals$D25R25>0)
@@ -290,12 +285,39 @@ save(HF_mammals_birds, file=file.path(results_dir,"HF_mammals_birds.RData"))
 
 threats <- rbind(threats,HF_mammals,HF_birds)
 
+
+
 par(mfrow=c(1,2))
 t.test(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D75R75==0)$ResHF,main="mammals")
 
 
 Humanfoot_rarety <- merge(dataHF,funk_birds,by.x="ID",by.y="cell")
 boxplot(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoot_rarety,Humanfoot_rarety$D25R25>0)$ResHF,main="birds")   
+
+
+
+#PER SPECIEs-----
+load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
+load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+
+cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
+
+cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
+
+country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
+country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
+names(country_species) <-  mammalsID[,1]
+
+country_species_D75R75_mammals <- country_species[names(country_species) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
+country_species_D75R75_mammals<- data.frame(table(unlist(country_species_D75R75_mammals)))
+
+
+
+
+
+
+
 
 
 #HDI
