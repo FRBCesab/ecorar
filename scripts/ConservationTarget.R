@@ -1,6 +1,7 @@
 rm(list=ls(all=TRUE)) 
 source("./scripts/Functions.R")
 who.remote(remote=FALSE,who="NL")
+library(taxize)
 
 #TODO ANNOTE  SCRIPT
 load(file=file.path(results_dir,"mammals","50km","FR_mammals.RData"))
@@ -58,7 +59,9 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
         Target_mammals<-Target_mammals[,-1]
         
         MamAllCat<-read.csv2(file=file.path(results_dir,"mammals","50km","MamAllCat.csv"))
-        MamAllCat<-merge(MamAllCat,mammalsID,by.x="SPECIES", by.y="Name")
+        colnames(MamAllCat)[1]<-"Name"
+        
+        MamAllCat<-merge(MamAllCat,mammalsID,by="Name")
         rownames(MamAllCat)<-MamAllCat$ID
         MamAllCat$PERCENTAGE<-as.numeric(as.character(MamAllCat$PERCENTAGE))
         
@@ -70,9 +73,12 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
         Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
         Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"PERCENTAGE"]/Target_mammals[,"TargetExp"])
         Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
-        Target_mammals <- na.omit(Target_mammals)
+        rownames(Target_mammals) <- Target_mammals[,1]
+        Target_mammals <- Target_mammals[,-1]
+        #Target_mammals <- na.omit(Target_mammals)
 
-
+        
+        
         ymax=300
         col_br<-c("#00AFBB","#E7B800","orangered")
         Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
@@ -93,6 +99,7 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
           Target_birds<-Target_birds[,-1]
           
           BirdsAllCat<-read.csv2(file=file.path(results_dir,"birds","50km","BirdsAllCat.csv"))
+          colnames(BirdsAllCat)[1]<-"SPECIES"
           BirdsAllCat<-merge(BirdsAllCat,birdsID,by.x="SPECIES", by.y="Name")
           rownames(BirdsAllCat)<-BirdsAllCat$ID
           BirdsAllCat$PERCENTAGE<-as.numeric(as.character(BirdsAllCat$PERCENTAGE))
@@ -105,7 +112,7 @@ load(file=file.path(results_dir,"mammals/data_DR_mammals.RData"))
           Target_birds[,"TargetExp"] <- target_func(Target_birds[,"SR"], qt, log=T)
           Target_birds[,"TargetMet_Percentagecover"] <- 100*(Target_birds[,"PERCENTAGE"]/Target_birds[,"TargetExp"])
           Target_birds <- merge(Target_birds,data_DR_birds,by="row.names")
-          Target_birds <- na.omit(Target_birds)
+          #Target_birds <- na.omit(Target_birds)
 
 
 ymax=300
@@ -127,9 +134,9 @@ grid.arrange(a,b,ncol=2,top = textGrob("Species target achievements" ,gp=gpar(fo
 ####################
 
 load(file=file.path(data_dir,"CountryGrid50km.RData"))
-cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
-
-cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
+#cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
+#cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
+#save(cells_species2,file=file.path(results_dir,"mammals","50km","cells_species2.RData"))
 
 country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
 country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
@@ -142,8 +149,9 @@ country_species_D75R75_mammals<- data.frame(table(unlist(country_species_D75R75_
 
 
 cells_species <- mclapply(1:nrow(birdsID),function(i) {grep(birdsID[i,1], occ_birds_list)},mc.cores = 3)
+cells_species_birds <- mclapply(1:length(cells_species),function(i){ names(occ_birds_list[cells_species[[i]]])},mc.cores = 3)
+save(cells_species_birds,file=file.path(results_dir,"birds","50km","cells_species_birds.RData"))
 
-cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_birds_list[cells_species[[i]]])},mc.cores = 3)
 
 country <- data.frame(ID=dataGrid50km$ID, country=dataGrid50km$Country)
 country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$country)},mc.cores = 3)
@@ -163,7 +171,7 @@ library(ggplot2)
 library(dplyr)
 library(hrbrthemes)
 library(viridis)
-#Plot
+#Plot -----
 load(file=file.path(results_dir,"birds","50km","country_species_D75R75_birds.RData"))
 country_species_D75R75_birds <- subset(country_species_D75R75_birds,country_species_D75R75_birds$Freq >0)
 colnames(country_species_D75R75_birds) <- c("country","Nb_SP")
@@ -293,21 +301,114 @@ boxplot(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoo
 
 
 
+
 #PER SPECIEs-----
-load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
+
 load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
 load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+load(file=file.path(results_dir,"mammals","50km","cells_species_mammals.RData"))
 
-cells_species <- mclapply(1:nrow(mammalsID),function(i) {grep(mammalsID[i,1], occ_mammals_list)},mc.cores = 3)
+load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
+dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
+    # Mammals
+load(file=file.path(data_dir,"CountryGrid50km.RData"))
 
-cells_species2 <- mclapply(1:length(cells_species),function(i){ names(occ_mammals_list[cells_species[[i]]])},mc.cores = 3)
+HDI_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$HDI2017,na.rm=T)},mc.cores = 3)
+names(HDI_species_mammals) <-  mammalsID[,1]
+HDI_species_mammals<-do.call(rbind,HDI_species_mammals)
 
-country <- data.frame(ID=dataGrid50km$ID, Coundry=dataGrid50km$Country)
-country_species <- mclapply(1:length(cells_species2),function(i){unique(country[country$ID %in%  cells_species2[[i]],]$Coundry)},mc.cores = 3)
-names(country_species) <-  mammalsID[,1]
+ConflictCY_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$ConflictCY,na.rm=T)},mc.cores = 3)
+names(ConflictCY_species_mammals) <-  mammalsID[,1]
+ConflictCY_species_mammals<-do.call(rbind,ConflictCY_species_mammals)
 
-country_species_D75R75_mammals <- country_species[names(country_species) %in% rownames(subset(data_DR_mammals,data_DR_mammals$DR_class=="D75R75"))]
-country_species_D75R75_mammals<- data.frame(table(unlist(country_species_D75R75_mammals)))
+HF_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataHF[dataHF$ID %in%  cells_species_mammals[[i]],]$ResHF,na.rm=T)},mc.cores = 3)
+names(HF_species_mammals) <-  mammalsID[,1]
+HF_species_mammals<-do.call(rbind,HF_species_mammals)
+
+#Function to merge
+MyMerge <- function(x, y){
+  df    <- merge(x, y, by= "row.names", all.x= T, all.y= F)
+  rownames(df)  <- df$Row.names
+  df$Row.names  <- NULL
+  return(df)
+}
+
+threats_species_mammals <- Reduce(MyMerge, list(HDI_species_mammals, ConflictCY_species_mammals, HF_species_mammals, Target_mammals))
+colnames(threats_species_mammals) <- c("HDI","Conflict","Human Foot Print","SR", "LogSR", "PERCENTAGE", "TargetExp", "TargetMet_Percentagecover")
+
+threats_species_mammals <- merge(threats_species_mammals,data_DR_mammals,by="row.names")
+rownames(threats_species_mammals) <- threats_species_mammals[,1]
+threats_species_mammals <- threats_species_mammals[,-1]
+threats_species_mammals <- merge(threats_species_mammals,mammalsID,by.x="row.names",by.y="ID")
+rownames(threats_species_mammals) <- threats_species_mammals[,1]
+threats_species_mammals <- threats_species_mammals[,-1]
+
+rare_mammals_threats<-subset(threats_species_mammals,threats_species_mammals$DR_class=="D75R75")
+rare_mammals_threats["sp6774",]
+
+## NEED TO COMPUTE CENTROID PTO HAVE THE MOST IMPACTED
+rare_mammals_acp <- dudi.pca(na.omit(rare_mammals_threats[,c(1:3,8)]))
+fviz_pca_ind(rare_mammals_acp, axes = c(1, 2), geom = c("point", "text"),
+             label = "all", invisible = "none", labelsize = 4,
+             pointsize = 2, habillage = "none",
+             addEllipses = FALSE, ellipse.level = 0.95, 
+             col.ind = "black", col.ind.sup = "blue", alpha.ind = 1,
+             select.ind = list(name = NULL, cos2 = NULL, contrib = NULL),
+             jitter = list(what = "label", width = NULL, height = NULL))
+# Graphique des variables
+fviz_pca_var(rare_mammals_acp, axes = c(1, 2), geom = c("arrow", "text"),
+             label = "all", invisible = "none", labelsize = 4,
+             col.var = "black", alpha.var = 1, col.quanti.sup = "blue",
+             col.circle = "grey70",
+             select.var = list(name =NULL, cos2 = NULL, contrib = NULL),
+             jitter = list(what = "label", width = NULL, height = NULL))
+# Biplot des individus et des variables
+fviz_pca_biplot(rare_mammals_acp, axes = c(1, 2), geom = c("point", "text"),
+                label = "all", invisible = "none", labelsize = 4, pointsize = 2,
+                habillage = "none", addEllipses = FALSE, ellipse.level = 0.95,
+                col.ind = "black", col.ind.sup = "blue", alpha.ind = 1,
+                col.var = "steelblue", alpha.var = 1, col.quanti.sup = "blue",
+                col.circle = "grey70", 
+                select.var = list(name = NULL, cos2 = NULL, contrib= NULL), 
+                select.ind = list(name = NULL, cos2 = NULL, contrib = NULL),
+                jitter = list(what = "label", width = NULL, height = NULL))
+
+
+rare_mammals_less_prot<-rare_mammals[order(rare_mammals[,"TargetMet_Percentagecover"],decreasing=F)[1:50],]
+rare_mammals_more_HF<-rare_mammals[order(rare_mammals[,"Human Foot Print"],decreasing=T)[1:50],]
+rare_mammals_less_HDI<-rare_mammals[order(rare_mammals[,"HDI"],decreasing=F)[1:50],]
+rare_mammals_more_conflict<-rare_mammals[order(rare_mammals[,"Conflict"],decreasing=T)[1:50],]
+rare_mammals_climate<-  climate[(climate$DR_class=="D75R75") | (climate$Taxa=="mammals"),]
+rare_mammals_climate<-  rare_mammals_climate[order(rare_mammals_climate[,"Value"],decreasing=F)[1:50],]
+
+
+
+
+
+list_of_data = list(rare_mammals_more_HF,rare_mammals_less_prot)
+common_names = Reduce(intersect, lapply(list_of_data, row.names))
+
+list_of_data = lapply(list_of_data, function(x) { x[row.names(x) %in% common_names,]})
+list_of_data
+
+
+
+# Birds
+load(file=file.path(data_dir,"CountryGrid50km.RData"))
+
+HDI_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_birds[[i]],]$HDI2017,na.rm=T)},mc.cores = 3)
+names(HDI_species_birds) <-  birdsID[,1]
+HDI_species_birds<-do.call(rbind,HDI_species_birds)
+
+ConflictCY_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_birds[[i]],]$ConflictCY,na.rm=T)},mc.cores = 3)
+names(ConflictCY_species_birds) <-  birdsID[,1]
+ConflictCY_species_birds<-do.call(rbind,ConflictCY_species_birds)
+
+HF_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataHF[dataHF$ID %in%  cells_species_birds[[i]],]$ResHF,na.rm=T)},mc.cores = 3)
+names(HF_species_birds) <-  birdsID[,1]
+HF_species_birds<-do.call(rbind,HF_species_birds)
+
+
 
 
 
@@ -591,6 +692,10 @@ Target_mammals[,"TargetExp"] <- target_func(Target_mammals[,"SR"], qt, log=T)
 Target_mammals[,"TargetMet_Percentagecover"] <- 100*(Target_mammals[,"PERCENTAGE"]/Target_mammals[,"TargetExp"])
 Target_mammals <- merge(Target_mammals,data_DR_mammals,by="row.names")
 Target_mammals <- na.omit(Target_mammals)
+
+
+
+
 
 Target_mammals_sub <- Target_mammals[((Target_mammals$DR_class=='D25R25') | (Target_mammals$DR_class=='D75R75') | (Target_mammals$DR_class=='AVG')),]
 ymax=300
