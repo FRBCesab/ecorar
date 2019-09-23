@@ -1,4 +1,4 @@
-indir <- "/Volumes/ROBERTO/outputs#1/metrics/"
+indir <- "/Volumes/ROBERTO/free-sdm/src/"
 
 
 horizon <- "2061-2080"
@@ -25,7 +25,7 @@ for (i in 1:length(fls)) {
 }
 
 
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/FUNCRARITY/"
+root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
 path_data <- paste0(root, "data")
 
 species_taxo   <- rbind(
@@ -91,31 +91,31 @@ species_dr$ID <- rownames(species_dr)
 src <- merge(src, species_dr, by = "ID", all = FALSE)
 
 
-src2050 <- src[src[ , "horizon"] == "2041-2060", c("ID", "taxa.x", "DR_class", "climateChange")]
-colnames(src2050) <- c("ID", "taxa", "class", "src2050")
-
-src2080 <- src[src[ , "horizon"] == "2061-2080", c("ID", "climateChange")]
-colnames(src2080) <- c("ID", "src2080")
-
-src <- merge(src2050, src2080, by = "ID", all = FALSE)
-
-
-occ <- read.delim(paste0(path_data, "/species_list_prevalence.txt"), header = TRUE)
-occ <- occ[ , -1]
-colnames(occ) <- c("ID", "occurrence")
-
-src <- merge(src, occ, by = "ID", all = FALSE)
-
-save(src, file = paste0(path_data, "/src_vs_occurrence.RData"))
-
-
-
-# src <- src[ , c("climateChange", "DR_class", "taxa.x", "horizon")]
-# src$Threats <- "Climate change"
+# src2050 <- src[src[ , "horizon"] == "2041-2060", c("ID", "taxa.x", "DR_class", "climateChange")]
+# colnames(src2050) <- c("ID", "taxa", "class", "src2050")
 #
-# src <- src[ , c(1, 2, 5, 3, 4)]
-# colnames(src) <- c("Value", "DR_class", "Threats", "Taxa", "Horizon")
+# src2080 <- src[src[ , "horizon"] == "2061-2080", c("ID", "climateChange")]
+# colnames(src2080) <- c("ID", "src2080")
 #
-# threats_cc <- src
+# src <- merge(src2050, src2080, by = "ID", all = FALSE)
 #
-# save(threats_cc, file = paste0(path_data, "threats_cc.RData"))
+#
+# occ <- read.delim(paste0(path_data, "/species_list_prevalence.txt"), header = TRUE)
+# occ <- occ[ , -1]
+# colnames(occ) <- c("ID", "occurrence")
+#
+# src <- merge(src, occ, by = "ID", all = FALSE)
+#
+# save(src, file = paste0(path_data, "/src_vs_occurrence.RData"))
+
+
+
+src <- src[ , c("ID", "climateChange", "DR_class", "taxa.x", "horizon")]
+src$Threats <- "Climate change"
+
+src <- src[ , c(1, 2, 3, 6, 4, 5)]
+colnames(src) <- c("ID", "Value", "DR_class", "Threats", "Taxa", "Horizon")
+
+threats_cc <- src
+
+save(threats_cc, file = paste0(path_data, "threats_cc_with_id.RData"))
