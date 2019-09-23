@@ -466,7 +466,7 @@ rare_mammals_less_HDI<-rare_mammals[order(rare_mammals[,"HDI"],decreasing=F)[1:5
 rare_mammals_more_conflict<-rare_mammals[order(rare_mammals[,"Conflict"],decreasing=T)[1:50],]
 rare_mammals_climate<-  rare_mammals[order(rare_mammals[,"2041-2060"],decreasing=F)[1:50],]
 
-list_of_data = list(rare_mammals_more_HF,rare_mammals_less_prot)
+list_of_data = list(rare_mammals_more_HF,rare_mammals_less_prot,rare_mammals_less_HDI,rare_mammals_more_conflict,rare_mammals_climate)
 common_names = Reduce(intersect, lapply(list_of_data, row.names))
 
 list_of_data = lapply(list_of_data, function(x) { x[row.names(x) %in% common_names,]})
