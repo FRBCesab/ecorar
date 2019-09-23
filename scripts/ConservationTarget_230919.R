@@ -393,9 +393,9 @@ threats_per_species<-data.frame(value = c(threats_species_birds$HDI,threats_spec
                                 
                                 DR_class = rep(c(as.character(threats_species_birds$DR_class),as.character(threats_species_mammals$DR_class)),4),
                                 
-                                Threats = c(rep("HDI",length(c(threats_species_birds$HDI,threats_species_mammals$HDI))),
+                                Threats = c(rep("meanHDI",length(c(threats_species_birds$HDI,threats_species_mammals$HDI))),
                                             rep("meanConflict",length(c(threats_species_birds$Conflict,threats_species_mammals$Conflict))),
-                                            rep("HumanFootPrint",length(c(threats_species_birds$HumanFootPrint,threats_species_mammals$HumanFootPrint))),
+                                            rep("Human FootPrint",length(c(threats_species_birds$HumanFootPrint,threats_species_mammals$HumanFootPrint))),
                                             rep("Protection Target",length(c(threats_species_birds$TargetMet_Percentagecover,threats_species_mammals$TargetMet_Percentagecover)))),
                                 
                                 Taxa = rep(c(rep("birds",nrow(threats_species_birds)),rep("mammals",nrow(threats_species_mammals))),4))
@@ -404,11 +404,36 @@ threats_per_species<-data.frame(value = c(threats_species_birds$HDI,threats_spec
 save(threats_per_species,file=file.path(results_dir,"threats_per_species"))
 
 
+load("~/Documents/Postdoc MARBEC/FREE/RALLL_R/FUNCRARITY/data/threats_cc_with_id.RData")
+climate_birds <- subset(threats_cc, threats_cc$Taxa=="birds")
+climate_birds_2040 <- subset(threats_cc, threats_cc$Horizon=="2041-2060")
+climate_birds_2060 <- subset(threats_cc, threats_cc$Horizon=="2061-2080")
+
+climate_birds_2040 <- climate_birds_2040[,c(1,2)]
+climate_birds_2060 <- climate_birds_2060[,c(1,2)]
+threats_species_birds_cc <-merge (threats_species_birds,climate_birds_2040,by.x="Row.names",by.y="ID",all.x=T)
+threats_species_birds_cc <-merge (threats_species_birds_cc,climate_birds_2060,by.x="Row.names",by.y="ID",all.x=T)
+colnames(threats_species_birds_cc)[14] <- "2041-2060"
+colnames(threats_species_birds_cc)[15] <- "2061-2080"
+
+
+climate_mammals <- subset(threats_cc, threats_cc$Taxa=="mammals")
+climate_mammals_2040 <- subset(threats_cc, threats_cc$Horizon=="2041-2060")
+climate_mammals_2060 <- subset(threats_cc, threats_cc$Horizon=="2061-2080")
+
+climate_mammals_2040 <- climate_mammals_2040[,c(1,2)]
+climate_mammals_2060 <- climate_mammals_2060[,c(1,2)]
+threats_species_mammals_cc <-merge (threats_species_mammals,climate_mammals_2040,by.x="row.names",by.y="ID",all.x=T)
+threats_species_mammals_cc <-merge (threats_species_mammals_cc,climate_mammals_2060,by.x="Row.names",by.y="ID",all.x=T)
+colnames(threats_species_mammals_cc)[16] <- "2041-2060"
+colnames(threats_species_mammals_cc)[17] <- "2061-2080"
+
+
 ## NEED TO COMPUTE CENTROID PTO HAVE THE MOST IMPACTED
-rare_mammals <- subset(threats_species_mammals,threats_species_mammals$DR_class=="D75R75")
+rare_mammals <- subset(threats_species_mammals_cc,threats_species_mammals_cc$DR_class=="D75R75")
+rownames(rare_mammals) <- rare_mammals[,1]
 
-
-rare_mammals_acp <- dudi.pca(na.omit(rare_mammals_threats[,c(1:3,8)]))
+rare_mammals_acp <- dudi.pca(na.omit(threats_species_mammals_cc[,c(2:4,9,16,17)]))
 fviz_pca_ind(rare_mammals_acp, axes = c(1, 2), geom = c("point", "text"),
              label = "all", invisible = "none", labelsize = 4,
              pointsize = 2, habillage = "none",
@@ -436,11 +461,10 @@ fviz_pca_biplot(rare_mammals_acp, axes = c(1, 2), geom = c("point", "text"),
 
 
 rare_mammals_less_prot<-rare_mammals[order(rare_mammals[,"TargetMet_Percentagecover"],decreasing=F)[1:50],]
-rare_mammals_more_HF<-rare_mammals[order(rare_mammals[,"Human Foot Print"],decreasing=T)[1:50],]
+rare_mammals_more_HF<-rare_mammals[order(rare_mammals[,"HumanFootPrint"],decreasing=T)[1:50],]
 rare_mammals_less_HDI<-rare_mammals[order(rare_mammals[,"HDI"],decreasing=F)[1:50],]
 rare_mammals_more_conflict<-rare_mammals[order(rare_mammals[,"Conflict"],decreasing=T)[1:50],]
-rare_mammals_climate<-  climate[(climate$DR_class=="D75R75") | (climate$Taxa=="mammals"),]
-rare_mammals_climate<-  rare_mammals_climate[order(rare_mammals_climate[,"Value"],decreasing=F)[1:50],]
+rare_mammals_climate<-  rare_mammals[order(rare_mammals[,"2041-2060"],decreasing=F)[1:50],]
 
 list_of_data = list(rare_mammals_more_HF,rare_mammals_less_prot)
 common_names = Reduce(intersect, lapply(list_of_data, row.names))
@@ -492,7 +516,11 @@ rare_birds_climate<-  climate[(climate$DR_class=="D75R75") | (climate$Taxa=="bir
 rare_birds_climate<-  rare_birds_climate[order(rare_birds_climate[,"Value"],decreasing=F)[1:50],]
 
 
-subset(rare_birds_acp$li,rare_birds_acp$li$Axis1<0.1 
+test <- subset(rare_birds_acp$li,rare_birds_acp$li$Axis1<0.1 & rare_birds_acp$li$Axis1>(-0.1))
+test2 <- subset(test,test$Axis2<0.1 & test$Axis2>(-0.1))
+test3 <-  threats_species_birds
+test3[test3[,1] %in% rownames(test2),]
+
 
 list_of_data = list(rare_birds_more_HF,rare_birds_less_prot)
 common_names = Reduce(intersect, lapply(list_of_data, row.names))
@@ -500,7 +528,7 @@ common_names = Reduce(intersect, lapply(list_of_data, row.names))
 list_of_data = lapply(list_of_data, function(x) { x[row.names(x) %in% common_names,]})
 list_of_data
 
-                                                                                                                                                                                                                                                            -0.005417, 0.000522, -0.003114), PCA.7 = c(-0.056734, -0.007418, 
+threats_cc_with_id.RData.                                                                                                                                                                                                                  -0.005417, 0.000522, -0.003114), PCA.7 = c(-0.056734, -0.007418, 
                                                                                                                                                                                                                                                                                                                                                                       -0.01043, -0.006961, -0.006006), PCA.8 = c(0.005189, 0.008031, 
                                                                                                                                                                                                                                                                                                                                                                                                                  -0.002979, 0.000743, 0.006276), PCA.9 = c(0.008169, -0.000265, 
                                                                                                                                                                                                                                                                                                                                                                                                                                                            0.010893, 0.003233, 0.007316)), .Names = c("Sample", "PCA.1", 
