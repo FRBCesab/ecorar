@@ -304,47 +304,102 @@ boxplot(subset(Humanfoot_rarety,Humanfoot_rarety$D75R75>0)$ResHF,subset(Humanfoo
 
 #PER SPECIEs-----
 
-load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
-load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
-load(file=file.path(results_dir,"mammals","50km","cells_species_mammals.RData"))
+        #Mammals---
+          
+          load(file=file.path(results_dir,"mammals","50km","funk_mammals.RData"))
+          load(file=file.path(results_dir,"mammals","50km","cells_species_mammals.RData"))
+          
+          load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
+          dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
+              # Mammals
+          load(file=file.path(data_dir,"CountryGrid50km.RData"))
+          
+          HDI_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$HDI2017,na.rm=T)},mc.cores = 3)
+          names(HDI_species_mammals) <-  mammalsID[,1]
+          HDI_species_mammals<-do.call(rbind,HDI_species_mammals)
+          
+          ConflictCY_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$ConflictCY,na.rm=T)},mc.cores = 3)
+          names(ConflictCY_species_mammals) <-  mammalsID[,1]
+          ConflictCY_species_mammals<-do.call(rbind,ConflictCY_species_mammals)
+          
+          HF_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataHF[dataHF$ID %in%  cells_species_mammals[[i]],]$ResHF,na.rm=T)},mc.cores = 3)
+          names(HF_species_mammals) <-  mammalsID[,1]
+          HF_species_mammals<-do.call(rbind,HF_species_mammals)
+          
+          #Function to merge
+          MyMerge <- function(x, y){
+            df    <- merge(x, y, by= "row.names", all.x= T, all.y= F)
+            rownames(df)  <- df$Row.names
+            df$Row.names  <- NULL
+            return(df)
+          }
+          
+          threats_species_mammals <- Reduce(MyMerge, list(HDI_species_mammals, ConflictCY_species_mammals, HF_species_mammals, Target_mammals))
+          colnames(threats_species_mammals) <- c("HDI","Conflict","Human Foot Print","SR", "LogSR", "PERCENTAGE", "TargetExp", "TargetMet_Percentagecover")
+          
+          threats_species_mammals <- merge(threats_species_mammals,data_DR_mammals,by="row.names")
+          rownames(threats_species_mammals) <- threats_species_mammals[,1]
+          threats_species_mammals <- threats_species_mammals[,-1]
+          threats_species_mammals <- merge(threats_species_mammals,mammalsID,by.x="row.names",by.y="ID")
+          rownames(threats_species_mammals) <- threats_species_mammals[,1]
+          threats_species_mammals <- threats_species_mammals[,-1]
+          
+          rare_mammals_threats<-subset(threats_species_mammals,threats_species_mammals$DR_class=="D75R75")
 
-load(file=file.path(data_dir,"HumanFootprint/dataHF.Rdata"))
-dataHF$ResHF<-as.numeric(as.character(dataHF$ResHF))
-    # Mammals
-load(file=file.path(data_dir,"CountryGrid50km.RData"))
 
-HDI_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$HDI2017,na.rm=T)},mc.cores = 3)
-names(HDI_species_mammals) <-  mammalsID[,1]
-HDI_species_mammals<-do.call(rbind,HDI_species_mammals)
+          #birds---
+          
+          load(file=file.path(results_dir,"birds","50km","funk_birds.RData"))
+          load(file=file.path(results_dir,"birds","50km","cells_species_birds.RData"))
+          load(file=file.path(results_dir,"birds","50km","data_DR_birds.RData"))
+          
+          rownames(Target_birds) <- Target_birds[,1]
+          Target_birds <- Target_birds[,-1]
+          
+          HDI_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_birds[[i]],]$HDI2017,na.rm=T)},mc.cores = 3)
+          names(HDI_species_birds) <-  birdsID[,1]
+          HDI_species_birds<-do.call(rbind,HDI_species_birds)
+          
+          ConflictCY_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_birds[[i]],]$ConflictCY,na.rm=T)},mc.cores = 3)
+          names(ConflictCY_species_birds) <-  birdsID[,1]
+          ConflictCY_species_birds<-do.call(rbind,ConflictCY_species_birds)
+          
+          HF_species_birds <- mclapply(1:length(cells_species_birds),function(i){mean(dataHF[dataHF$ID %in%  cells_species_birds[[i]],]$ResHF,na.rm=T)},mc.cores = 3)
+          names(HF_species_birds) <-  birdsID[,1]
+          HF_species_birds<-do.call(rbind,HF_species_birds)
+          
+          #Function to merge
+          MyMerge <- function(x, y){
+            df    <- merge(x, y, by= "row.names", all.x= T, all.y= F)
+            rownames(df)  <- df$Row.names
+            df$Row.names  <- NULL
+            return(df)
+          }
+          
+          threats_species_birds <- Reduce(MyMerge, list(HDI_species_birds, ConflictCY_species_birds, HF_species_birds, Target_birds))
+          colnames(threats_species_birds) <- c("HDI","Conflict","Human Foot Print","SR", "LogSR", "PERCENTAGE", "TargetExp", "TargetMet_Percentagecover")
+          
+          threats_species_birds <- merge(threats_species_birds,data_DR_birds,by="row.names",y.all=T)
+          rownames(threats_species_birds) <- threats_species_birds[,1]
+          threats_species_birds <- threats_species_birds[,-1]
+          threats_species_birds <- merge(threats_species_birds,birdsID,by.x="row.names",by.y="ID")
+          rownames(threats_species_birds) <- threats_species_birds[,1]
+          threats_species_birds <- threats_species_birds[,-1]
+          
+          rare_birds_threats<-subset(threats_species_birds,threats_species_birds$DR_class=="D75R75")
 
-ConflictCY_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataGrid50km[dataGrid50km$ID %in%  cells_species_mammals[[i]],]$ConflictCY,na.rm=T)},mc.cores = 3)
-names(ConflictCY_species_mammals) <-  mammalsID[,1]
-ConflictCY_species_mammals<-do.call(rbind,ConflictCY_species_mammals)
 
-HF_species_mammals <- mclapply(1:length(cells_species_mammals),function(i){mean(dataHF[dataHF$ID %in%  cells_species_mammals[[i]],]$ResHF,na.rm=T)},mc.cores = 3)
-names(HF_species_mammals) <-  mammalsID[,1]
-HF_species_mammals<-do.call(rbind,HF_species_mammals)
 
-#Function to merge
-MyMerge <- function(x, y){
-  df    <- merge(x, y, by= "row.names", all.x= T, all.y= F)
-  rownames(df)  <- df$Row.names
-  df$Row.names  <- NULL
-  return(df)
-}
 
-threats_species_mammals <- Reduce(MyMerge, list(HDI_species_mammals, ConflictCY_species_mammals, HF_species_mammals, Target_mammals))
-colnames(threats_species_mammals) <- c("HDI","Conflict","Human Foot Print","SR", "LogSR", "PERCENTAGE", "TargetExp", "TargetMet_Percentagecover")
 
-threats_species_mammals <- merge(threats_species_mammals,data_DR_mammals,by="row.names")
-rownames(threats_species_mammals) <- threats_species_mammals[,1]
-threats_species_mammals <- threats_species_mammals[,-1]
-threats_species_mammals <- merge(threats_species_mammals,mammalsID,by.x="row.names",by.y="ID")
-rownames(threats_species_mammals) <- threats_species_mammals[,1]
-threats_species_mammals <- threats_species_mammals[,-1]
 
-rare_mammals_threats<-subset(threats_species_mammals,threats_species_mammals$DR_class=="D75R75")
-rare_mammals_threats["sp6774",]
+
+
+
+
+
+
+
 
 ## NEED TO COMPUTE CENTROID PTO HAVE THE MOST IMPACTED
 rare_mammals_acp <- dudi.pca(na.omit(rare_mammals_threats[,c(1:3,8)]))
