@@ -92,31 +92,41 @@ for (i in 1:10000) {
   Null_sd_mammals[[i]] <- apply(data.frame(lapply(Null_res,function(x) x[,2])),1,mean)
   
 }
-save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
-save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+#save(Null_mean_mammals,file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+#save(Null_sd_mammals,file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
+
+
+load(file=file.path(results_dir,"mammals","50km","Null_mean_mammals.RData"))
+load(file=file.path(results_dir,"mammals","50km","Null_sd_mammals.RData"))
 
 test1<-data.frame(matrix(unlist(Null_mean_mammals), nrow=61077, byrow=T))
+rownames(test1)<-rownames(occ_mammals_mat)
 test2<-data.frame(matrix(unlist(Null_sd_mammals), nrow=61077, byrow=T))
-Null_mean<-apply(test1,1,mean)
-Null_sd<-apply(test2,1,mean)
+rownames(test2)<-rownames(occ_mammals_mat)
+Null_mean<-data.frame(cell=rownames(occ_mammals_mat),null_mean=apply(test1,1,mean))
+Null_sd<-data.frame(cell=rownames(occ_mammals_mat),null_sd=apply(test2,1,mean))
+
+
+Null_sd$null_sd[Null_sd$null_sd==0]<-  jitter(0.01043480,factor = 50)
 funk_mammals<-funk_mammals[funk_mammals$TD_sp>0,]
-SES_total_mammals <- data.frame(cell=funk_mammals$cell, D75R75 = (funk_mammals$D75R75 - Null_mean)/Null_sd)
+SES_total_mammals <- merge(funk_mammals,Null_mean,by="cell")
+SES_total_mammals <- merge(SES_total_mammals,Null_sd,by="cell")
+SES_total_mammals$SES <- (SES_total_mammals$D75R75 - SES_total_mammals$null_mean)/SES_total_mammals$null_sd
+SES_total_mammals$SES_std <- SES_total_mammals$SES/max(SES_total_mammals$SES)
+SES_total_mammals$SES_logmin <- log10(SES_total_mammals$SES+abs(-1.96)+1)
+SES_total_mammals$Host_rare <- 0
+for (i in 1:nrow(SES_total_mammals)){
+  if(SES_total_mammals$D75R75[i]>=1) SES_total_mammals$Host_rare[i] <- 1
+}
 
-boxplot(SES_total_mammals$D75R75)
-
-
-alpha <-do.call(rbind, mclapply(1:61077, function(x) { 
-  
-  sup<- sum(test1[i,]>funk_mammals$D75R75[i])/100000
-  inf <- sum(test1[i,]<funk_mammals$D75R75[i])/100000
-  res<-c(sup,inf)
-  
-  return(res)
-},mc.cores=40))
-
-
-
-
+SES_total_mammals$Host_rare <-as.factor(SES_total_mammals$Host_rare)
+ggsave(filename = file.path(results_dir,"mammals","50km","SES_mammals.png"),
+       ggplot(SES_total_mammals, aes(x=cell, y=SES_logmin,color=Host_rare)) +
+         geom_point()+scale_colour_manual(values=c( "grey","#FF4500")) + 
+         theme_classic()+theme(legend.position = "none",axis.text.x = element_blank())+
+         geom_hline(yintercept=log10(0+abs(-1.96)+1),  color = "black") + geom_hline(yintercept=log10(1.96+abs(-1.96)+1),linetype="dashed", color = "black")+
+         geom_hline(yintercept= log10(-1.96+abs(-1.96)+1), linetype="dashed", color = "black")+ ggtitle("Mammals")+
+         xlab("Cells") + ylab("log SES") ,width = 20, height = 20, units = "cm")
 
 
 
@@ -165,17 +175,39 @@ for (i in 1:100) {
   
 }
 
-save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
-save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
+#save(Null_mean_birds,file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
+#save(Null_sd_birds,file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
 
+load(file=file.path(results_dir,"birds","50km","Null_mean_birds.RData"))
+load(file=file.path(results_dir,"birds","50km","Null_sd_birds.RData"))
 test1<-data.frame(matrix(unlist(Null_mean_birds), nrow=61618, byrow=T))
 test2<-data.frame(matrix(unlist(Null_sd_birds), nrow=61618, byrow=T))
-Null_mean<-apply(test1,1,mean)
-Null_sd<-apply(test2,1,mean)
-funk_birds<-funk_birds[funk_birds$TD_sp>0,]
-SES_total_birds <- data.frame(cell=funk_birds$cell, D75R75 = (funk_birds$D75R75 - Null_mean)/Null_sd)
 
-boxplot(SES_total_birds$D75R75)
+Null_mean<-data.frame(cell=rownames(occ_birds_mat),null_mean=apply(test1,1,mean))
+Null_sd<-data.frame(cell=rownames(occ_birds_mat),null_sd=apply(test2,1,mean))
+
+Null_sd$null_sd[Null_sd$null_sd==0]<-  jitter(0.01043480,factor = 50)
+
+SES_total_birds <- merge(funk_birds,Null_mean,by="cell")
+SES_total_birds <- merge(SES_total_birds,Null_sd,by="cell")
+SES_total_birds$SES <- (SES_total_birds$D75R75 - SES_total_birds$null_mean)/SES_total_birds$null_sd
+SES_total_birds$SES_std <- SES_total_birds$SES/max(SES_total_birds$SES)
+SES_total_birds$SES_logmin <- log10(SES_total_birds$SES+abs(-1.96)+1)
+SES_total_birds$Host_rare <- 0
+for (i in 1:nrow(SES_total_birds)){
+  if(SES_total_birds$D75R75[i]>=1) SES_total_birds$Host_rare[i] <- 1
+}
+
+SES_total_birds$Host_rare <-as.factor(SES_total_birds$Host_rare)
+ggsave(filename = file.path(results_dir,"birds","50km","SES_birds.png"),
+ggplot(SES_total_birds, aes(x=cell, y=SES_logmin,color=Host_rare)) +
+  geom_point()+scale_colour_manual(values=c( "grey","#FF4500")) + 
+  theme_classic()+theme(legend.position = "none",axis.text.x = element_blank())+
+  geom_hline(yintercept=log10(0+abs(-1.96)+1),  color = "black") + geom_hline(yintercept=log10(1.96+abs(-1.96)+1),linetype="dashed", color = "black")+
+  geom_hline(yintercept= log10(-1.96+abs(-1.96)+1), linetype="dashed", color = "black")+  ggtitle("Birds")+
+  xlab("Cells") + ylab("log SES") ,width = 20, height = 20, units = "cm")
+
+
 
 #THIRD VERSION OF NULL MODEL (SUGGESTED BY BRYAN E. )
 #Random the functional trait but keep the rarity to know if FR is link to R only
