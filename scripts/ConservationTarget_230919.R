@@ -473,7 +473,9 @@ list_of_data = lapply(list_of_data, function(x) { x[row.names(x) %in% common_nam
 list_of_data
 
 
-
+#Paraxerus vincenti
+#Row.names       HDI   Conflict HumanFootPrint SR     LogSR   PERCENTAGE TargetExp TargetMet_Percentagecover     NA DR_class                      Name
+# sp16212 0.4370000  28.000000       8.166452  4 1.3862944   0.00000000 100.00000                0.00000000 D75R75   D75R75        Paraxerus vincenti
 
 
 
