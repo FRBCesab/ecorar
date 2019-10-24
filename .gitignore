@@ -1,12 +1,2 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-
 .DS_Store
-
-# Bigfile 
-
-#data/
-results/
-#FUNCRARITY/figures/
+figures/*
