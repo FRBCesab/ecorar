@@ -35,12 +35,9 @@ rm(list = ls())
 
 #'  -------------------------------------------------------------------------   @Parameters
 
-
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
-source(file.path(root, "graphsParameters.R"))
+source("graphsParameters.R")
 
 filename <- "Figure_4"
-
 horizon  <- "2061-2080"
 
 
@@ -65,7 +62,7 @@ icons <- list()
 for (taxa in taxas) {
 
   icons[[taxa]] <- readPNG(
-      source = file.path(path_data, taxa, paste0(taxa, "_silhouette.png"))
+      source = file.path(path_data, paste0(taxa, "_silhouette.png"))
   )
 }
 
@@ -76,33 +73,13 @@ for (taxa in taxas) {
 
 threats <- get(
   load(
-    file = file.path(path_data, "threats_nocc.RData")
-  )
-)
-
-for (i in 2:ncol(threats)) { threats[ , i] <- as.character(threats[ , i]) }
-
-
-climate <- get(
-  load(
-    file = file.path(path_data, "threats_cc.RData")
-  )
-)
-
-for (i in 2:ncol(climate)) { climate[ , i] <- as.character(climate[ , i]) }
-
-climate <- climate[climate[ , "Horizon"] == horizon, -ncol(climate)]
-
-
-iucn <- get(
-  load(
-    file = file.path(path_data, "iucn_status.RData")
+    file = file.path(path_data, "alldata_for_figures.RData")
   )
 )
 
 pvalues <- get(
   load(
-    file = file.path(path_data, paste0("violin_pvalues_", horizon, ".RData"))
+    file = file.path(path_data, "pvalues_for_figure_3.RData")
   )
 )
 
@@ -110,19 +87,19 @@ pvalues <- get(
 #'  -------------------------------------------------------------------------   @PrepareData
 
 
-datas <- rbind(threats, climate)
-
-values_m  <- tapply(
-  X      = datas$Value,
-  INDEX  = list(datas$Threats, datas$Taxa, datas$DR_class),
-  FUN    = function(x) { mean(x, na.rm = TRUE) }
-)
-
-values_sd <- tapply(
-  X      = datas$Value,
-  INDEX  = list(datas$Threats, datas$Taxa, datas$DR_class),
-  FUN    = function(x) { sd(x, na.rm = TRUE) }
-)
+# datas <- rbind(threats, climate)
+#
+# values_m  <- tapply(
+#   X      = datas$Value,
+#   INDEX  = list(datas$Threats, datas$Taxa, datas$DR_class),
+#   FUN    = function(x) { mean(x, na.rm = TRUE) }
+# )
+#
+# values_sd <- tapply(
+#   X      = datas$Value,
+#   INDEX  = list(datas$Threats, datas$Taxa, datas$DR_class),
+#   FUN    = function(x) { sd(x, na.rm = TRUE) }
+# )
 
 iucn <- lapply(
   X    = iucn,
@@ -171,9 +148,20 @@ for (taxa in taxas) {
 
 
 
-  if (taxa == "birds") {   par(mar = c(1.0, 1.0, 0.5, 0.5)) }
+#'  -------------------------------------------------------------------------   @SubplotMargins
 
-  if (taxa == "mammals") { par(mar = c(0.5, 1.0, 1.0, 0.5)) }
+
+  if (taxa == "birds") {
+
+    par(mar = c(1.0, 1.0, 0.5, 0.5))
+
+  }
+
+  if (taxa == "mammals") {
+
+    par(mar = c(0.5, 1.0, 1.0, 0.5))
+
+  }
 
 
 
@@ -181,11 +169,11 @@ for (taxa in taxas) {
 
 
   plot(0,
-    xlim  = c(-10, 110),
-    ylim  = c(0.5, 3.5),
-    axes  = FALSE,
-    type  = "n",
-    ann   = FALSE
+    xlim = c(-10, 110),
+    ylim = c(0.5, 3.5),
+    axes = FALSE,
+    ann  = FALSE,
+    type = "n"
   )
 
 
