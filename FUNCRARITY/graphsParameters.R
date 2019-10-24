@@ -3,9 +3,9 @@
 #'  -------------------------------------------------------------------------   @DefinePaths
 
 
-path_R    <- paste0(root, "R")
-path_data <- paste0(root, "data")
-path_figs <- paste0(root, "figures")
+path_R    <- "R"
+path_data <- "data"
+path_figs <- "figures"
 
 
 
