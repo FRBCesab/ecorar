@@ -361,7 +361,6 @@ for (k in 1:length(taxas)) {
 
 
     ybottom <- -6550000
-    # xstart  <- -17050000
     xstart  <- -16500000
     xleft   <- xstart
 
