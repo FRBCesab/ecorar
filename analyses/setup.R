@@ -27,7 +27,8 @@ pkgs <- c(
   "rgdal",
   "rgeos",
   "raster",
-  "RColorBrewer"
+  "RColorBrewer",
+  "leaflet"
 )
 
 nip <- pkgs[!(pkgs %in% installed.packages())]

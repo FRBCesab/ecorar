@@ -64,7 +64,7 @@ for (taxa in taxas) {
 #'  -------------------------------------------------------------------------   @ImportData2Map
 
 
-  datas   <- readRDS(file.path(path_data, paste0(taxa, "_funk.rds")))
+  rasters   <- readRDS(file.path(path_data, paste0(taxa, "_funk.rds")))
 
 
 
@@ -131,7 +131,7 @@ for (taxa in taxas) {
 
 
     rvb <- plotRVB(
-      x       = subset(datas, paste(taxa, vars_richness[j], sep = "_")),
+      x       = subset(rasters, paste(taxa, vars_richness[j], sep = "_")),
       reverse = FALSE,
       add     = TRUE
     )
@@ -337,7 +337,7 @@ for (taxa in taxas) {
       y       = ybottom,
       labels  = round(
         max(
-          subset(datas, paste(taxa, vars_richness[j], sep = "_"))[], na.rm = TRUE
+          subset(rasters, paste(taxa, vars_richness[j], sep = "_"))[], na.rm = TRUE
         )
       ),
       pos     = 1,
@@ -350,7 +350,7 @@ for (taxa in taxas) {
       y       = ybottom,
       labels  = round(
         max(
-          subset(datas, paste(taxa, vars_richness[j], sep = "_"))[], na.rm = TRUE
+          subset(rasters, paste(taxa, vars_richness[j], sep = "_"))[], na.rm = TRUE
         ) / 2
       ),
       pos     = 1,
