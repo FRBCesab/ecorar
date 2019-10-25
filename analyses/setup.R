@@ -14,10 +14,6 @@
 
 
 
-rm(list = ls())
-
-
-
 #' ----------------------------------------------------------------------------- @InstallCranLibs
 
 
@@ -97,6 +93,39 @@ rm(list = c("dir_names", "dir_vars", "dirs"))
 
 
 
+#' ----------------------------------------------------------------------------- @SetFigureNames
+
+
+fig_names <- c(
+  "Figure_1",
+  "Figure_2",
+  "Figure_3"
+)
+
+fig_vars  <- c(
+  "figname1",
+  "figname2",
+  "figname3"
+)
+
+figs <- lapply(
+
+  X   = 1:length(fig_names),
+
+  FUN = function(i) {
+
+    assign(
+      x     = fig_vars[i],
+      value = fig_names[i],
+      envir = .GlobalEnv
+    )
+  }
+)
+
+rm(list = c("fig_names", "fig_vars", "figs"))
+
+
+
 #'  -------------------------------------------------------------------------   @GlobalParameters
 
 
@@ -108,8 +137,13 @@ vars_richness  <- c("TD_sp", "D75R75", "D25R25")
 
 cc_horizons    <- c("2041_2060", "2061_2080")
 
-threats_vars   <- c("Protection Target", "meanHDI", "Human FootPrint", "Climate change")
-threats_labels <- c("Target achievement (%)", "Mean HDI", "Human Footprint", "Climate change (%)")
+threats_vars   <- c(
+  "humanfootprint", "hdi", "climate_change", "targetmet_percentagecover"
+)
+threats_labs   <- c(
+  "Human Footprint", "Mean HDI", "Climate change (%)", "Target achievement (%)"
+)
+
 iucn_status    <- c("NE", "LC", "TH")
 
 
@@ -126,8 +160,11 @@ names(color_classes) <- classes
 
 alpha         <- "88"
 
+color_silh    <- "#777777"
+
 light_grey    <- "#888888"
 dark_grey     <- "#333333"
+par_fg        <- "#666666"
 
 color_ocean   <- "#95d8eb"
 
@@ -142,6 +179,7 @@ color_iucn_bg <- c("#aaaaaa", "#026666", "#c53131")
 color_iucn_fg <- c("#333333", "#f7f7f7", "#f6c8c8")
 names(color_iucn_bg) <- names(color_iucn_fg) <- iucn_status
 
+par_family <- "serif"
 
 
 #'  -------------------------------------------------------------------------   @Fig1Parameters
@@ -164,7 +202,11 @@ proj4 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 #'  -------------------------------------------------------------------------   @Fig3Parameters
 
 
-jitter_val <- 500
+# jitter_val <- 500
+jitter_fac <- c(15, 7, 5)
+names(jitter_fac) <- classes
+
+
 
 
 #'  -------------------------------------------------------------------------   @LoadSpeciesSilh
@@ -176,3 +218,44 @@ icons <- lapply(taxas, function(x) {
 )
 
 names(icons) <- taxas
+
+
+
+#'  -------------------------------------------------------------------------   @LoadData
+
+
+datas   <- get(load(file = file.path(path_data, "alldata_for_figures.RData")))
+pvalues <- get(load(file = file.path(path_data, "pvalues_for_figure_3.RData")))
+
+
+
+#'  -------------------------------------------------------------------------   @PrepareIUCNData
+
+iucn <- datas[!is.na(datas[ , "iucn_status"]), ]
+iucn <- iucn[!is.na(iucn[ , "dr_class"]), c("iucn_status", "dr_class", "class")]
+
+iucn <- tapply(
+  X     = datas[ , "iucn_status"],
+  INDEX = list(
+    datas[ , "iucn_status"], datas[ , "dr_class"], datas[ , "class"]
+  ),
+  FUN   = function(x) { length(x) }
+)
+
+iucn <- list(
+  mammals = iucn[ , , "mammals"],
+  birds   = iucn[ , , "birds"]
+)
+
+iucn <- lapply(
+  X    = iucn,
+  FUN  = function(x) {
+    x[is.na(x)] <- 0
+    return(x)
+  }
+)
+
+iucn <- lapply(
+  X    = iucn,
+  FUN  = function(y) { apply(y, 2, function(x) x / sum(x) * 100) }
+)
