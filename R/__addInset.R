@@ -1,3 +1,30 @@
+#' @title Add inset map to an existing map
+#'
+#' @description
+#' For an internal use only.
+#'
+#' @param x [raster] a RasterLayer to crop and add into an inset.
+#' @param region [vector] the extent of the crop box (xmn, xmx, ymn, ymx).
+#' @param where [vector] the coordinates of left-bottom corner of the inset.
+#' @param zoom [numeric] a zoom factor.
+#' @param title [string] the inset title.
+#' @param case [integer] predefined case.
+#' @param yat [numeric] a factor to correct title position.
+#'
+#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.com}
+#'
+#' @export
+#'
+#' @return
+#' For an internal use only.
+#'
+#' @examples
+#'
+#' # No example.
+#'
+
+
+
 addInset <- function(x = NULL, region = NULL, where = NULL, zoom = 2, title = NULL, case = 1, yat = 0.1){
 
   region <- as(extent(region), "SpatialPolygons")
