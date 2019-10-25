@@ -190,6 +190,8 @@ pcoa_axes <- list(
   birds   = c(2, 4)
 )
 
+jitter_val <- 500
+
 
 
 #'  -------------------------------------------------------------------------   @Fig2Parameters
@@ -202,7 +204,6 @@ proj4 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 #'  -------------------------------------------------------------------------   @Fig3Parameters
 
 
-# jitter_val <- 500
 jitter_fac <- c(15, 7, 5)
 names(jitter_fac) <- classes
 

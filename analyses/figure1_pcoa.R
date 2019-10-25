@@ -1,62 +1,25 @@
-################################################################################
-###                                                                          ###
-###                        FIGURE 1 (PCoA SPACES)                            ###
-###                                                                          ###
-###--------------------------------------------------------------------------###
-###                                                                          ###
-### AUTHORS : The Three Nico                                                 ###
-### DATE    : 2019/08/05                                                     ###
-###                                                                          ###
-###--------------------------------------------------------------------------###
-###                                                                          ###
-### > sessionInfo()                                                          ###
-###                                                                          ###
-### R version 3.5.3 (2019-03-11) -- "Great Truth"                            ###
-### Platform: x86_64-apple-darwin18.2.0 (64-bit)                             ###
-### Running under: macOS Mojave 10.14.4                                      ###
-###                                                                          ###
-### locale:                                                                  ###
-### [1] fr_FR.UTF-8/fr_FR.UTF-8/fr_FR.UTF-8/C/fr_FR.UTF-8/fr_FR.UTF-8        ###
-###                                                                          ###
-### attached base packages:                                                  ###
-### [1] grid   stats  graphics  grDevices utils  datasets  methods   base    ###
-###                                                                          ###
-### other attached packages:                                                 ###
-### [1] gridExtra_2.3  cowplot_1.0.0  png_0.1-7  ggtree_1.14.6               ###
-### [5] ggplot2_3.1.0  treeio_1.6.2   ape_5.3                                ###
-###                                                                          ###
-################################################################################
+#' --------------------------------------------------------------------------   @Header
+#'
+#' @title Figure 1 - Panel of Pcoa scatterplots
+#'
+#' @description
+#' This R script...
+#'
+#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr}
+#' @author Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
+#'
+#' @date 2019/08/05
+#'
+#' --------------------------------------------------------------------------   @VVVVVV
 
-
-
-rm(list = ls())
 
 
 
 #'  -------------------------------------------------------------------------   @Parameters
 
 
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
-source(file.path(root, "graphsParameters.R"))
-
-filename <- "Figure_1"
-
 n        <- 1                          # ID of first plot
 plots    <- list()                     # Subplots storage
-
-
-
-#'  -------------------------------------------------------------------------   @LoadAddings
-
-
-library(ggplot2)
-library(png)
-library(cowplot)
-library(grid)
-library(gridExtra)
-
-addings <- list.files(path = path_R, pattern = "\\.R$", full.names = TRUE)
-for (i in 1:length(addings)) { source(addings[i]) }
 
 
 
@@ -64,55 +27,18 @@ for (taxa in taxas) {
 
 
 
-#' ---------------------------------------------------------------------------- @ImportData
+#' ---------------------------------------------------------------------------- @SubsetData
 
 
-  species_pcoa <- get(
-    load(
-      file = file.path(path_data, taxa, paste0(taxa, "_pcoa.RData"))
-    )
-  )
+  subdatas <- datas[datas[ , "class"] == taxa, ]
+  subdatas <- subdatas[ , c(paste0("pcoa_axis_", pcoa_axes[[taxa]]), "din", "dr_class")]
 
-  species_dr   <- get(
-    load(
-      file = file.path(path_data, taxa, paste0(taxa, "_dr.RData"))
-    )
-  )
+  subdatas <- subdatas[!is.na(subdatas[ , "dr_class"]), ]
+  # subdatas <- subdatas[subdatas[ , "dr_class"] %in% classes, ]
 
-  species_fr     <- get(
-    load(
-      file = file.path(path_data, taxa, paste0(taxa, "_funrar.RData"))
-    )
-  )
-
-  species_silh  <- readPNG(
-    source = file.path(path_data, taxa, paste0(taxa, "_silhouette.png"))
-  )
-
-
-
-#' ---------------------------------------------------------------------------- @SelectSpecies
-
-
-  species_pcoa <- species_pcoa$vectors[
-    rownames(species_pcoa$vectors) %in% rownames(species_dr), ]
-
-
-
-#' ---------------------------------------------------------------------------- @SelectPCoAAxis
-
-
-  data_all <- data.frame(
-    x = jitter(species_pcoa[ , pcoa_axes[[taxa]][1]], jitter_val),
-    y = jitter(species_pcoa[ , pcoa_axes[[taxa]][2]], jitter_val)
-  )
-
-  data_all <- merge(data_all, species_dr, by = "row.names")
-  rownames(data_all) <- data_all[ , "Row.names"]
-
-  data_all <- data_all[ , -1]
-
-  data_all <- merge(data_all, species_fr$FR, by = "row.names", all.x = TRUE, all.y = FALSE)
+  colnames(subdatas)[1:2] <- c("x", "y")
+  subdatas[ , "x"] <- jitter(subdatas[ , "x"], jitter_val)
+  subdatas[ , "y"] <- jitter(subdatas[ , "y"], jitter_val)
 
 
 
@@ -120,8 +46,8 @@ for (taxa in taxas) {
 
 
   gplot <- ggplot(
-    data     = data_all,
-    mapping  = aes(x, y, fill = Din)
+    data     = subdatas,
+    mapping  = aes(x, y, fill = din)
   ) +
 
   geom_point(
@@ -139,7 +65,7 @@ for (taxa in taxas) {
 
   for (classe in classes) {
 
-    coords <- data_all[data_all[ , "DR_class"] == classe, ]
+    coords <- subdatas[subdatas[ , "dr_class"] == classe, ]
     coords <- coords[complete.cases(coords), ]
     hull   <- findHull(coords)
 
@@ -158,7 +84,6 @@ for (taxa in taxas) {
       alpha   = 0.1,
       size    = 1.0,
       colour  = color_classes[classe],
-      # fill    = paste0(color_classes[classe], "22")
       fill    = "transparent"
     )
   }
@@ -218,7 +143,7 @@ for (taxa in taxas) {
       x     = rep(0.12, 3),
       xend  = rep(0.16, 3),
       y     = seq(0.47, 0.43, by = -0.02),
-      label = c("Common", "Average", "Rare")
+      label = classes_labs
     )
 
     gplot <- gplot +
@@ -267,10 +192,10 @@ for (taxa in taxas) {
   gplot <- cowplot::ggdraw(gplot) +
 
   cowplot::draw_image(
-    image  = species_silh,
+    image  = icons[[taxa]],
     x      = ifelse(taxa == "birds", -0.32, -0.30),
     y      = ifelse(taxa == "birds",  0.40,  0.40),
-    scale  = ifelse(taxa == "mammals",  0.15,  0.12)
+    scale  = ifelse(taxa == "birds",  0.12,  0.15)
   )
 
 
@@ -304,7 +229,7 @@ grobs <- gridExtra::arrangeGrob(
 
 
 ggsave(
-  filename  = file.path(path_figs, paste0(filename, ".png")),
+  filename  = file.path(path_figs, paste0(figname1, ".png")),
   plot      = grobs,
   width     = 24,
   height    = 12,

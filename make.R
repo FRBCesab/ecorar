@@ -28,7 +28,7 @@ source(file.path("analyses", "setup.R"))
 #'  -------------------------------------------------------------------------   @Figure1
 
 
-# source(file.path("analyses", "figure1_pcoa.R"))
+source(file.path("analyses", "figure1_pcoa.R"))
 
 
 
@@ -42,4 +42,4 @@ source(file.path("analyses", "setup.R"))
 #'  -------------------------------------------------------------------------   @Figure3
 
 
-source(file.path("analyses", "figure3_boxplots.R"))
+# source(file.path("analyses", "figure3_boxplots.R"))
