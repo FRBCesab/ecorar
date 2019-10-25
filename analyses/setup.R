@@ -222,6 +222,22 @@ names(icons) <- taxas
 
 
 
+#'  -------------------------------------------------------------------------   @ImportGridRaster
+
+
+study <- raster(file.path(path_data, "reference_grid_50km.tif"))
+
+
+
+#'  -------------------------------------------------------------------------   @DefineMapExtent
+
+
+border              <- as(extent(c(-180, 180, -90, 90)), "SpatialPolygons")
+proj4string(border) <- proj4
+border              <- spTransform(border, proj4string(study))
+
+
+
 #'  -------------------------------------------------------------------------   @LoadData
 
 

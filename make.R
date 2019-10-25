@@ -35,11 +35,11 @@ source(file.path("analyses", "figure1_pcoa.R"))
 #'  -------------------------------------------------------------------------   @Figure2
 
 
-# source(file.path("analyses", "figure2_pcoa.R"))
+source(file.path("analyses", "figure2_maps.R"))
 
 
 
 #'  -------------------------------------------------------------------------   @Figure3
 
 
-# source(file.path("analyses", "figure3_boxplots.R"))
+source(file.path("analyses", "figure3_boxplots.R"))

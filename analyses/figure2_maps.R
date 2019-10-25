@@ -1,92 +1,23 @@
-################################################################################
-###                                                                          ###
-###                   FIGURE 3 (PANEL OF 6 MAPS w/ INSETS)                   ###
-###                                                                          ###
-###--------------------------------------------------------------------------###
-###                                                                          ###
-### AUTHORS : The Three Nico                                                 ###
-### DATE    : 2019/04/08                                                     ###
-###                                                                          ###
-###--------------------------------------------------------------------------###
-###                                                                          ###
-### > sessionInfo()                                                          ###
-###                                                                          ###
-### R version 3.5.3 (2019-03-11) -- "Great Truth"                            ###
-### Platform: x86_64-apple-darwin18.2.0 (64-bit)                             ###
-### Running under: macOS Mojave 10.14.4                                      ###
-###                                                                          ###
-### locale:                                                                  ###
-### [1] fr_FR.UTF-8/fr_FR.UTF-8/fr_FR.UTF-8/C/fr_FR.UTF-8/fr_FR.UTF-8        ###
-###                                                                          ###
-### attached base packages:                                                  ###
-### [1] stats     graphics  grDevices utils     datasets  methods   base     ###
-###                                                                          ###
-### other attached packages:                                                 ###
-### [1] RColorBrewer_1.1-2 raster_2.8-19      rgeos_0.4-2       rgdal_1.4-3  ###
-### [5] sp_1.3-1   png_0.1-7                                                 ###
-###                                                                          ###
-################################################################################
-
-
-
-rm(list = ls())
+#' --------------------------------------------------------------------------   @Header
+#'
+#' @title Figure 1 - Panel of Pcoa scatterplots
+#'
+#' @description
+#' This R script...
+#'
+#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr}
+#' @author Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
+#'
+#' @date 2019/08/05
+#'
+#' --------------------------------------------------------------------------   @VVVVVV
 
 
 
 #'  -------------------------------------------------------------------------   @Parameters
 
 
-root      <- "/Users/nicolascasajus/OneDrive/OneDrive - Fondation Biodiversité/MySpace/GROUPS/FREE/01-Loiseau/RALLL/FUNCRARITY/"
-source(file.path(root, "graphsParameters.R"))
-
-filename <- "Figure_3"
-
 let <- 1
-
-
-
-#'  -------------------------------------------------------------------------   @LoadAddings
-
-
-library(sp)
-library(rgdal)
-library(rgeos)
-library(raster)
-library(RColorBrewer)
-library(png)
-
-addings <- list.files(path = path_R, pattern = "\\.R$", full.names = TRUE)
-for (i in 1:length(addings)) { source(addings[i]) }
-
-
-
-#'  -------------------------------------------------------------------------   @ImportGrid
-
-
-study <- raster(file.path(path_data, "reference_grid_50km.tif"))
-
-
-
-#'  -------------------------------------------------------------------------   @DefineMapExtent
-
-
-border              <- as(extent(c(-180, 180, -90, 90)), "SpatialPolygons")
-proj4string(border) <- proj4
-border              <- spTransform(border, proj4string(study))
-
-
-
-#'  -------------------------------------------------------------------------   @ImportSpeciesSilhouettes
-
-
-icons <- list()
-
-for (taxa in taxas) {
-
-  icons[[taxa]] <- readPNG(
-      source = file.path(path_data, taxa, paste0(taxa, "_silhouette.png"))
-  )
-}
 
 
 
@@ -94,12 +25,12 @@ for (taxa in taxas) {
 
 
 png(
-  file       = file.path(path_figs, paste0(filename, ".png")),
-  width      = 12.00 * 2,
-  height     =  5.25 * 3,
-  units      = "in",
-  res        = 600,
-  pointsize  = 18
+  file      = file.path(path_figs, paste0(figname2, ".png")),
+  width     = 12.00 * 2,
+  height    =  5.25 * 3,
+  units     = "in",
+  res       = 600,
+  pointsize = 18
 )
 
 
@@ -108,37 +39,32 @@ png(
 
 
 par(
-  xaxs      = "i",
-  yaxs      = "i",
-  family    = "serif",
-  mar       = rep(1, 4),
-  cex.axis  = 1.25,
-  mgp       = c(2, .5, 0),
-  tcl       = -0.25,
-  xpd       = FALSE,
-  new       = FALSE,
-  fig       = c(0, 1, 0, 1),
-  col       = "#666666",
-  col.axis  = "#666666",
-  fg        = "#666666",
-  mfcol     = c(3, 2)
+  xaxs     = "i",
+  yaxs     = "i",
+  family   = par_family,
+  mar      = rep(1, 4),
+  cex.axis = 1.25,
+  mgp      = c(2, .5, 0),
+  tcl      = -0.25,
+  xpd      = FALSE,
+  new      = FALSE,
+  fig      = c(0, 1, 0, 1),
+  col      = par_fg,
+  col.axis = par_fg,
+  fg       = par_fg,
+  mfcol    = c(3, 2)
 )
 
 
 
-
-for (k in 1:length(taxas)) {
-
-
-
-  taxa <- taxas[k]
+for (taxa in taxas) {
 
 
 
 #'  -------------------------------------------------------------------------   @ImportData2Map
 
 
-  datas   <- readRDS(file.path(path_data, taxa, paste0(taxa, "_funk.rds")))
+  datas   <- readRDS(file.path(path_data, paste0(taxa, "_funk.rds")))
 
 
 
@@ -165,38 +91,38 @@ for (k in 1:length(taxas)) {
 
     par(mgp = c(0.5, -0.1, 0))
     axis(
-      side      = 1,
-      at        = grd[[1]][ , "x"],
-      labels    = paste0(grd[[1]][ , "label"], "°", grd[[1]][ , "direction"]),
-      cex.axis  = 0.75,
-      lwd       = 0
+      side     = 1,
+      at       = grd[[1]][ , "x"],
+      labels   = paste0(grd[[1]][ , "label"], "°", grd[[1]][ , "direction"]),
+      cex.axis = 0.75,
+      lwd      = 0
     )
 
     par(mgp = c(0.5, -0.45, 0))
     axis(
-      side      = 4,
-      at        = grd[[2]][ , "y"],
-      labels    = paste0(grd[[2]][ , "label"], "°", grd[[2]][ , "direction"]),
-      cex.axis  = 0.75,
-      lwd       = 0
+      side     = 4,
+      at       = grd[[2]][ , "y"],
+      labels   = paste0(grd[[2]][ , "label"], "°", grd[[2]][ , "direction"]),
+      cex.axis = 0.75,
+      lwd      = 0
     )
 
     par(mgp = c(0.5, 0, 0))
     axis(
-      side      = 3,
-      at        = grd[[1]][ , "x"],
-      labels    = paste0(grd[[1]][ , "label"], "°", grd[[1]][ , "direction"]),
-      cex.axis  = 0.75,
-      lwd       = 0
+      side     = 3,
+      at       = grd[[1]][ , "x"],
+      labels   = paste0(grd[[1]][ , "label"], "°", grd[[1]][ , "direction"]),
+      cex.axis = 0.75,
+      lwd      = 0
     )
 
     par(mgp = c(0.5, -0.35, 0))
     axis(
-      side      = 2,
-      at        = grd[[2]][ , "y"],
-      labels    = paste0(grd[[2]][ , "label"], "°", grd[[2]][ , "direction"]),
-      cex.axis  = 0.75,
-      lwd       = 0
+      side     = 2,
+      at       = grd[[2]][ , "y"],
+      labels   = paste0(grd[[2]][ , "label"], "°", grd[[2]][ , "direction"]),
+      cex.axis = 0.75,
+      lwd      = 0
     )
 
 
@@ -205,9 +131,9 @@ for (k in 1:length(taxas)) {
 
 
     rvb <- plotRVB(
-      x        = subset(datas, paste(taxa, vars_richness[j], sep = "_")),
-      reverse  = FALSE,
-      add      = TRUE
+      x       = subset(datas, paste(taxa, vars_richness[j], sep = "_")),
+      reverse = FALSE,
+      add     = TRUE
     )
 
 
