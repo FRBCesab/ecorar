@@ -35,12 +35,7 @@ pkgs <- c(
 )
 
 nip <- pkgs[!(pkgs %in% installed.packages())]
-
 nip <- lapply(nip, install.packages, dependencies = TRUE)
-
-
-
-#' ----------------------------------------------------------------------------- @InstallDevLibs
 
 
 
@@ -51,21 +46,32 @@ ip <- unlist(lapply(pkgs, require, character.only = TRUE, quietly = TRUE))
 
 if (sum(ip) != length(pkgs)) { cat("Some packages failed to load.\n") }
 
+rm(list = c("pkgs", "nip", "ip"))
+
 
 
 #' ----------------------------------------------------------------------------- @LoadRFunctions
 
-rfun <- list.files(path = "R", pattern = "^__.+\\.R$", full.names = TRUE)
 
+rfun <- list.files(path = "R", pattern = "^__.+\\.R$", full.names = TRUE)
 rfun <- unlist(lapply(rfun, source, verbose = FALSE))
+
+rm(list = "rfun")
 
 
 
 #' ----------------------------------------------------------------------------- @CreateFolders
 
 
-dir_names <- "figures"
-dir_vars  <- "path_figs"
+dir_names <- c(
+  "data",
+  "figures"
+)
+
+dir_vars  <- c(
+  "path_data",
+  "path_figs"
+)
 
 dirs <- lapply(
 
@@ -87,9 +93,86 @@ dirs <- lapply(
   }
 )
 
-
-rm(list = c("dirs", "dir_names", "dir_vars", "pkgs", "nip", "ip", "rfun"))
-
+rm(list = c("dir_names", "dir_vars", "dirs"))
 
 
-#' ---------------------------------------------------------------------------- @GeneralParameters
+
+#'  -------------------------------------------------------------------------   @GlobalParameters
+
+
+taxas          <- c("mammals", "birds")
+
+classes        <- c("D25R25", "AVG", "D75R75")
+classes_labs   <- c("Common", "Average", "Rare")
+vars_richness  <- c("TD_sp", "D75R75", "D25R25")
+
+cc_horizons    <- c("2041_2060", "2061_2080")
+
+threats_vars   <- c("Protection Target", "meanHDI", "Human FootPrint", "Climate change")
+threats_labels <- c("Target achievement (%)", "Mean HDI", "Human Footprint", "Climate change (%)")
+iucn_status    <- c("NE", "LC", "TH")
+
+
+
+#'  -------------------------------------------------------------------------   @ColorsParameters
+
+
+color_rare    <- "#ff4500"             # ~ Red
+color_avg     <- "#00afbb"             # ~ Turquoise
+color_common  <- "#e7b800"             # ~ Orange
+
+color_classes <- c(color_common, color_avg, color_rare)
+names(color_classes) <- classes
+
+alpha         <- "88"
+
+light_grey    <- "#888888"
+dark_grey     <- "#333333"
+
+color_ocean   <- "#95d8eb"
+
+color_distinctiveness <- RColorBrewer::brewer.pal(name = "YlGnBu", n = 9)
+color_distinctiveness <- colorRampPalette(color_distinctiveness)(255)
+
+color_richness <- RColorBrewer::brewer.pal(name = "YlOrRd", n = 9)
+color_richness <- colorRampPalette(color_richness)(255)
+color_richness <- c("#aaaaaa", color_richness)
+
+color_iucn_bg <- c("#aaaaaa", "#026666", "#c53131")
+color_iucn_fg <- c("#333333", "#f7f7f7", "#f6c8c8")
+names(color_iucn_bg) <- names(color_iucn_fg) <- iucn_status
+
+
+
+#'  -------------------------------------------------------------------------   @Fig1Parameters
+
+
+pcoa_axes <- list(
+  mammals = c(2, 3),
+  birds   = c(2, 4)
+)
+
+
+
+#'  -------------------------------------------------------------------------   @Fig2Parameters
+
+
+proj4 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
+
+
+#'  -------------------------------------------------------------------------   @Fig3Parameters
+
+
+jitter_val <- 500
+
+
+#'  -------------------------------------------------------------------------   @LoadSpeciesSilh
+
+
+icons <- lapply(taxas, function(x) {
+    png::readPNG(source = file.path(path_data, paste0(x, "_silhouette.png")))
+  }
+)
+
+names(icons) <- taxas
