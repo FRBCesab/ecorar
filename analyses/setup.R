@@ -14,6 +14,13 @@
 
 
 
+#'  -------------------------------------------------------------------------   @SetOptionsParameters
+
+
+options(warn = -1)
+
+
+
 #' ----------------------------------------------------------------------------- @InstallCranLibs
 
 
@@ -25,6 +32,7 @@ pkgs <- c(
   "gridExtra",
   "ape",
   "treeio",
+  "tidytree",
   "sp",
   "rgdal",
   "rgeos",
@@ -49,7 +57,8 @@ if (!("ggtree" %in% installed.packages())) { BiocManager::install("ggtree") }
 #' ----------------------------------------------------------------------------- @LoadLibs
 
 
-ip <- unlist(lapply(pkgs, require, character.only = TRUE, quietly = TRUE))
+pkgs <- c(pkgs, "ggtree")
+ip   <- unlist(lapply(pkgs, require, character.only = TRUE, quietly = TRUE))
 
 if (sum(ip) != length(pkgs)) { cat("Some packages failed to load.\n") }
 
@@ -248,11 +257,25 @@ border              <- spTransform(border, proj4string(study))
 
 
 
+#'  -------------------------------------------------------------------------   @LoadData4Fig2
+
+
+estimated_d <- get(
+  load(
+    file = file.path(
+      path_data,
+      "estimated_d_for_figure2.RData"
+    )
+  )
+)
+
+
+
 #'  -------------------------------------------------------------------------   @LoadAllData
 
 
 datas   <- get(load(file = file.path(path_data, "alldata_for_figures.RData")))
-pvalues <- get(load(file = file.path(path_data, "pvalues_for_figure_3.RData")))
+pvalues <- get(load(file = file.path(path_data, "pvalues_for_figure_4.RData")))
 
 
 
