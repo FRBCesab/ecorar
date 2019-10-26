@@ -23,16 +23,26 @@ pkgs <- c(
   "cowplot",
   "grid",
   "gridExtra",
+  "ape",
+  "treeio",
   "sp",
   "rgdal",
   "rgeos",
   "raster",
   "RColorBrewer",
-  "leaflet"
+  "leaflet",
+  "BiocManager"
 )
 
 nip <- pkgs[!(pkgs %in% installed.packages())]
 nip <- lapply(nip, install.packages, dependencies = TRUE)
+
+
+
+#' ----------------------------------------------------------------------------- @InstallBioManagerLibs
+
+
+if (!("ggtree" %in% installed.packages())) { BiocManager::install("ggtree") }
 
 
 
@@ -100,13 +110,15 @@ rm(list = c("dir_names", "dir_vars", "dirs"))
 fig_names <- c(
   "Figure_1",
   "Figure_2",
-  "Figure_3"
+  "Figure_3",
+  "Figure_4"
 )
 
 fig_vars  <- c(
   "figname1",
   "figname2",
-  "figname3"
+  "figname3",
+  "figname4"
 )
 
 figs <- lapply(
@@ -159,14 +171,10 @@ color_common  <- "#e7b800"             # ~ Orange
 color_classes <- c(color_common, color_avg, color_rare)
 names(color_classes) <- classes
 
-alpha         <- "88"
-
 color_silh    <- "#777777"
-
 light_grey    <- "#888888"
 dark_grey     <- "#333333"
 par_fg        <- "#666666"
-
 color_ocean   <- "#95d8eb"
 
 color_distinctiveness <- RColorBrewer::brewer.pal(name = "YlGnBu", n = 9)
@@ -180,6 +188,7 @@ color_iucn_bg <- c("#aaaaaa", "#026666", "#c53131")
 color_iucn_fg <- c("#333333", "#f7f7f7", "#f6c8c8")
 names(color_iucn_bg) <- names(color_iucn_fg) <- iucn_status
 
+alpha      <- "88"
 par_family <- "serif"
 
 
@@ -202,7 +211,7 @@ proj4 <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 
 
-#'  -------------------------------------------------------------------------   @Fig3Parameters
+#'  -------------------------------------------------------------------------   @Fig4Parameters
 
 
 jitter_fac <- c(15, 7, 5)
@@ -239,7 +248,7 @@ border              <- spTransform(border, proj4string(study))
 
 
 
-#'  -------------------------------------------------------------------------   @LoadData
+#'  -------------------------------------------------------------------------   @LoadAllData
 
 
 datas   <- get(load(file = file.path(path_data, "alldata_for_figures.RData")))
