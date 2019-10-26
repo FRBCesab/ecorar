@@ -1,12 +1,12 @@
 #' --------------------------------------------------------------------------   @Header
 #'
-#' @title Figure 3 - Panel of boxplots of threats
+#' @title Figure 4 - Panel of Threats Boxplots
 #'
 #' @description
 #' This R script...
 #'
-#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr}
-#' @author Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
+#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr},
+#'         Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
 #'
 #' @date 2019/08/05
 #'

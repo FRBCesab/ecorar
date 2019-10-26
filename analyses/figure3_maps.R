@@ -1,12 +1,12 @@
 #' --------------------------------------------------------------------------   @Header
 #'
-#' @title Figure 1 - Panel of Pcoa scatterplots
+#' @title Figure 3 - Panel of Species Richness
 #'
 #' @description
 #' This R script...
 #'
 #' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr}
-#' @author Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
+#'         Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
 #'
 #' @date 2019/08/05
 #'
