@@ -23,7 +23,7 @@ for (horizon in cc_horizons) {
 
 
   png(
-    file      = file.path(path_figs, paste0(figname3, "_", horizon, ".png")),
+    file      = file.path(path_figs, paste0(figname4, "_", horizon, ".png")),
     width     = 12.00,
     height    =  7.00,
     units     = "in",
@@ -365,3 +365,10 @@ for (horizon in cc_horizons) {
   dev.off()
 
 } # e_o cc_horizons
+
+
+
+#'  -------------------------------------------------------------------------   @ResetOptionsParameters
+
+
+options(warn = 0)

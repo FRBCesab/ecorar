@@ -25,7 +25,7 @@ let <- 1
 
 
 png(
-  file      = file.path(path_figs, paste0(figname2, ".png")),
+  file      = file.path(path_figs, paste0(figname3, ".png")),
   width     = 12.00 * 2,
   height    =  5.25 * 3,
   units     = "in",
