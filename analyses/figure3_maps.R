@@ -374,7 +374,7 @@ for (taxa in taxas) {
           ifelse(
             vars_richness[j] == "D75R75",
             "ecologically rare ",
-            "common "
+            "ecologically common "
           )
         ),
         tolower(taxa),
