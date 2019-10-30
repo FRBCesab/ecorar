@@ -25,7 +25,7 @@ for (horizon in cc_horizons) {
   png(
     file      = file.path(path_figs, paste0(figname4, "_", horizon, ".png")),
     width     = 12.00,
-    height    =  7.00,
+    height    =  5.00,
     units     = "in",
     res       = 600,
     pointsize = 18
@@ -47,10 +47,10 @@ for (horizon in cc_horizons) {
     fg       = par_fg,
     col      = par_fg,
     col.axis = par_fg,
-    cex.axis = 0.75
+    cex.axis = 0.70
   )
 
-  par(mfcol = c(2, 5))
+  par(mfcol = c(length(taxas), length(threats_vars) + 1))
 
 
 
@@ -151,7 +151,7 @@ for (horizon in cc_horizons) {
 
     if (taxa == "mammals") {
 
-      mtext(text = "IUCN status (%)", side = 3, font = 2, cex = 0.85)
+      mtext(text = "IUCN status (%)", side = 3, font = 2, cex = 0.65)
 
     }
 
@@ -167,7 +167,7 @@ for (horizon in cc_horizons) {
       ysize = 0.20,
       alpha = 1,
       color = color_silh,
-      AR    = 0.5
+      AR    = 0.6
     )
 
   } # e_o taxas
@@ -196,8 +196,13 @@ for (horizon in cc_horizons) {
     }
 
     subdatas <- datas[!is.na(datas[ , colname]), c("class", "dr_class", colname)]
+    subdatas <- subdatas[subdatas[ , "dr_class"] %in% classes, ]
 
+    if (threat == "targetmet_percentagecover") {
 
+      subdatas <- subdatas[subdatas[ , threat] <= 100, ]
+
+    }
 
     for (taxa in taxas) {
 
@@ -217,13 +222,82 @@ for (horizon in cc_horizons) {
 
 
 
+#'  -------------------------------------------------------------------------   @ComputePvalue
+
+      dat     <- ssubdatas
+      colnames(dat)[ncol(dat)] <- "values"
+
+      mod     <- aov(values ~ dr_class, data = dat)
+      posthoc <- TukeyHSD(x = mod, which = "dr_class", conf.level = 0.95)
+      posthoc <- posthoc$dr_class
+
+      vars <- strsplit(rownames(posthoc), "-")
+
+      pval <- data.frame(
+        taxa             = taxa,
+        threat           = colname,
+        var1             = unlist(lapply(vars, function(x) x[1])),
+        var2             = unlist(lapply(vars, function(x) x[2])),
+        pval             = posthoc[ , "p adj"],
+        row.names        = NULL,
+        stringsAsFactors = FALSE
+      )
+
+      dat <- data.frame()
+      for (i in 1:nrow(pval)) {
+
+        tmp <- rbind(pval[i, ], pval[i, ])
+        dat <- rbind(dat, tmp)
+
+      }
+
+      for (i in seq(2, nrow(dat), 2)) {
+
+        xx <- dat[i, "var1"] ; yy <- dat[i, "var2"]
+        dat[i, "var1"] <- yy ; dat[i, "var2"] <- xx
+
+      }
+
+      pval <- data.frame()
+
+      for (classe in classes) {
+
+        tmp <- dat[dat[ , "var1"] == classe , ]
+
+        xxx <- NULL
+
+        for (i in 1:nrow(tmp)) {
+
+          if (tmp[i, "pval"] < 0.05) { xxx <- c(xxx, tmp[i, "var2"]) }
+
+        }
+
+        xxx <- gsub("D75R75", "a", xxx)
+        xxx <- gsub("AVG", "b", xxx)
+        xxx <- gsub("D25R25", "c", xxx)
+
+        xxx <- paste0(sort(xxx), collapse = ", ")
+
+        tmp <- data.frame(
+          taxa             = taxa,
+          threat           = colname,
+          dr_class         = classe,
+          signif           = xxx,
+          row.names        = NULL,
+          stringsAsFactors = FALSE
+        )
+
+        pval <- rbind(pval, tmp)
+      }
+
+
 #'  -------------------------------------------------------------------------   @EmptyPlot
 
 
-      xmin <- min(subdatas[ , colname])
-      xmax <- max(subdatas[ , colname])
+      xmin <- min(subdatas[ , colname], na.rm = TRUE)
+      xmax <- max(subdatas[ , colname], na.rm = TRUE)
 
-      xmax <- xmax + (xmax - xmin) * 0.15
+      xmax <- xmax + (xmax - xmin) * 0.22
 
       plot(0,
         xlim = c(xmin, xmax),
@@ -295,7 +369,7 @@ for (horizon in cc_horizons) {
 #'  -------------------------------------------------------------------------   @AddVerticalLineCC
 
 
-        if (comp > 8) {
+        if (threat == "climate_change") {
 
           abline(v = 0, lwd = 1, lty = 2)
 
@@ -303,23 +377,17 @@ for (horizon in cc_horizons) {
 
 
 
-#'  -------------------------------------------------------------------------   @Addpvalues
+#'  -------------------------------------------------------------------------   @AddPvalues
 
 
-        pval <- pvalues[
-          which(
-            pvalues[ , "taxa"]     == taxa &
-            pvalues[ , "threat"]   == threat &
-            pvalues[ , "dr_class"] == classe
-          ), "signif"
-        ]
+        p_val <- pval[which(pval[ , "dr_class"] == classe), "signif"]
 
         if (length(pval) > 0) {
 
           text(
             x      = max(x_coords),
             y      = which(classes == classe),
-            labels = pval,
+            labels = p_val,
             cex    = 0.85,
             font   = 2,
             pos    = 4
@@ -352,8 +420,9 @@ for (horizon in cc_horizons) {
           text = threats_labs[which(threats_vars == threat)],
           side = 3,
           font = 2,
-          cex  = 0.85
+          cex  = 0.65
         )
+
       }
 
       comp <- comp + 1

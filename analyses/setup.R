@@ -160,10 +160,10 @@ vars_richness  <- c("TD_sp", "D75R75", "D25R25")
 cc_horizons    <- c("2041_2060", "2061_2080")
 
 threats_vars   <- c(
-  "humanfootprint", "hdi", "climate_change", "targetmet_percentagecover"
+  "humanfootprint", "hdi", "conflict", "climate_change", "targetmet_percentagecover"
 )
 threats_labs   <- c(
-  "Human Footprint", "Mean HDI", "Climate change (%)", "Target achievement (%)"
+  "Human footprint", "HDI", "Number of conflicts", "Climate change (%)", "Target achievement (%)"
 )
 
 iucn_status    <- c("NE", "LC", "TH")
@@ -275,7 +275,6 @@ estimated_d <- get(
 
 
 datas   <- get(load(file = file.path(path_data, "alldata_for_figures.RData")))
-pvalues <- get(load(file = file.path(path_data, "pvalues_for_figure_4.RData")))
 
 
 
