@@ -367,18 +367,18 @@ for (taxa in taxas) {
       x       = xstart + ((xleft - xstart) / 2),
       y       = ybottom + 350000,
       labels  = paste0(
-        "NUMBER OF ",
+        "Number of ",
         ifelse(
           vars_richness[j] == "TD_sp",
-          "TOTAL ",
+          "total ",
           ifelse(
             vars_richness[j] == "D75R75",
-            "RARE ",
-            "COMMON "
+            "ecologically rare ",
+            "common "
           )
         ),
-        toupper(taxa),
-        " SPECIES"
+        tolower(taxa),
+        " species"
       ),
       pos     = 3,
       col     = par()$col.axis,
