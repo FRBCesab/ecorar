@@ -268,7 +268,7 @@ for (horizon in cc_horizons) {
 
         for (i in 1:nrow(tmp)) {
 
-          if (tmp[i, "pval"] < 0.05) { xxx <- c(xxx, tmp[i, "var2"]) }
+          if (tmp[i, "pval"] >= 0.05) { xxx <- c(xxx, tmp[i, "var2"]) }
 
         }
 
