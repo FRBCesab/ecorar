@@ -120,14 +120,16 @@ fig_names <- c(
   "Figure_1",
   "Figure_2",
   "Figure_3",
-  "Figure_4"
+  "Figure_4",
+  "Figure_SI"
 )
 
 fig_vars  <- c(
   "figname1",
   "figname2",
   "figname3",
-  "figname4"
+  "figname4",
+  "fignameSI"
 )
 
 figs <- lapply(
