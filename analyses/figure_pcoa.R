@@ -41,6 +41,14 @@ for (taxa in taxas) {
     scale_fill_gradientn(colours = color_distinctiveness)
 
   
+  ## Get Plot Area Coordinates ----
+  
+  x_lims <- ggplot_build(gplot)$layout$panel_params[[1]]$x.range
+  lag_x  <- diff(x_lims) * 0.04
+  y_lims <- ggplot_build(gplot)$layout$panel_params[[1]]$y.range
+  lag_y  <- diff(y_lims) * 0.04
+  
+  
   ## Add Convex Hulls ----
 
   for (classe in classes) {
@@ -65,11 +73,7 @@ for (taxa in taxas) {
     labs(x = paste("PCoA axis", pcoa_axes[[taxa]][1]),
          y = paste("PCoA axis", pcoa_axes[[taxa]][2])) +
     
-    theme_bw() +
-    
-    theme(text       = element_text(par_family), 
-          axis.text  = element_text(size = 18),
-          axis.title = element_text(size = 20))
+    gg_theme
 
 
   ## Add Din Legend (right panel) ----
@@ -85,13 +89,8 @@ for (taxa in taxas) {
 
     gplot <- gplot +
 
-      theme(
-        legend.position    = c(0.88, 0.88),
-        legend.title       = element_text(size = 16),
-        legend.text        = element_text(size = 14),
-        legend.background  = element_rect(fill = "white", color = light_grey)
-      ) +
-  
+      theme(legend.position = c(0.88, 0.88)) +
+      
       labs(fill = "Distinctiveness")
   }
 
@@ -101,16 +100,19 @@ for (taxa in taxas) {
   if (taxa == "mammals") {
 
     segs <- data.frame(
-      x     = rep(0.12, 3),
-      xend  = rep(0.16, 3),
-      y     = seq(0.47, 0.43, by = -0.02),
+      x     = rep(0.21, 3),
+      xend  = rep(0.25, 3),
+      y     = seq(0.47, 0.42, by = -0.025),
       label = classes_labs
     )
 
     gplot <- gplot +
 
-      geom_rect(aes(xmin = 0.11, xmax = 0.25, ymin = 0.42, ymax = 0.48),
-                fill = "white", color = light_grey, size = 0.25)
+      geom_rect(aes(xmin = segs[1, "x"] - 0.02, 
+                    xmax = segs[1, "xend"] + 0.16, 
+                    ymin = 0.40, 
+                    ymax = 0.49),
+                fill = "white", color = "white", size = 0.25)
 
     for (i in 1:nrow(segs)) {
 
@@ -120,19 +122,30 @@ for (taxa in taxas) {
                xend = segs[i, "xend"], yend = segs[i, "y"], size = 1,
                color = color_classes[i]) +
 
-      annotate(geom = "text",x = segs[i, "xend"] + 0.01, y = segs[i, "y"], 
-               label = segs[i, "label"], hjust = "left", size = 6,
-               family  = par_family)
+      annotate(geom = "text", x = segs[i, "xend"] + 0.01, y = segs[i, "y"], 
+               label = segs[i, "label"], hjust = "left", size = 8.5,
+               family  = par_family, colour = dark_grey, fontface = 1)
     }
   }
+
+
+  ## Add Sub-Plot Label ----
+  
+  label <- ifelse(taxa == "mammals", "a", "b")
+    
+  gplot <- gplot +
+
+    annotate(geom = "text", x = x_lims[1] + lag_x, y = y_lims[2] - lag_y, 
+             label = label, size = 12, family  = par_family, fontface = 2, 
+             colour = dark_grey)
 
 
   ## Add Taxa Silhouette ----
 
   gplot <- cowplot::ggdraw(gplot) +
 
-    cowplot::draw_image(image = icons[[taxa]], 
-                        x     = ifelse(taxa == "birds", -0.32, -0.30),
+    cowplot::draw_image(image = icons[[taxa]],
+                        x     = ifelse(taxa == "birds", -0.32, -0.25),
                         y     = ifelse(taxa == "birds",  0.40,  0.40),
                         scale = ifelse(taxa == "birds",  0.12,  0.15))
 

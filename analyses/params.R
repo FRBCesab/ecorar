@@ -54,6 +54,16 @@ alpha      <- "88"
 par_family <- "serif"
 
 
+gg_theme <- theme_bw() +
+  theme(text               = element_text(par_family, colour = dark_grey), 
+        axis.text          = element_text(size = 24, colour = dark_grey),
+        axis.title         = element_text(size = 24, face = 2),
+        legend.title       = element_text(size = 24, face = 2),
+        legend.text        = element_text(size = 24),
+        legend.background  = element_rect(fill = "white", color = "white"),
+        legend.margin      = margin(0.5, 0.5, 0.5, 0.5, "cm")
+  )
+
 ## Define Figure 1 Parameters ----
 
 #...
