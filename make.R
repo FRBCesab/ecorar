@@ -1,34 +1,23 @@
-#' --------------------------------------------------------------------------   @Header
+#' Run the Entire Project
 #'
-#' @title Run project
+#' This script runs the entire project and produces all figures presents in the
+#' Loiseau, Mouquet et al.'s 2020 paper.
 #'
-#' @description
-#' Run project.
+#' @author Nicolas Casajus, \email{nicolas.casajus@@fondationbiodiversite.fr},
+#'         Nicolas Loiseau, \email{nicolas.loiseau1@@gmail.com},
+#'         Nicolas Mouquet, \email{nicolas.mouquet@@cnrs.fr}
 #'
-#' @author Nicolas CASAJUS, \email{nicolas.casajus@@fondationbiodiversite.fr}
-#' @author Nicolas LOISEAU, \email{nicolas.loiseau1@@gmail.com}
-#'
-#' @date 2019/10/25
-#'
-#' --------------------------------------------------------------------------   @Header
+#' @date 2020/06/10
 
 
+if (!("here" %in% installed.packages())) install.packages("here")
 
-rm(list = ls())
+source(here::here("analyses", "setup.R"))
+source(here::here("analyses", "params.R"))
+source(here::here("analyses", "imports.R"))
 
-
-
-#'  -------------------------------------------------------------------------   @ProjectSetup
-
-
-source(file.path("analyses", "setup.R"))
-
-
-
-#'  -------------------------------------------------------------------------   @Figure1
-
-
-# source(file.path("analyses", "figure1_pcoa.R"))
+figname <- "Figure_2"
+source(here::here("analyses", "figure_pcoa.R"))
 
 
 
@@ -56,4 +45,4 @@ source(file.path("analyses", "setup.R"))
 #'  -------------------------------------------------------------------------   @Figure4
 
 
-source(file.path("analyses", "figureSI_maps.R"))
+# source(file.path("analyses", "figureSI_maps.R"))
