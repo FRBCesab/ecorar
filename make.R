@@ -16,33 +16,13 @@ source(here::here("analyses", "setup.R"))
 source(here::here("analyses", "params.R"))
 source(here::here("analyses", "imports.R"))
 
+figname <- "Figure_1"
+source(here::here("analyses", "figure_biplot.R"))
+
 figname <- "Figure_2"
 source(here::here("analyses", "figure_pcoa.R"))
 
+# figname <- "Figure_3"
+# source(here::here("analyses", "figure_phylo.R"))
 
 
-#'  -------------------------------------------------------------------------   @Figure2
-
-
-# source(file.path("analyses", "figure2_phylo.R"))
-
-
-
-#'  -------------------------------------------------------------------------   @Figure3
-
-
-# source(file.path("analyses", "figure3_maps.R"))
-
-
-
-#'  -------------------------------------------------------------------------   @Figure4
-
-
-# source(file.path("analyses", "figure4_boxplots.R"))
-
-
-
-#'  -------------------------------------------------------------------------   @Figure4
-
-
-# source(file.path("analyses", "figureSI_maps.R"))
