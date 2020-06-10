@@ -1,34 +1,53 @@
 Package: ecorar
-Type: Package
 Title: Research compendium of the Loiseau, Mouquet et al.'s 2020 paper
-Version: 1.0-0
-Date: 2019-10-25
-Encoding: UTF-8
-Author: Nicolas Casajus [cre, aut], Nicolas Loiseau [aut], Nicolas Mouquet [aut].
-Maintainer: Nicolas Casajus <nicolas.casajus@fondationbiodiversite.fr>
+Version: 0.0.0.9000
+Author: c(
+    person(
+        given  = "Nicolas",
+        family = "Casajus",
+        role   = c("aut", "cre"),
+        email  = "nicolas.casajus@fondationbiodiversite.fr"
+    ),
+    person(
+        given  = "Nicolas",
+        family = "Loiseau",
+        role   = "aut",
+        email  = "nicolas.loiseau1@gmail.com"
+    ),
+    person(
+        given  = "Nicolas",
+        family = "Mouquet",
+        role   = "aut",
+        email  = "nicolas.mouquet@cnrs.fr"
+    ))
 Description: Research compendium of the Loiseau, Mouquet et al. (2020) paper
+URL: https://github.com/frbcesab/ecorar
+BugReports: https://github.com/frbcesab/ecorar/issues
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
 Depends:
-    R (>= 3.6.0)
+    ggplot2
 Imports:
     grDevices,
     graphics,
+    here,
     utils,
     png,
     maps,
     leaflet,
-    ggplot2,
     cowplot,
     grid,
     gridExtra,
+    ape,
+    treeio,
+    tidytree,
     sp,
     rgdal,
     rgeos,
     raster,
-    RColorBrewer
-Suggests:
-    knitr,
-    rmarkdown,
-    testthat
-License: GPL-2
-VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+    RColorBrewer,
+    BiocManager,
+    usethis
