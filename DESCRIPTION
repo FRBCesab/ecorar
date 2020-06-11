@@ -32,12 +32,12 @@ Depends:
     ggplot2,
     raster
 Imports:
-    grDevices,
-    graphics,
+    devtools,
+    usethis,
+    BiocManager,
     here,
-    utils,
     png,
-    maps,
+    RColorBrewer,
     leaflet,
     cowplot,
     grid,
@@ -47,8 +47,4 @@ Imports:
     tidytree,
     sp,
     rgdal,
-    rgeos,
-    RColorBrewer,
-    BiocManager,
-    usethis,
     vioplot
