@@ -16,17 +16,17 @@ source(here::here("analyses", "setup.R"))
 source(here::here("analyses", "params.R"))
 source(here::here("analyses", "imports.R"))
 
-# figname <- "Figure_1"
-# source(here::here("analyses", "figure_biplot.R"))
-# 
-# figname <- "Figure_2"
-# source(here::here("analyses", "figure_pcoa.R"))
-# 
-# figname <- "Figure_3"
-# source(here::here("analyses", "figure_phylo.R"))
-# 
-# figname <- "Figure_4"
-# source(here::here("analyses", "figure_maps.R"))
+figname <- "Figure_1"
+source(here::here("analyses", "figure_biplot.R"))
+
+figname <- "Figure_2"
+source(here::here("analyses", "figure_pcoa.R"))
+
+figname <- "Figure_3"
+source(here::here("analyses", "figure_phylo.R"))
+
+figname <- "Figure_4"
+source(here::here("analyses", "figure_maps.R"))
 
 figname <- "Figure_5"
 source(here::here("analyses", "figure_violins.R"))
