@@ -1,6 +1,6 @@
 #' Run the Entire Project
 #'
-#' This script runs the entire project and produces all figures presents in the
+#' This script runs the entire project and produces all figures present in the
 #' Loiseau, Mouquet et al.'s 2020 paper.
 #'
 #' @author Nicolas Casajus, \email{nicolas.casajus@@fondationbiodiversite.fr},
@@ -24,7 +24,9 @@ source(here::here("analyses", "imports.R"))
 # 
 # figname <- "Figure_3"
 # source(here::here("analyses", "figure_phylo.R"))
+# 
+# figname <- "Figure_4"
+# source(here::here("analyses", "figure_maps.R"))
 
-figname <- "Figure_4"
-source(here::here("analyses", "figure_maps.R"))
-
+figname <- "Figure_5"
+source(here::here("analyses", "figure_violins.R"))

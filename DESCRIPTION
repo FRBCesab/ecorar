@@ -50,4 +50,5 @@ Imports:
     rgeos,
     RColorBrewer,
     BiocManager,
-    usethis
+    usethis,
+    vioplot

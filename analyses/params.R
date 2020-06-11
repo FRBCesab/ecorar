@@ -18,10 +18,10 @@ classes_labs  <- c("Common", "Average", "Rare")
 vars_richness <- c("TD_sp", "D75R75", "D25R25")
 cc_horizons   <- c("2041_2060", "2061_2080")
 iucn_status   <- c("NE", "LC", "TH")
-threats_vars  <- c("humanfootprint", "hdi", "conflict", "climate_change",
+threats_vars  <- c("humanfootprint", "hdi", "climate_change",
                    "targetmet_percentagecover")
-threats_labs  <- c("Human footprint", "HDI", "Number of conflicts",
-                   "Climate change (%)", "Target achievement (%)")
+threats_labs  <- c("Human footprint", "HDI", "Climate change (%)", 
+                   "Target achievement (%)")
 
 
 ## Define Color Values ----
