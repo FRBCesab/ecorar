@@ -29,7 +29,8 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Depends:
-    ggplot2
+    ggplot2,
+    raster
 Imports:
     grDevices,
     graphics,
@@ -47,7 +48,6 @@ Imports:
     sp,
     rgdal,
     rgeos,
-    raster,
     RColorBrewer,
     BiocManager,
     usethis

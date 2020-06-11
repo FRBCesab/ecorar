@@ -55,8 +55,8 @@ plotRVB <- function(
   ### List of Brewer Palettes                                                   ----------
 
   rampcolors <- data.frame(
-    palette          = rownames(brewer.pal.info),
-    maxcolors        = brewer.pal.info[ , "maxcolors"],
+    palette          = rownames(RColorBrewer::brewer.pal.info),
+    maxcolors        = RColorBrewer::brewer.pal.info[ , "maxcolors"],
     stringsAsFactors = FALSE
   )
 
@@ -123,12 +123,12 @@ plotRVB <- function(
 
     colors <- c(
       "#aaaaaa",
-      colorRampPalette(brewer.pal(name = "YlOrRd", n = 9))(255)
+      colorRampPalette(RColorBrewer::brewer.pal(name = "YlOrRd", n = 9))(255)
     )
 
   } else {
 
-    colors <- colorRampPalette(brewer.pal(name = "YlOrRd", n = 9))(255)
+    colors <- colorRampPalette(RColorBrewer::brewer.pal(name = "YlOrRd", n = 9))(255)
 
   }
 
@@ -170,7 +170,7 @@ plotRVB <- function(
 
   ### Plot the raster                                                           ----------
 
-  plotRGB(
+  raster::plotRGB(
     x, r = 1, g = 2, b = 3,
     zlim    = zlim,
     alpha   = alpha,

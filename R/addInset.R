@@ -39,7 +39,7 @@ addInset <- function(x = NULL, region = NULL, where = NULL, zoom = 2, title = NU
 
   extent(inset) <- c(xmin, xmax, ymin, ymax)
 
-  plotRGB(
+  raster::plotRGB(
     inset, r = 1, g = 2, b = 3,
     colNA   = "#c0e8f3",
     axes    = FALSE,
