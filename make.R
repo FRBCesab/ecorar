@@ -21,8 +21,10 @@ source(here::here("analyses", "imports.R"))
 # 
 # figname <- "Figure_2"
 # source(here::here("analyses", "figure_pcoa.R"))
+# 
+# figname <- "Figure_3"
+# source(here::here("analyses", "figure_phylo.R"))
 
-figname <- "Figure_3"
-source(here::here("analyses", "figure_phylo.R"))
-
+figname <- "Figure_4"
+source(here::here("analyses", "figure_maps.R"))
 
