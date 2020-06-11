@@ -1,12 +1,14 @@
+#' Panel of Two Phylogenetic Trees
 #'
-#'
-#'
+#' This script produces the Loiseau, Mouquet et al.'s 2020 paper Figure 2, i.e.
+#' a panel of two phylogenetic trees (mammals on the left and birds on the right)
+#' representing phylogenetic spaces.
 #'
 #' @author Nicolas Casajus, \email{nicolas.casajus@@fondationbiodiversite.fr},
 #'         Nicolas Loiseau, \email{nicolas.loiseau1@@gmail.com},
 #'         Nicolas Mouquet, \email{nicolas.mouquet@@cnrs.fr}
 #'
-#' @date 2020/06/10
+#' @date 2020/06/11
 
 
 ## Parameters ----
