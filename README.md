@@ -32,6 +32,4 @@ Clone the repository and run this command in R/RStudio:
 source("make.R")
 ```
 
-You can customize figures by editing `analyses/setup.R`.
-
 Cheers!
