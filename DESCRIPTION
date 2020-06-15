@@ -30,6 +30,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Depends:
     ggplot2,
+    sp,
     raster
 Imports:
     devtools,
@@ -45,6 +46,5 @@ Imports:
     ape,
     treeio,
     tidytree,
-    sp,
     rgdal,
     vioplot

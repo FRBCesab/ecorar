@@ -31,7 +31,6 @@ addInset <- function(x = NULL, region = NULL, where = NULL, zoom = 2, title = NU
   inset  <- crop(x, region)
   box    <- as(extent(inset), "SpatialPolygons")
 
-
   xmin <- where[1]
   ymin <- where[2]
   xmax <- xmin + (extent(inset)[2] - extent(inset)[1]) * zoom
@@ -115,7 +114,7 @@ addInset <- function(x = NULL, region = NULL, where = NULL, zoom = 2, title = NU
     )
   }
 
-  plot(box, add = TRUE, border = "white", lwd = 3, col = "transparent")
+  sp::plot(box, add = TRUE, border = "white", lwd = 3, col = "transparent")
 
 
   # plot(ocean, col = "#c0e8f3", border = NA, add = TRUE)
@@ -198,7 +197,7 @@ addInset <- function(x = NULL, region = NULL, where = NULL, zoom = 2, title = NU
     )
   }
 
-  plot(box, add = TRUE, border = par()$col, lwd = 1.5, col = "transparent")
+  sp::plot(box, add = TRUE, border = par()$col, lwd = 1.5, col = "transparent")
 
   rect(
     xleft    = xmin,

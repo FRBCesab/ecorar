@@ -91,9 +91,9 @@ addGraticules <- function(
 
     for (i in 1:length(lats)) {
 
-      parallels[[i]] <- Lines(
+      parallels[[i]] <- sp::Lines(
         list(
-          Line(
+          sp::Line(
             cbind(
               xext,
               rep(lats[i], length(xext))
@@ -104,20 +104,20 @@ addGraticules <- function(
       )
     }
 
-    parallels <- SpatialLinesDataFrame(
-      sl   = SpatialLines(
+    parallels <- sp::SpatialLinesDataFrame(
+      sl   = sp::SpatialLines(
         LinesList   = parallels,
-        proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+        proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
       ),
       data = data.frame(latitude = lats)
     )
-    parallels <- spTransform(parallels, CRSobj = prj)
+    parallels <- sp::spTransform(parallels, CRSobj = prj)
 
 
     ### PLOT PARALLELS --------------------------
 
     if (add) {
-      plot(
+      sp::plot(
         parallels,
         add = TRUE,
         col = line.color,
@@ -144,9 +144,9 @@ addGraticules <- function(
 
     for (i in 1:length(lons)) {
 
-      meridians[[i]] <- Lines(
+      meridians[[i]] <- sp::Lines(
         list(
-          Line(
+          sp::Line(
             cbind(
               rep(lons[i], length(yext)),
               yext
@@ -157,20 +157,20 @@ addGraticules <- function(
       )
     }
 
-    meridians <- SpatialLinesDataFrame(
-      sl   = SpatialLines(
+    meridians <- sp::SpatialLinesDataFrame(
+      sl   = sp::SpatialLines(
         LinesList   = meridians,
-        proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+        proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
       ),
       data = data.frame(longitude = lons)
     )
-    meridians <- spTransform(meridians, CRSobj = prj)
+    meridians <- sp::spTransform(meridians, CRSobj = prj)
 
 
     ### PLOT MERIDIANS --------------------------
 
     if (add) {
-      plot(
+      sp::plot(
         meridians,
         add = TRUE,
         col = line.color,
