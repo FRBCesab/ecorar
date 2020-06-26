@@ -55,7 +55,7 @@ for (taxa in taxas) {
     
     geom_point(size = 3) + 
     
-    scale_x_continuous(trans = "log10") + 
+    scale_x_continuous(trans = "log10", labels = scales::comma) + 
     
     scale_color_manual(values = c(color_classes, "#CCCCCC"))
   

@@ -38,6 +38,7 @@ Imports:
     BiocManager,
     here,
     png,
+    scales,
     RColorBrewer,
     leaflet,
     cowplot,
