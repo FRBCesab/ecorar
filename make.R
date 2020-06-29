@@ -30,3 +30,6 @@ source(here::here("analyses", "figure_maps.R"))
 
 figname <- "Figure_5"
 source(here::here("analyses", "figure_violins.R"))
+
+figname <- "Figure_SI"
+source(here::here("analyses", "figureSI_maps.R"))

@@ -1,5 +1,5 @@
 png(
-  file      = file.path(path_figs, paste0(fignameSI, ".png")),
+  file      = here::here("figures", paste0(figname, ".png")),
   width     = 12.00 * 1,
   height    =  5.25 * 2,
   units     = "in",
@@ -33,8 +33,7 @@ for (taxa in taxas) {
 #'  -------------------------------------------------------------------------   @ImportData2Map
 
 
-  rasters   <- readRDS(file.path(path_data, paste0(taxa, "_null.rds")))
-  rasters   <- subset(rasters, paste0(taxa, "_Null_D75R75"))
+  rasters   <- raster::raster(here::here("data", paste0(taxa, "_Null_D75R75.tif")))
 
 
   caspian_cells <- c(
@@ -108,10 +107,13 @@ for (taxa in taxas) {
 #'  -------------------------------------------------------------------------   @AddData
 
 
+  if (taxa == "mammals") breaks   <- c(-1.96, 1.96)
+  if (taxa == "birds")   breaks   <- c(0, 0.4712917)
+  
   rvb <- plotRVB2(
     x         = rasters,
     n_classes = 255,
-    breaks    = c(-1.96, 1.96),
+    breaks    = breaks,
     palettes  = list(c("#003c30", "#80cdc1"), "#ffffff", c("#dfc27d", "#543005")),
     add       = TRUE
   )

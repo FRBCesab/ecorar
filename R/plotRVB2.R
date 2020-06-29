@@ -59,13 +59,16 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
     which(x[][cells] >= breaks[2])
   )
 
-  class_by <- (
-      diff(range(x[][cells[classes[[1]]]])) +
-      diff(range(x[][cells[classes[[3]]]]))
-    ) / n_classes
+  diff_1 <- diff(range(x[][cells[classes[[1]]]]))
+  diff_2 <- diff(range(x[][cells[classes[[3]]]]))
+  
+  diff_1 <- ifelse(is.finite(diff_1), diff_1, NA)
+  diff_2 <- ifelse(is.finite(diff_2), diff_2, NA)
+  
+  class_by <- sum(c(diff_1, diff_2), na.rm = TRUE) / n_classes
 
-  colors <- list(
-    colorRampPalette(palettes[[1]])(
+  if (!is.na(diff_1)) {
+    cols_1 <- colorRampPalette(palettes[[1]])(
       length(
         seq(
           min(range(x[][cells[classes[[1]]]])),
@@ -73,9 +76,13 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
           by = class_by
         )
       ) - 1
-    ),
-    palettes[[2]],
-    colorRampPalette(palettes[[3]])(
+    )
+  } else {
+    cols_1 <- NULL
+  }
+  
+  if (!is.na(diff_2)) {
+    cols_2 <- colorRampPalette(palettes[[3]])(
       length(
         seq(
           breaks[2],
@@ -84,27 +91,33 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
         )
       ) - 1
     )
-  )
-
+  } else {
+    cols_2 <- NULL
+  }
+  
+  colors <- list(cols_1, palettes[[2]], cols_2)
 
   red <- green <- blue <- x
 
   for (i in 1:length(colors)) {
 
-    x1 <- x
-    x1[][-cells[classes[[i]]]] <- NA
-
-    hexa <- leaflet::colorNumeric(
-      palette  = colors[[i]],
-      domain   = values(x1),
-      na.color = NA
-    )
-    hexa <- hexa(values(x1))
-    rgb  <- grDevices::col2rgb(hexa)
-
-    raster::values(red)[cells[classes[[i]]]]   <- rgb[1, cells[classes[[i]]]]
-    raster::values(green)[cells[classes[[i]]]] <- rgb[2, cells[classes[[i]]]]
-    raster::values(blue)[cells[classes[[i]]]]  <- rgb[3, cells[classes[[i]]]]
+    if (length(classes[[i]])) {
+      
+      x1 <- x
+      x1[][-cells[classes[[i]]]] <- NA
+      
+      hexa <- leaflet::colorNumeric(
+        palette  = colors[[i]],
+        domain   = values(x1),
+        na.color = NA
+      )
+      hexa <- hexa(values(x1))
+      rgb  <- grDevices::col2rgb(hexa)
+      
+      raster::values(red)[cells[classes[[i]]]]   <- rgb[1, cells[classes[[i]]]]
+      raster::values(green)[cells[classes[[i]]]] <- rgb[2, cells[classes[[i]]]]
+      raster::values(blue)[cells[classes[[i]]]]  <- rgb[3, cells[classes[[i]]]]
+    }
   }
 
   ras <- stack(red, green, blue)
@@ -180,21 +193,22 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
     labels  = round(max(x[][cells]), 2),
     pos     = 1,
     col     = par()$col.axis,
-    font    = 2
-    ,
-    cex     = .65
-  )
-
-  text(
-    x       = xstart + (35000 * (length(ccolors[[1]]) + 1)),
-    y       = ybottom + 200000,
-    labels  = 0,
-    pos     = 1,
-    col     = par()$col.axis,
     font    = 2,
     cex     = .65
   )
 
+  if (!is.na(diff_1)) {
+    
+    text(
+      x       = xstart + (35000 * (length(ccolors[[1]]) + 1)),
+      y       = ybottom + 200000,
+      labels  = 0,
+      pos     = 1,
+      col     = par()$col.axis,
+      font    = 2,
+      cex     = .65
+    )
+  }
 
   text(
     x       = xstart + ((xleft - xstart) / 2),
