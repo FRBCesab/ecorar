@@ -47,6 +47,14 @@ for (taxa in taxas) {
   )
 
   rasters[][caspian_cells] <- NA
+  
+  if (taxa == "birds") {
+    temp <- raster::raster(here::here("data", "mammals_Null_D75R75.tif"))
+    temp[][caspian_cells] <- NA
+    pos <- which(!is.na(temp[]))
+    sop <- which(is.na(rasters[][pos]))
+    rasters[][pos[sop]] <- 0.46
+  }
 
 
 #'  -------------------------------------------------------------------------   @PlotOcean
