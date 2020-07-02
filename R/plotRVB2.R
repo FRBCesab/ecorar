@@ -54,9 +54,9 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
   cells <- which(!is.na(x[]))
 
   classes <- list(
-    which(x[][cells] <= breaks[1]),
+    which(x[][cells] <  breaks[1]),
     which(x[][cells] >= breaks[1] & x[][cells] <= breaks[2]),
-    which(x[][cells] >= breaks[2])
+    which(x[][cells] >  breaks[2])
   )
 
   diff_1 <- diff(range(x[][cells[classes[[1]]]]))

@@ -115,8 +115,7 @@ for (taxa in taxas) {
 #'  -------------------------------------------------------------------------   @AddData
 
 
-  if (taxa == "mammals") breaks   <- c(-1.96, 1.96)
-  if (taxa == "birds")   breaks   <- c(0, 0.4712917)
+  breaks   <- c(0, 0.6919651)
   
   rvb <- plotRVB2(
     x         = rasters,
