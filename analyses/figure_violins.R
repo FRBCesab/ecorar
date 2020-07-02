@@ -1,8 +1,7 @@
-#' Panel of Six World Maps
+#' Panel of Violin Plots
 #'
-#' This script produces the Loiseau, Mouquet et al.'s 2020 paper Figure 4, i.e.
-#' a panel of six world maps (mammals on the left and birds on the right)
-#' representing species richness.
+#' This script produces the Loiseau, Mouquet et al.'s 2020 paper Figure 5, i.e.
+#' a panel of several violin plots.
 #'
 #' @author Nicolas Casajus, \email{nicolas.casajus@@fondationbiodiversite.fr},
 #'         Nicolas Loiseau, \email{nicolas.loiseau1@@gmail.com},
@@ -55,7 +54,7 @@ for (horizon in cc_horizons) {
 
 
   comp <- 1
-  
+
   for (taxa in taxas) {
 
 
@@ -180,9 +179,9 @@ for (horizon in cc_horizons) {
       font   = 2,
       cex    = 1
     )
-    
+
     comp <- comp + 1
-    
+
   } # e_o taxas
 
 
@@ -416,7 +415,7 @@ for (horizon in cc_horizons) {
 
           x_coords <- ssubdatas[ , colname]
           x_coords <- x_coords[!is.na(x_coords)]
-          
+
           text(
             x      = max(x_coords),
             y      = which(classes == classe),
@@ -458,7 +457,7 @@ for (horizon in cc_horizons) {
         )
 
       }
-      
+
       text(
         x      = par()$usr[2] - 0.05 * (par()$usr[2] - par()$usr[1]),
         y      = par()$usr[4] - 0.04 * (par()$usr[4] - par()$usr[3]),
@@ -475,12 +474,12 @@ for (horizon in cc_horizons) {
 
 
   dev.off()
-  
+
   ## Message ----
-  
+
   usethis::ui_done(
     paste(
-      usethis::ui_value(figname), 
+      usethis::ui_value(figname),
       paste0("(", gsub("_", "-", horizon), ")"),
       "successfully exported in figures/"
     )
