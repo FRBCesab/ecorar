@@ -213,7 +213,7 @@ plotRVB2 <- function(x, n_classes = NULL, breaks = NULL, palettes = NULL,
   text(
     x       = xstart + ((xleft - xstart) / 2),
     y       = ybottom + 200000,
-    labels  = "Null Model",
+    labels  = "SES",
     pos     = 3,
     col     = par()$col.axis,
     font    = 2,
