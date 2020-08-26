@@ -143,9 +143,11 @@ for (horizon in cc_horizons) {
 
 
     par(mgp = c(0.5, 0, 0))
-    axis(side = 2, at = 1:3, labels = paste(classes_labs, c("†", "¶", "§")), lwd = 0, font = 2, cex.axis = 0.85)
+    axis(side = 2, at = 1:3, labels = paste(classes_labs, c("*", "#", "+")), lwd = 0, font = 2, cex.axis = 0.85)
 
-
+    #xxx <- gsub("D75R75", "§", xxx)
+    #xxx <- gsub("AVG", "#", xxx)
+    #xxx <- gsub("D25R25", "*", xxx)
 
 #'  -------------------------------------------------------------------------   @AddTitle
 
@@ -281,9 +283,10 @@ for (horizon in cc_horizons) {
 
         }
 
-        xxx <- gsub("D75R75", "§", xxx)
-        xxx <- gsub("AVG", "¶", xxx)
-        xxx <- gsub("D25R25", "†", xxx)
+        xxx <- gsub("D75R75", "+", xxx)
+        xxx <- gsub("AVG", "#", xxx)
+        xxx <- gsub("D25R25", "*", xxx)
+        
         # xxx <- gsub("D75R75", "*", xxx)
         # xxx <- gsub("AVG", "*", xxx)
         # xxx <- gsub("D25R25", "*", xxx)
