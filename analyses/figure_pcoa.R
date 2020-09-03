@@ -70,8 +70,8 @@ for (taxa in taxas) {
 
   gplot <- gplot +
     
-    labs(x = paste("PCA axis", pcoa_axes[[taxa]][1]),
-         y = paste("PCA axis", pcoa_axes[[taxa]][2])) +
+    labs(x = paste("PCoA axis", pcoa_axes[[taxa]][1]),
+         y = paste("PCoA axis", pcoa_axes[[taxa]][2])) +
     
     gg_theme
 
